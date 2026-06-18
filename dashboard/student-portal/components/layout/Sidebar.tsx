@@ -2,8 +2,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  House, Map, Building2, Code2, TrendingUp, Trophy, Send,
-  Shield, HelpCircle, BookOpen,
+  House, Map, Building2, Code2, TrendingUp, Trophy, Send, Bot,
+  Shield, HelpCircle,
 } from "lucide-react";
 
 const navItems = [
@@ -14,16 +14,14 @@ const navItems = [
   { icon: TrendingUp, label: "My Progress", href: "/progress" },
   { icon: Trophy, label: "Leaderboard", href: "/leaderboard" },
   { icon: Send, label: "Submit Experience", href: "/submit" },
+  { icon: Bot, label: "Ask Athena", href: "/athena" },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside
-      className="fixed left-0 top-14 bottom-0 bg-white border-r border-gray-200 flex flex-col"
-      style={{ width: "216px", zIndex: 40 }}
-    >
+    <aside className="fixed left-0 top-14 bottom-0 w-[216px] bg-white border-r border-gray-200 flex flex-col z-40">
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navItems.map(({ icon: Icon, label, href }) => {
           const isActive = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
@@ -39,6 +37,9 @@ export default function Sidebar() {
             >
               <Icon className="w-4 h-4 shrink-0" />
               {label}
+              {label === "Ask Athena" && (
+                <span className="ml-auto text-[10px] font-semibold bg-blue-600 text-white rounded px-1.5 py-0.5">AI</span>
+              )}
             </Link>
           );
         })}

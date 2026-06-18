@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Search, CheckCircle, XCircle } from "lucide-react";
+import { Search, CheckCircle, XCircle, Zap } from "lucide-react";
 
 const questions = [
   { id: 1, title: "Reverse a Linked List", company: "Google", companyColor: "bg-blue-600", topic: "Linked List", diff: "Easy", xp: 10, status: "solved" },
@@ -113,10 +113,8 @@ export default function PracticePage() {
             </div>
             <div className="text-sm text-gray-600">{q.topic}</div>
             <div className="flex items-center gap-1.5">
-              <div className="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center">
-                <span className="text-amber-600 text-[10px] font-bold">$</span>
-              </div>
-              <span className="text-sm font-medium text-gray-700">{q.xp}</span>
+              <Zap className="w-4 h-4 fill-amber-400 text-amber-500" />
+              <span className="text-sm font-medium text-amber-600">{q.xp}</span>
             </div>
             <div>
               {q.status === "solved" ? (

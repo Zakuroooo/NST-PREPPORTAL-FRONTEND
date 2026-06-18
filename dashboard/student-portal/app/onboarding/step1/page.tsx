@@ -1,8 +1,9 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Code2, Monitor, Brain, BarChart2, Cloud, Star, CheckCircle } from "lucide-react";
+import { Code2, Monitor, Brain, BarChart2, Cloud, Layers, CheckCircle } from "lucide-react";
 import Link from "next/link";
+import Stepper from "@/components/onboarding/Stepper";
 
 const domains = [
   { icon: Code2, label: "SDE / Software Engineering" },
@@ -10,21 +11,8 @@ const domains = [
   { icon: Brain, label: "Data Science / ML" },
   { icon: BarChart2, label: "Data Analyst" },
   { icon: Cloud, label: "DevOps / Cloud" },
-  { icon: Star, label: "Other" },
+  { icon: Layers, label: "Other" },
 ];
-
-function Stepper({ step }: { step: number }) {
-  return (
-    <div className="flex items-center justify-center gap-2 mb-8">
-      {[1, 2, 3, 4, 5].map((s) => (
-        <div key={s} className="flex items-center gap-2">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${s <= step ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-500"}`}>{s}</div>
-          {s < 5 && <div className={`w-10 h-0.5 ${s < step ? "bg-blue-600" : "bg-gray-200"}`} />}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 export default function Step1() {
   const [selected, setSelected] = useState<string[]>([]);
@@ -36,7 +24,13 @@ export default function Step1() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center px-4 py-12">
-      <Stepper step={1} />
+      {/* Logo */}
+      <div className="flex items-center gap-2 mb-10">
+        <div className="bg-blue-700 rounded px-2 py-1 text-white font-bold text-xs">NST</div>
+        <span className="font-bold text-gray-900 text-sm">PlacePrep</span>
+      </div>
+
+      <Stepper currentStep={1} totalSteps={4} />
       <p className="text-xs text-gray-400 mb-8">Step 1 of 4</p>
       <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">What are you preparing for?</h1>
       <p className="text-sm text-gray-500 text-center mb-8">Select all domains you want to cover</p>
@@ -51,7 +45,7 @@ export default function Step1() {
               className={`relative flex flex-col items-center justify-center gap-3 p-6 rounded-xl border-2 text-sm font-medium transition-all ${
                 isSelected
                   ? "bg-blue-50 border-blue-500 text-blue-700"
-                  : "bg-white border-gray-200 text-gray-700 hover:border-gray-300"
+                  : "bg-white border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50"
               }`}
             >
               {isSelected && (
@@ -69,12 +63,16 @@ export default function Step1() {
           onClick={() => selected.length > 0 && router.push("/onboarding/step2")}
           disabled={selected.length === 0}
           className={`w-full py-3 rounded-lg text-sm font-semibold transition-colors ${
-            selected.length > 0 ? "bg-gray-900 text-white hover:bg-gray-800" : "bg-gray-200 text-gray-400 cursor-not-allowed"
+            selected.length > 0
+              ? "bg-gray-900 text-white hover:bg-gray-800"
+              : "bg-gray-100 text-gray-400 cursor-not-allowed"
           }`}
         >
           Continue
         </button>
-        <Link href="/onboarding/step2" className="text-sm text-gray-400 hover:text-gray-600">Skip for now</Link>
+        <Link href="/onboarding/step2" className="text-sm text-gray-400 hover:text-gray-600">
+          Skip for now
+        </Link>
       </div>
     </div>
   );

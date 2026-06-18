@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { X, Plus } from "lucide-react";
+import { X, Plus, Edit2, Flame, RotateCcw, Trash2, AlertTriangle } from "lucide-react";
 
 const Toggle = ({ defaultOn = true }: { defaultOn?: boolean }) => {
   const [on, setOn] = useState(defaultOn);
@@ -29,8 +29,8 @@ export default function ProfilePage() {
               <div className="w-20 h-20 bg-gray-200 rounded-2xl flex items-center justify-center text-3xl font-bold text-gray-600">
                 PS
               </div>
-              <button className="absolute -bottom-1 -right-1 w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center shadow-md">
-                <span className="text-white text-xs">✏</span>
+              <button className="absolute -bottom-1 -right-1 w-7 h-7 bg-blue-600 rounded-full flex items-center justify-center shadow-md" aria-label="Edit avatar">
+                <Edit2 className="w-3.5 h-3.5 text-white" />
               </button>
             </div>
             <h2 className="font-bold text-gray-900 text-lg">Pranay Sarkar</h2>
@@ -46,7 +46,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <button className="mt-5 w-full border border-gray-300 text-gray-700 text-sm font-medium py-2.5 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-2">
-              👤 Edit Full Profile
+              <Edit2 className="w-3.5 h-3.5" /> Edit Full Profile
             </button>
           </div>
 
@@ -65,7 +65,7 @@ export default function ProfilePage() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Current Streak</span>
                 <span className="bg-amber-100 text-amber-700 text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1">
-                  🔥 14 Days
+                  <Flame className="w-3.5 h-3.5 text-orange-500" /> 14 Days
                 </span>
               </div>
             </div>
@@ -169,16 +169,16 @@ export default function ProfilePage() {
           {/* Danger Zone */}
           <div className="bg-red-50 border border-red-200 rounded-xl p-5">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-red-600 text-lg">⚠</span>
+              <AlertTriangle className="w-5 h-5 text-red-500" />
               <h3 className="font-semibold text-red-700">Danger Zone</h3>
             </div>
             <p className="text-xs text-gray-500 mb-4">Irreversible actions regarding your account data and progress.</p>
             <div className="grid grid-cols-2 gap-3">
               <button className="border border-red-300 text-red-600 text-sm font-medium py-3 rounded-lg hover:bg-red-100 transition-colors flex items-center justify-center gap-2">
-                🔄 Retake Assessment
+                <RotateCcw className="w-4 h-4" /> Retake Assessment
               </button>
               <button className="bg-red-700 text-white text-sm font-medium py-3 rounded-lg hover:bg-red-800 transition-colors flex items-center justify-center gap-2">
-                🗑 Reset Roadmap
+                <Trash2 className="w-4 h-4" /> Reset Roadmap
               </button>
             </div>
           </div>

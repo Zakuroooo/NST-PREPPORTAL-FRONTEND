@@ -1,5 +1,7 @@
+"use client";
+import { useState } from "react";
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { Search, ChevronRight } from "lucide-react";
 
 const companies = [
   { initial: "G", name: "Google", color: "bg-blue-600", questions: 2274, type: "FAANG", topTopic: "Arrays", slug: "google" },
@@ -18,7 +20,21 @@ const companies = [
 
 const filters = ["All", "Product", "Service", "Startup", "FAANG", "Indian"];
 
+const filterMap: Record<string, string[]> = {
+  "All": [],
+  "Product": ["Indian Product", "Product"],
+  "Service": ["Service"],
+  "Startup": ["Indian Startup"],
+  "FAANG": ["FAANG"],
+  "Indian": ["Indian Product", "Indian Startup"],
+};
+
 export default function CompaniesPage() {
+  const [activeFilter, setActiveFilter] = useState("All");
+  const filtered = activeFilter === "All"
+    ? companies
+    : companies.filter((c) => filterMap[activeFilter]?.includes(c.type));
+
   return (
     <div>
       <h1 className="text-2xl font-semibold text-gray-900 mb-1">Explore Companies</h1>
@@ -36,11 +52,12 @@ export default function CompaniesPage() {
 
       {/* Filter chips */}
       <div className="flex gap-2 mb-6 flex-wrap">
-        {filters.map((f, i) => (
+        {filters.map((f) => (
           <button
             key={f}
+            onClick={() => setActiveFilter(f)}
             className={`text-sm font-medium px-4 py-1.5 rounded-full border transition-colors ${
-              i === 0
+              activeFilter === f
                 ? "bg-gray-900 text-white border-gray-900"
                 : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
             }`}
@@ -52,7 +69,7 @@ export default function CompaniesPage() {
 
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {companies.map((co) => (
+        {filtered.map((co) => (
           <div
             key={co.slug}
             className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow"
@@ -76,7 +93,7 @@ export default function CompaniesPage() {
               href={`/companies/${co.slug}`}
               className="block w-full text-center bg-gray-900 text-white text-xs font-semibold py-2.5 rounded-lg hover:bg-gray-800 transition-colors"
             >
-              View Intel →
+              <span className="flex items-center justify-center gap-1">View Intel <ChevronRight className="w-3.5 h-3.5" /></span>
             </Link>
           </div>
         ))}

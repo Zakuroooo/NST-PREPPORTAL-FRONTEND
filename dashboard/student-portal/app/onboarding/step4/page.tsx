@@ -1,83 +1,68 @@
 "use client";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Timer, ArrowRight, Code } from "lucide-react";
+import { Rocket, CheckCircle, Map, Zap, Calendar } from "lucide-react";
+import Stepper from "@/components/onboarding/Stepper";
 
-export default function AssessmentQuizPage() {
+const readyItems = [
+  "12-Week personalised roadmap based on your goals",
+  "Daily practice plan tailored to your topic ratings",
+  "Company-tagged questions from your target categories",
+  "Bi-weekly progress check-ins and XP milestones",
+];
+
+export default function Step4() {
   const router = useRouter();
-  const [selected, setSelected] = useState<string | null>(null);
-
-  const options = [
-    { id: "A", text: "O(1)" },
-    { id: "B", text: "O(log n)" },
-    { id: "C", text: "O(n)" },
-    { id: "D", text: "O(n log n)" },
-  ];
 
   return (
-    <div className="min-h-screen bg-[#fafafa] flex flex-col items-center pt-16 px-4">
-      {/* Top Loader */}
-      <div className="w-6 h-6 border-4 border-blue-200 border-t-blue-500 rounded-full mb-8" />
-      
-      <h1 className="text-xl font-medium text-gray-900 mb-2">Let's assess your current level</h1>
-      <p className="text-sm text-gray-500 mb-12">5 quick questions from your selected domain</p>
-
-      <div className="w-full max-w-2xl flex justify-between text-sm text-gray-600 mb-4">
-        <span>Question 2 of 5</span>
-        <span>40% completed</span>
+    <div className="min-h-screen bg-white flex flex-col items-center px-4 py-12 text-center">
+      {/* Logo */}
+      <div className="flex items-center gap-2 mb-10">
+        <div className="bg-blue-700 rounded px-2 py-1 text-white font-bold text-xs">NST</div>
+        <span className="font-bold text-gray-900 text-sm">PlacePrep</span>
       </div>
 
-      <div className="w-full max-w-2xl bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
-        {/* Header inside card */}
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center gap-2 text-sm text-gray-700 font-medium">
-            <Code className="w-4 h-4" /> Arrays
+      <Stepper currentStep={4} totalSteps={4} />
+      <p className="text-xs text-gray-400 mb-8">Step 4 of 4</p>
+
+      {/* Hero Icon */}
+      <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6">
+        <Rocket className="w-10 h-10 text-blue-600" />
+      </div>
+
+      <h1 className="text-2xl font-bold text-gray-900 mb-2">You're all set!</h1>
+      <p className="text-sm text-gray-500 mb-8 max-w-sm">
+        Your personalised roadmap is ready. Here's what we've prepared based on your goals:
+      </p>
+
+      {/* Summary card */}
+      <div className="w-full max-w-md bg-gray-50 border border-gray-200 rounded-xl p-5 text-left space-y-3 mb-6">
+        {readyItems.map((item) => (
+          <div key={item} className="flex items-start gap-3">
+            <CheckCircle className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+            <span className="text-sm text-gray-700">{item}</span>
           </div>
-          <div className="flex items-center gap-1.5 border border-gray-200 rounded-md px-3 py-1.5 text-sm font-semibold text-gray-800">
-            <Timer className="w-4 h-4" /> 42s
-          </div>
+        ))}
+      </div>
+
+      {/* Quick stats */}
+      <div className="flex gap-4 mb-8">
+        <div className="flex items-center gap-2 bg-blue-50 text-blue-700 rounded-lg px-4 py-2 text-sm font-medium">
+          <Map className="w-4 h-4" /> 84-day roadmap
         </div>
-
-        {/* Question */}
-        <h2 className="text-lg text-gray-900 mb-8 leading-relaxed">
-          What is the time complexity of searching for an element in a balanced Binary Search Tree (BST)?
-        </h2>
-
-        {/* Options */}
-        <div className="space-y-3 mb-10">
-          {options.map((opt) => (
-            <button
-              key={opt.id}
-              onClick={() => setSelected(opt.id)}
-              className={`w-full flex items-center gap-4 p-4 border rounded-xl text-left transition-colors ${
-                selected === opt.id ? "border-blue-500 ring-1 ring-blue-500 bg-blue-50/30" : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-              }`}
-            >
-              <div className={`w-6 h-6 flex items-center justify-center rounded text-xs font-bold ${
-                selected === opt.id ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"
-              }`}>
-                {opt.id}
-              </div>
-              <span className="text-gray-800 font-medium">{opt.text}</span>
-            </button>
-          ))}
+        <div className="flex items-center gap-2 bg-amber-50 text-amber-700 rounded-lg px-4 py-2 text-sm font-medium">
+          <Zap className="w-4 h-4" /> XP rewards enabled
         </div>
-
-        {/* Footer actions */}
-        <div className="border-t border-gray-100 pt-6 flex justify-between items-center">
-          <button 
-            className="text-gray-500 text-sm hover:text-gray-900 transition-colors"
-          >
-            Skip this question
-          </button>
-          <button 
-            onClick={() => router.push("/onboarding/step5")}
-            className="flex items-center gap-2 text-gray-400 hover:text-gray-900 text-sm font-medium transition-colors"
-          >
-            Next Question <ArrowRight className="w-4 h-4" />
-          </button>
+        <div className="flex items-center gap-2 bg-green-50 text-green-700 rounded-lg px-4 py-2 text-sm font-medium">
+          <Calendar className="w-4 h-4" /> Daily targets set
         </div>
       </div>
+
+      <button
+        onClick={() => router.push("/dashboard")}
+        className="w-full max-w-md bg-gray-900 text-white py-3 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+      >
+        <Rocket className="w-4 h-4" /> Launch My Dashboard
+      </button>
     </div>
   );
 }

@@ -1,65 +1,123 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import {
+  Building2, Briefcase, Server, Rocket, Landmark, MoreHorizontal, CheckCircle,
+} from "lucide-react";
+import Stepper from "@/components/onboarding/Stepper";
+import { CompanyCategory } from "@/lib/mock-data";
 
-const allCompanies = ["Google", "Amazon", "Microsoft", "Flipkart", "TCS", "Infosys", "Razorpay", "Swiggy", "Paytm", "PhonePe", "Adobe", "Goldman Sachs", "Wipro", "Uber", "Atlassian"];
-
-function Stepper({ step }: { step: number }) {
-  return (
-    <div className="flex items-center justify-center gap-2 mb-8">
-      {[1, 2, 3, 4, 5].map((s) => (
-        <div key={s} className="flex items-center gap-2">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${s <= step ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-500"}`}>{s}</div>
-          {s < 5 && <div className={`w-10 h-0.5 ${s < step ? "bg-blue-600" : "bg-gray-200"}`} />}
-        </div>
-      ))}
-    </div>
-  );
-}
+const categories: { id: CompanyCategory; icon: React.ComponentType<{ className?: string }>; label: string; desc: string }[] = [
+  {
+    id: "maang",
+    icon: Building2,
+    label: "MAANG / Big Tech",
+    desc: "Google, Meta, Amazon, Apple, Netflix scale",
+  },
+  {
+    id: "product",
+    icon: Briefcase,
+    label: "Product-Based",
+    desc: "Mid-size, Series B+ product companies",
+  },
+  {
+    id: "service",
+    icon: Server,
+    label: "Service-Based",
+    desc: "TCS, Infosys, Wipro, Cognizant, etc.",
+  },
+  {
+    id: "startup",
+    icon: Rocket,
+    label: "Startup",
+    desc: "Early stage, high-growth startups",
+  },
+  {
+    id: "bfsi",
+    icon: Landmark,
+    label: "Finance / BFSI",
+    desc: "Goldman Sachs, JP Morgan, fintech firms",
+  },
+  {
+    id: "other",
+    icon: MoreHorizontal,
+    label: "Other",
+    desc: "Research, academia, or mixed roles",
+  },
+];
 
 export default function Step2() {
-  const [selected, setSelected] = useState<string[]>(["Google", "Amazon"]);
+  const [selected, setSelected] = useState<CompanyCategory[]>([]);
   const router = useRouter();
 
-  const toggle = (c: string) => {
-    if (selected.includes(c)) { setSelected(selected.filter((x) => x !== c)); return; }
-    if (selected.length < 5) setSelected([...selected, c]);
+  const toggle = (id: CompanyCategory) => {
+    setSelected((s) => s.includes(id) ? s.filter((x) => x !== id) : [...s, id]);
   };
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center px-4 py-12">
-      <Stepper step={2} />
-      <p className="text-xs text-gray-400 mb-8">Step 2 of 4</p>
-      <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">Which companies are you targeting?</h1>
-      <p className="text-sm text-gray-500 text-center mb-6">Select up to 5 companies</p>
-
-      <div className="w-full max-w-lg relative mb-6">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-        <input placeholder="Search companies..." className="w-full pl-9 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      {/* Logo */}
+      <div className="flex items-center gap-2 mb-10">
+        <div className="bg-blue-700 rounded px-2 py-1 text-white font-bold text-xs">NST</div>
+        <span className="font-bold text-gray-900 text-sm">PlacePrep</span>
       </div>
 
-      <div className="flex flex-wrap gap-3 justify-center w-full max-w-lg mb-3">
-        {allCompanies.map((c) => {
-          const isSelected = selected.includes(c);
+      <Stepper currentStep={2} totalSteps={4} />
+      <p className="text-xs text-gray-400 mb-8">Step 2 of 4</p>
+      <h1 className="text-2xl font-bold text-gray-900 text-center mb-2">What type of company are you targeting?</h1>
+      <p className="text-sm text-gray-500 text-center mb-8">Select all that apply — your prep will be tailored accordingly</p>
+
+      <div className="grid grid-cols-2 gap-4 w-full max-w-lg mb-8">
+        {categories.map(({ id, icon: Icon, label, desc }) => {
+          const isSelected = selected.includes(id);
           return (
             <button
-              key={c}
-              onClick={() => toggle(c)}
-              className={`px-4 py-2 rounded-full border text-sm font-medium transition-colors ${
-                isSelected ? "bg-gray-900 text-white border-gray-900" : "bg-white text-gray-700 border-gray-300 hover:border-gray-400"
+              key={id}
+              onClick={() => toggle(id)}
+              className={`relative flex flex-col items-start gap-2 p-5 rounded-xl border-2 text-left transition-all ${
+                isSelected
+                  ? "bg-blue-50 border-blue-500"
+                  : "bg-white border-gray-200 hover:border-gray-300 hover:bg-gray-50"
               }`}
             >
-              {c}
+              {isSelected && (
+                <CheckCircle className="absolute top-3 right-3 w-4 h-4 text-blue-600" />
+              )}
+              <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${
+                isSelected ? "bg-blue-100" : "bg-gray-100"
+              }`}>
+                <Icon className={`w-5 h-5 ${isSelected ? "text-blue-600" : "text-gray-500"}`} />
+              </div>
+              <div>
+                <div className={`text-sm font-semibold ${isSelected ? "text-blue-700" : "text-gray-900"}`}>{label}</div>
+                <div className="text-xs text-gray-500 mt-0.5 leading-tight">{desc}</div>
+              </div>
             </button>
           );
         })}
       </div>
-      <p className="text-sm text-gray-400 mb-8">{selected.length} companies selected (max 5)</p>
 
+      {/* Store selected categories in sessionStorage so Step 3 can read them */}
       <div className="flex gap-3 w-full max-w-lg">
-        <button onClick={() => router.push("/onboarding/step1")} className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg text-sm font-medium hover:bg-gray-50">Back</button>
-        <button onClick={() => router.push("/onboarding/step3")} className="flex-1 bg-gray-900 text-white py-3 rounded-lg text-sm font-semibold hover:bg-gray-800">Continue</button>
+        <button
+          onClick={() => router.push("/onboarding/step1")}
+          className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+        >
+          Back
+        </button>
+        <button
+          onClick={() => {
+            // BACKEND TODO: persist category selection to user profile
+            // For now, store in sessionStorage for Step 3 to read
+            if (typeof window !== "undefined") {
+              sessionStorage.setItem("onboarding_categories", JSON.stringify(selected));
+            }
+            router.push("/onboarding/step3");
+          }}
+          className="flex-1 bg-gray-900 text-white py-3 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors"
+        >
+          Continue
+        </button>
       </div>
     </div>
   );

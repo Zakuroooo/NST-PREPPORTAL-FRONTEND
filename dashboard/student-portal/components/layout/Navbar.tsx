@@ -4,10 +4,7 @@ import { Bell, Gift, Zap, Search } from "lucide-react";
 
 export default function Navbar() {
   return (
-    <header
-      className="fixed top-0 left-0 right-0 h-14 bg-white border-b border-gray-200 flex items-center px-4 z-50"
-      style={{ zIndex: 50 }}
-    >
+    <header className="fixed top-0 left-0 right-0 h-14 bg-white border-b border-gray-200 flex items-center px-4 z-50">
       {/* Logo */}
       <div className="flex items-center gap-2 w-[216px] shrink-0">
         <div className="bg-blue-700 rounded px-2 py-1 text-white font-bold text-xs">NST</div>
@@ -28,19 +25,28 @@ export default function Navbar() {
 
       {/* Right side */}
       <div className="flex items-center gap-3 ml-auto">
-        <button className="text-gray-400 hover:text-gray-600 transition-colors">
+        <button
+          aria-label="Daily rewards"
+          className="text-gray-400 hover:text-gray-600 transition-colors"
+        >
           <Gift className="w-5 h-5" />
         </button>
+
         <div className="flex items-center gap-1">
           <span className="text-xs text-gray-500">Total XP</span>
           <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
           <span className="text-sm font-bold text-amber-600">2,450</span>
         </div>
-        <button className="text-gray-400 hover:text-gray-600 transition-colors relative">
+
+        <button
+          aria-label="Notifications"
+          className="text-gray-400 hover:text-gray-600 transition-colors relative"
+        >
           <Bell className="w-5 h-5" />
-          <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
         </button>
-        <Link href="/profile">
+
+        <Link href="/profile" aria-label="Go to profile">
           <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-xs font-bold cursor-pointer hover:ring-2 hover:ring-blue-300 transition-all">
             PS
           </div>

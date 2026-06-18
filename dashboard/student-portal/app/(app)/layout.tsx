@@ -6,10 +6,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
       <Sidebar />
-      <main
-        className="min-h-screen bg-gray-50"
-        style={{ marginLeft: "216px", paddingTop: "56px" }}
-      >
+      <main className="min-h-screen bg-gray-50 ml-[216px] pt-14">
         <div className="px-6 py-6">{children}</div>
       </main>
     </div>

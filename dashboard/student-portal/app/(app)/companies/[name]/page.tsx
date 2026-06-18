@@ -1,61 +1,28 @@
 "use client";
-import { useState } from "react";
+import { useState, use } from "react";
 import Link from "next/link";
 import {
   BarChart2, Target, Layers, TrendingUp, ChevronRight,
-  ExternalLink, Flame,
+  ExternalLink, Flame, Play, Bookmark, CheckCircle,
 } from "lucide-react";
 import {
-  BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip,
-  PieChart, Pie, Cell, Legend, LineChart, Line, CartesianGrid,
+  LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip,
+  Legend, CartesianGrid,
 } from "recharts";
-
-const topTopics = [
-  { topic: "Dynamic Programming", pct: 28 },
-  { topic: "Graphs / DFS", pct: 22 },
-  { topic: "Trees", pct: 18 },
-  { topic: "Arrays & Strings", pct: 15 },
-  { topic: "Binary Search", pct: 10 },
-  { topic: "System Design", pct: 7 },
-];
-
-const difficultyData = [
-  { name: "Easy", value: 5, color: "#10B981" },
-  { name: "Medium", value: 40, color: "#F59E0B" },
-  { name: "Hard", value: 55, color: "#EF4444" },
-];
-
-const dnaData = [
-  { name: "Google", DSA: 55, SystemDesign: 25, Behavioral: 15, Domain: 5 },
-];
-
-const trendData = [
-  { year: "2022", DSA: 60, SystemDesign: 20, Behavioral: 15 },
-  { year: "2023", DSA: 58, SystemDesign: 24, Behavioral: 14 },
-  { year: "2024", DSA: 55, SystemDesign: 28, Behavioral: 14 },
-  { year: "2025", DSA: 55, SystemDesign: 30, Behavioral: 15 },
-];
-
-const sampleQuestions = [
-  { title: "Two Sum", topic: "Arrays", diff: "Easy", hot: true },
-  { title: "Merge Intervals", topic: "Arrays", diff: "Medium", hot: true },
-  { title: "LRU Cache", topic: "System Design", diff: "Hard", hot: false },
-  { title: "Number of Islands", topic: "Graphs", diff: "Medium", hot: true },
-  { title: "Word Break", topic: "DP", diff: "Medium", hot: false },
-];
+import { getCompanyIntel, getCompanyBg } from "@/lib/mock-data";
 
 const tabs = ["Overview", "Questions", "Experiences", "Trends"];
 
-export default function CompanyPage({ params }: { params: { name: string } }) {
+export default function CompanyPage({ params }: { params: Promise<{ name: string }> }) {
+  const { name: slug } = use(params);
+  const intel = getCompanyIntel(slug);
+  const bg = getCompanyBg(slug);
+
   const [activeTab, setActiveTab] = useState("Overview");
   const [role, setRole] = useState("SDE-1 (L3)");
-  const name = params.name.charAt(0).toUpperCase() + params.name.slice(1);
+
+  const name = slug.charAt(0).toUpperCase() + slug.slice(1);
   const initial = name.charAt(0);
-  const colors: Record<string, string> = {
-    google: "bg-blue-600", amazon: "bg-orange-500", microsoft: "bg-teal-600",
-    flipkart: "bg-blue-500", tcs: "bg-indigo-600",
-  };
-  const bg = colors[params.name] || "bg-blue-600";
 
   return (
     <div className="max-w-6xl">
@@ -94,10 +61,10 @@ export default function CompanyPage({ params }: { params: { name: string } }) {
           </div>
           <div className="flex gap-3 mt-5">
             <button className="bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-colors">
-              ▶ Start Mock Interview
+              <Play className="w-4 h-4" /> Start Mock Interview
             </button>
             <button className="border border-gray-300 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-50 transition-colors">
-              ☆ Save Target
+              <Bookmark className="w-4 h-4" /> Save Target
             </button>
           </div>
         </div>
@@ -111,15 +78,17 @@ export default function CompanyPage({ params }: { params: { name: string } }) {
                 <TrendingUp className="w-4 h-4" />
                 Current Trend
               </div>
-              <span className="text-green-600 text-sm font-medium bg-green-50 px-2 py-0.5 rounded">Active Hiring</span>
+              <span className="text-green-600 text-sm font-medium bg-green-50 px-2 py-0.5 rounded">
+                {intel.hiringStatus}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Avg. Process</span>
-              <span className="text-sm font-medium text-gray-900">4-6 Weeks</span>
+              <span className="text-sm font-medium text-gray-900">{intel.avgProcess}</span>
             </div>
           </div>
           <p className="text-xs text-gray-500 mt-4 leading-relaxed border-t border-gray-100 pt-3">
-            "Google has recently increased hiring for L3/L4 roles, specifically targeting cloud infrastructure and applied AI backgrounds."
+            {intel.hiringNote}
           </p>
         </div>
       </div>
@@ -127,10 +96,10 @@ export default function CompanyPage({ params }: { params: { name: string } }) {
       {/* Stat cards */}
       <div className="grid grid-cols-4 gap-4 mb-6">
         {[
-          { icon: BarChart2, color: "text-blue-600", val: "18.4%", sub: "SUCCESS RATE", note: "↑ 2.1%" },
-          { icon: Target, color: "text-amber-500", val: "$190k", sub: "AVG. SALARY (L3)", note: "TC" },
-          { icon: Layers, color: "text-purple-600", val: "8.5", sub: "DIFFICULTY", note: "/10" },
-          { icon: TrendingUp, color: "text-green-600", val: "1,240", sub: "TOTAL QUESTIONS", note: "tagged" },
+          { icon: BarChart2, color: "text-blue-600", val: intel.successRate, sub: "SUCCESS RATE", note: "↑ 2.1%" },
+          { icon: Target, color: "text-amber-500", val: intel.avgSalary, sub: "AVG. SALARY (L3)", note: "TC" },
+          { icon: Layers, color: "text-purple-600", val: intel.difficulty, sub: "DIFFICULTY", note: "/10" },
+          { icon: TrendingUp, color: "text-green-600", val: intel.totalQuestions, sub: "TOTAL QUESTIONS", note: "tagged" },
         ].map(({ icon: Icon, color, val, sub, note }) => (
           <div key={sub} className="bg-white border border-gray-200 rounded-xl p-4">
             <div className="flex items-center gap-1.5 mb-2">
@@ -170,15 +139,10 @@ export default function CompanyPage({ params }: { params: { name: string } }) {
           <div className="col-span-3 bg-white border border-gray-200 rounded-xl p-6">
             <h3 className="font-semibold text-gray-900 mb-4">Standard Round Structure</h3>
             <div className="grid grid-cols-4 gap-3">
-              {[
-                { n: 1, name: "Phone Screen", dur: "45 mins • Coding" },
-                { n: 2, name: "Onsite: Coding 1", dur: "45 mins • DSA" },
-                { n: 3, name: "Onsite: Coding 2", dur: "45 mins • DSA" },
-                { n: 4, name: "Onsite: Googlyness", dur: "45 mins • Behavioral" },
-              ].map((r) => (
+              {intel.roundStructure.map((r) => (
                 <div key={r.n} className="border border-gray-200 rounded-xl p-4 text-center">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold mx-auto mb-3 ${
-                    r.n === 4 ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"
+                    r.n === intel.roundStructure.length ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"
                   }`}>{r.n}</div>
                   <div className="text-sm font-medium text-gray-900">{r.name}</div>
                   <div className="text-xs text-gray-500 mt-1">{r.dur}</div>
@@ -215,7 +179,7 @@ export default function CompanyPage({ params }: { params: { name: string } }) {
           <div className="bg-white border border-gray-200 rounded-xl p-5">
             <h3 className="font-semibold text-gray-900 mb-4">Top Topics</h3>
             <div className="space-y-2.5">
-              {topTopics.map((t) => (
+              {intel.topTopics.map((t) => (
                 <div key={t.topic}>
                   <div className="flex justify-between text-xs mb-1">
                     <span className="text-gray-700">{t.topic}</span>
@@ -246,7 +210,7 @@ export default function CompanyPage({ params }: { params: { name: string } }) {
               </div>
             </div>
             <div className="flex justify-center gap-4 mt-3 text-xs">
-              {difficultyData.map((d) => (
+              {intel.difficultyBreakdown.map((d) => (
                 <div key={d.name} className="flex items-center gap-1">
                   <div className="w-2 h-2 rounded-full" style={{ background: d.color }} />
                   <span className="text-gray-600">{d.name} ({d.value}%)</span>
@@ -259,7 +223,7 @@ export default function CompanyPage({ params }: { params: { name: string } }) {
           <div className="col-span-3 bg-white border border-gray-200 rounded-xl p-5">
             <h3 className="font-semibold text-gray-900 mb-4">Sample Questions</h3>
             <div className="space-y-2">
-              {sampleQuestions.map((q) => (
+              {intel.sampleQuestions.map((q) => (
                 <div key={q.title} className="flex items-center gap-3 py-2.5 border-b border-gray-50 last:border-0">
                   <span className="flex-1 text-sm font-medium text-gray-900">{q.title}</span>
                   <span className="text-xs bg-blue-50 text-blue-600 px-2 py-0.5 rounded">{q.topic}</span>
@@ -280,7 +244,7 @@ export default function CompanyPage({ params }: { params: { name: string } }) {
         <div className="bg-white border border-gray-200 rounded-xl p-6">
           <h3 className="font-semibold text-gray-900 mb-4">Topic Trends (2022–2025)</h3>
           <ResponsiveContainer width="100%" height={280}>
-            <LineChart data={trendData}>
+            <LineChart data={intel.trendData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" />
               <XAxis dataKey="year" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} unit="%" />
@@ -304,7 +268,9 @@ export default function CompanyPage({ params }: { params: { name: string } }) {
                   <span className="font-medium text-gray-900 text-sm">{name}</span>
                   <span className="text-xs text-gray-500 ml-2">SDE-1 • {i === 1 ? "Jan 2026" : i === 2 ? "Dec 2025" : "Nov 2025"}</span>
                 </div>
-                <span className="ml-auto text-xs font-medium text-green-700 bg-green-50 rounded px-2 py-0.5">✅ Offer Received</span>
+                <span className="ml-auto text-xs font-medium text-green-700 bg-green-50 rounded px-2 py-0.5 flex items-center gap-1">
+                  <CheckCircle className="w-3 h-3" /> Offer Received
+                </span>
               </div>
               <div className="flex gap-2 mb-3 text-xs text-gray-500">
                 <span className="bg-gray-100 rounded px-2 py-1">Round 1: Arrays, DP</span>
@@ -322,7 +288,9 @@ export default function CompanyPage({ params }: { params: { name: string } }) {
         <div className="bg-white border border-gray-200 rounded-xl p-5">
           <p className="text-sm text-gray-500 text-center py-8">Full questions database — filtered to {name}. See Practice page.</p>
           <div className="flex justify-center">
-            <Link href="/practice" className="bg-gray-900 text-white text-sm px-4 py-2 rounded-lg">Go to Practice →</Link>
+            <Link href="/practice" className="bg-gray-900 text-white text-sm px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">
+              Go to Practice
+            </Link>
           </div>
         </div>
       )}

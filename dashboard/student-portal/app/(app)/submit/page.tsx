@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Zap, Plus, X, CheckCircle } from "lucide-react";
+import { Zap, Plus, X, CheckCircle, Clock, XCircle, Check } from "lucide-react";
 
 const companies = ["Google", "Amazon", "Microsoft", "Flipkart", "TCS", "Infosys", "Razorpay", "Swiggy", "Paytm", "Adobe"];
 
@@ -74,16 +74,16 @@ export default function SubmitPage() {
             <label className="text-sm font-medium text-gray-700 mb-1.5 block">Outcome</label>
             <div className="flex gap-2">
               {[
-                { key: "offer", label: "✅ Offer", activeClass: "bg-green-600 text-white border-green-600" },
-                { key: "rejected", label: "❌ Rejected", activeClass: "bg-red-600 text-white border-red-600" },
-                { key: "waiting", label: "⏳ Waiting", activeClass: "bg-amber-500 text-white border-amber-500" },
-              ].map(({ key, label, activeClass }) => (
+                { key: "offer", label: "Offer", icon: CheckCircle, activeClass: "bg-green-600 text-white border-green-600" },
+                { key: "rejected", label: "Rejected", icon: XCircle, activeClass: "bg-red-600 text-white border-red-600" },
+                { key: "waiting", label: "Waiting", icon: Clock, activeClass: "bg-amber-500 text-white border-amber-500" },
+              ].map(({ key, label, icon: Icon, activeClass }) => (
                 <button
                   key={key}
                   onClick={() => setOutcome(key)}
-                  className={`flex-1 text-xs font-medium py-2.5 rounded-lg border transition-colors ${outcome === key ? activeClass : "border-gray-200 text-gray-700 hover:bg-gray-50"}`}
+                  className={`flex-1 text-xs font-medium py-2.5 rounded-lg border transition-colors flex items-center justify-center gap-1.5 ${ outcome === key ? activeClass : "border-gray-200 text-gray-700 hover:bg-gray-50"}`}
                 >
-                  {label}
+                  <Icon className="w-3.5 h-3.5" />{label}
                 </button>
               ))}
             </div>
@@ -138,8 +138,12 @@ export default function SubmitPage() {
               className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             />
             <div className="flex gap-2">
-              <button className="text-xs font-medium bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-lg">Cleared ✓</button>
-              <button className="text-xs font-medium bg-white text-gray-600 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-red-50">Not Cleared ✗</button>
+              <button className="text-xs font-medium bg-green-50 text-green-700 border border-green-200 px-3 py-1.5 rounded-lg flex items-center gap-1">
+                <Check className="w-3.5 h-3.5" /> Cleared
+              </button>
+              <button className="text-xs font-medium bg-white text-gray-600 border border-gray-200 px-3 py-1.5 rounded-lg hover:bg-red-50 flex items-center gap-1">
+                <XCircle className="w-3.5 h-3.5" /> Not Cleared
+              </button>
             </div>
           </div>
         </div>

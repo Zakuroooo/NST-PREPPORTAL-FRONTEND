@@ -3,26 +3,13 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   Calendar, Flame, CheckSquare, Square, ExternalLink, Clock,
-  TrendingUp, ChevronRight,
+  TrendingUp, Zap,
 } from "lucide-react";
-
-const targetCompanies = [
-  { initial: "G", name: "Google", role: "Software Engineer", readiness: 45, color: "bg-blue-600", barColor: "bg-blue-500", href: "google" },
-  { initial: "A", name: "Amazon", role: "SDE II", readiness: 70, color: "bg-orange-500", barColor: "bg-orange-500", href: "amazon" },
-  { initial: "M", name: "Microsoft", role: "Software Engineer", readiness: 20, color: "bg-teal-600", barColor: "bg-teal-500", href: "microsoft" },
-];
-
-const todayProblems = [
-  { id: 1, title: "1. Two Sum", difficulty: "Easy", xp: 10, done: true },
-  { id: 2, title: "242. Valid Anagram", difficulty: "Easy", xp: 15, done: false },
-  { id: 3, title: "49. Group Anagrams", difficulty: "Medium", xp: 25, done: false },
-];
-
-const recentReports = [
-  { initial: "U", name: "Uber", color: "bg-gray-800", role: "Software Engineer (L4)", rounds: 4, time: "2 days ago", tags: ["System Design", "Graphs"] },
-  { initial: "M", name: "Meta", color: "bg-blue-700", role: "Production Engineer", rounds: 5, time: "5 days ago", tags: ["Linux", "Python"] },
-  { initial: "A", name: "Apple", color: "bg-gray-600", role: "Frontend Engineer", rounds: 3, time: "1 week ago", tags: ["React", "JS Core"] },
-];
+import {
+  dashboardTargetCompanies,
+  dashboardTodayProblems,
+  dashboardRecentReports,
+} from "@/lib/mock-data";
 
 export default function DashboardPage() {
   const [checked, setChecked] = useState<Record<number, boolean>>({ 1: true });
@@ -44,7 +31,7 @@ export default function DashboardPage() {
             <Link href="/companies" className="text-sm text-blue-600 font-medium hover:underline">View All</Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {targetCompanies.map((co) => (
+            {dashboardTargetCompanies.map((co) => (
               <div key={co.name} className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
@@ -113,13 +100,13 @@ export default function DashboardPage() {
             </div>
 
             <div className="space-y-3 mt-2">
-              {todayProblems.map((p) => (
+              {dashboardTodayProblems.map((p) => (
                 <div
                   key={p.id}
-                  className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0"
+                  className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0 cursor-pointer"
                   onClick={() => setChecked((c) => ({ ...c, [p.id]: !c[p.id] }))}
                 >
-                  <button className="shrink-0">
+                  <button className="shrink-0" aria-label={checked[p.id] ? "Mark as incomplete" : "Mark as complete"}>
                     {checked[p.id] ? (
                       <CheckSquare className="w-5 h-5 text-blue-600" />
                     ) : (
@@ -130,7 +117,7 @@ export default function DashboardPage() {
                     {p.title}
                   </span>
                   <span className="flex items-center gap-1 text-xs text-amber-600 font-medium">
-                    <span className="w-4 h-4 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 text-[10px]">$</span>
+                    <Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
                     {p.xp} XP
                   </span>
                   <span className={`text-xs font-medium px-2 py-0.5 rounded ${
@@ -150,7 +137,7 @@ export default function DashboardPage() {
             <Link href="/companies" className="text-sm text-blue-600 font-medium hover:underline">Browse All</Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {recentReports.map((r) => (
+            {dashboardRecentReports.map((r) => (
               <div key={r.name} className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow">
                 <div className="flex items-center gap-2 mb-3">
                   <div className={`w-8 h-8 ${r.color} rounded-lg flex items-center justify-center text-white font-bold text-xs`}>
@@ -176,7 +163,7 @@ export default function DashboardPage() {
       <aside className="hidden xl:block w-64 shrink-0 space-y-4">
         {/* Readiness */}
         <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-gray-900 mb-4">YOUR READINESS</h3>
+          <h3 className="text-xs font-semibold text-gray-900 mb-4 uppercase tracking-wide">Your Readiness</h3>
           <div className="flex justify-center mb-3">
             <div className="relative w-24 h-24">
               <svg className="w-24 h-24 -rotate-90" viewBox="0 0 96 96">
@@ -213,7 +200,7 @@ export default function DashboardPage() {
             <span className="text-xs text-gray-400">Nov 2023</span>
           </div>
           <div className="grid grid-cols-7 gap-1">
-            {["M","T","W","T","F","S","S"].map((d, i) => (
+            {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
               <div key={i} className="text-[10px] text-gray-400 text-center">{d}</div>
             ))}
             {Array.from({ length: 28 }).map((_, i) => {

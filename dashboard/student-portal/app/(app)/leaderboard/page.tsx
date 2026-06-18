@@ -1,4 +1,4 @@
-import { TrendingUp } from "lucide-react";
+import { TrendingUp, Zap, Medal, ChevronDown, Search } from "lucide-react";
 import Link from "next/link";
 
 const leaders = [
@@ -42,9 +42,7 @@ export default function LeaderboardPage() {
             placeholder="Search a student..."
             className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white w-56"
           />
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
         </div>
       </div>
 
@@ -52,33 +50,39 @@ export default function LeaderboardPage() {
       <div className="flex justify-center items-end gap-8 mb-8">
         {/* 2nd */}
         <div className="text-center flex flex-col items-center pb-4">
-          <div className="text-2xl mb-2">🥈</div>
+          <div className="w-8 h-8 mb-2 flex items-center justify-center">
+            <Medal className="w-7 h-7 text-gray-400" />
+          </div>
           <div className="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center text-white text-xl font-bold border-4 border-gray-200">
             {top3[1].initials}
           </div>
           <div className="bg-gray-600 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center -mt-3 ml-10">2</div>
           <div className="text-sm font-medium text-gray-900 mt-2">{top3[1].name}</div>
-          <div className="text-xs text-gray-500 flex items-center gap-1 mt-1">⚡ {top3[1].xp.toLocaleString()} XP</div>
+          <div className="text-xs text-gray-500 flex items-center gap-1 mt-1"><Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-500" /> {top3[1].xp.toLocaleString()} XP</div>
         </div>
         {/* 1st */}
         <div className="text-center flex flex-col items-center mb-4">
-          <div className="text-3xl mb-2">🥇</div>
+          <div className="w-10 h-10 mb-2 flex items-center justify-center">
+            <Medal className="w-9 h-9 text-amber-400" />
+          </div>
           <div className="w-20 h-20 rounded-full bg-amber-300 flex items-center justify-center text-white text-2xl font-bold border-4 border-amber-400">
             {top3[0].initials}
           </div>
           <div className="bg-amber-500 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center -mt-3 ml-12">1</div>
           <div className="text-base font-bold text-gray-900 mt-2">{top3[0].name}</div>
-          <div className="text-sm text-amber-600 font-semibold flex items-center gap-1 mt-1">⚡ {top3[0].xp.toLocaleString()} XP</div>
+          <div className="text-sm text-amber-600 font-semibold flex items-center gap-1 mt-1"><Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-500" /> {top3[0].xp.toLocaleString()} XP</div>
         </div>
         {/* 3rd */}
         <div className="text-center flex flex-col items-center pb-4">
-          <div className="text-2xl mb-2">🥉</div>
+          <div className="w-8 h-8 mb-2 flex items-center justify-center">
+            <Medal className="w-7 h-7 text-amber-700" />
+          </div>
           <div className="w-16 h-16 rounded-full bg-amber-700 flex items-center justify-center text-white text-xl font-bold border-4 border-amber-600">
             {top3[2].initials}
           </div>
           <div className="bg-amber-700 text-white text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center -mt-3 ml-10">3</div>
           <div className="text-sm font-medium text-gray-900 mt-2">{top3[2].name}</div>
-          <div className="text-xs text-gray-500 flex items-center gap-1 mt-1">⚡ {top3[2].xp.toLocaleString()} XP</div>
+          <div className="text-xs text-gray-500 flex items-center gap-1 mt-1"><Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-500" /> {top3[2].xp.toLocaleString()} XP</div>
         </div>
       </div>
 
@@ -129,7 +133,7 @@ export default function LeaderboardPage() {
         ))}
         <div className="flex justify-center py-4 border-t border-gray-100">
           <button className="border border-gray-200 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-50">
-            View Top 100 ▾
+            View Top 100 <ChevronDown className="w-4 h-4" />
           </button>
         </div>
       </div>
