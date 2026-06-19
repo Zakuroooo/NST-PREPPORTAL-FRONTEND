@@ -2,16 +2,36 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { UserButton } from "@clerk/nextjs";
-import { Bell, Gift, Zap, Search, X, Building2, Tag } from "lucide-react";
+import { Bell, Zap, Search, X, Building2, Tag } from "lucide-react";
+import { UserButton, useUser } from "@clerk/nextjs";
 import { searchAll, type SearchResult } from "@/lib/mock-data";
+
+// Unread notification count — reads from sessionStorage
+function useUnreadCount() {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    // BACKEND TODO: GET /api/notifications/unread-count
+    const lastRead = sessionStorage.getItem("notifications_last_read");
+    if (!lastRead) {
+      setCount(3); // 3 unread by default for new users
+    } else {
+      setCount(0);
+    }
+  }, []);
+  return count;
+}
 
 export default function Navbar() {
   const router = useRouter();
+  const { user } = useUser();
   const [query, setQuery] = useState("");
   const [selectedIdx, setSelectedIdx] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const unreadCount = useUnreadCount();
+
+  // Derive XP from user metadata (BACKEND TODO: from /api/user/me)
+  const xp = (user?.publicMetadata as { xp?: number })?.xp ?? 2450;
 
   // Derive results directly from query — no useEffect needed
   const results = useMemo(() => searchAll(query), [query]);
@@ -78,7 +98,7 @@ export default function Navbar() {
             value={query}
             onChange={(e) => { setQuery(e.target.value); setSelectedIdx(-1); }}
             onKeyDown={handleKeyDown}
-            placeholder="Search company, topic, or question... (e.g. Google SDE-1)"
+            placeholder="Search company, topic, or question..."
             className="w-full pl-9 pr-8 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
             aria-label="Global search"
             aria-autocomplete="list"
@@ -105,7 +125,6 @@ export default function Navbar() {
                   idx === selectedIdx ? "bg-blue-50" : ""
                 }`}
               >
-                {/* Icon */}
                 {r.type === "company" ? (
                   <div className={`w-7 h-7 ${r.color} rounded-lg flex items-center justify-center text-white text-xs font-bold shrink-0`}>
                     {r.initial}
@@ -119,12 +138,10 @@ export default function Navbar() {
                     )}
                   </div>
                 )}
-                {/* Label */}
                 <div className="min-w-0">
                   <div className="text-sm font-medium text-gray-900 truncate">{r.label}</div>
                   <div className="text-xs text-gray-500 truncate">{r.subtitle}</div>
                 </div>
-                {/* Type badge */}
                 <span className="ml-auto text-[10px] font-semibold uppercase tracking-wide text-gray-400 shrink-0">
                   {r.type}
                 </span>
@@ -141,23 +158,36 @@ export default function Navbar() {
 
       {/* Right side */}
       <div className="flex items-center gap-3 ml-auto">
-        <button aria-label="Daily rewards" className="text-gray-400 hover:text-gray-600 transition-colors">
-          <Gift className="w-5 h-5" />
-        </button>
-
+        {/* XP */}
         <div className="flex items-center gap-1">
           <span className="text-xs text-gray-500">XP</span>
           <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
-          <span className="text-sm font-bold text-amber-600">2,450</span>
+          <span className="text-sm font-bold text-amber-600">{xp.toLocaleString()}</span>
         </div>
 
-        <Link href="/notifications" aria-label="Notifications" className="text-gray-400 hover:text-gray-600 transition-colors relative block">
+        {/* Notification Bell */}
+        <Link
+          href="/notifications"
+          aria-label="Notifications"
+          className="text-gray-400 hover:text-gray-600 transition-colors relative"
+          onClick={() => sessionStorage.setItem("notifications_last_read", new Date().toISOString())}
+        >
           <Bell className="w-5 h-5" />
-          <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 min-w-[14px] h-[14px] bg-red-500 rounded-full flex items-center justify-center text-[9px] text-white font-bold px-0.5">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
         </Link>
 
-        {/* Clerk User Button */}
-        <UserButton afterSignOutUrl="/login" />
+        {/* Clerk User Button — handles avatar, profile, sign out */}
+        <UserButton
+          appearance={{
+            elements: {
+              avatarBox: "w-8 h-8",
+            },
+          }}
+        />
       </div>
     </header>
   );

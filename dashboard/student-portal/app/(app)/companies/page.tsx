@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, ChevronRight, PlusCircle } from "lucide-react";
+import { Search, ChevronRight, Plus, Check } from "lucide-react";
 import { companiesList } from "@/lib/mock-data";
 import AddToRoadmapModal from "@/components/modals/AddToRoadmapModal";
 
@@ -19,18 +19,24 @@ const filterMap: Record<Filter, string[]> = {
 export default function CompaniesPage() {
   const [activeFilter, setActiveFilter] = useState<Filter>("All");
   const [search, setSearch] = useState("");
-  const [modalCompany, setModalCompany] = useState<{ slug: string; name: string; role: string; initial: string; color: string } | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [roadmapSlugs, setRoadmapSlugs] = useState<string[]>([]);
+  const [modalCompany, setModalCompany] = useState<typeof companiesList[number] | null>(null);
 
-  const handleAddToRoadmap = (co: any) => {
-    setModalCompany({ slug: co.slug, name: co.name, role: "SDE-1", initial: co.initial, color: co.color });
-    setIsModalOpen(true);
-  };
-
-  const handleConfirmAdd = (duration: number) => {
-    console.log(`Added ${modalCompany?.name} to roadmap for ${duration} weeks`);
-    // Will link to real API later
-  };
+  // Read which companies are already in roadmap (from sessionStorage)
+  useEffect(() => {
+    try {
+      const stored = sessionStorage.getItem("roadmap_companies");
+      if (stored) {
+        const entries = JSON.parse(stored) as { slug: string }[];
+        setRoadmapSlugs(entries.map((e) => e.slug));
+      } else {
+        // Default: Google, Amazon, Flipkart are in roadmap from onboarding
+        setRoadmapSlugs(["google", "amazon", "flipkart"]);
+      }
+    } catch {
+      setRoadmapSlugs([]);
+    }
+  }, []);
 
   const filtered = companiesList.filter((c) => {
     const matchesFilter =
@@ -40,11 +46,15 @@ export default function CompaniesPage() {
     return matchesFilter && matchesSearch;
   });
 
+  const handleAdded = (slug: string) => {
+    setRoadmapSlugs((prev) => [...prev.filter((s) => s !== slug), slug]);
+  };
+
   return (
     <div>
       <h1 className="text-2xl font-semibold text-gray-900 mb-1">Explore Companies</h1>
       <p className="text-sm text-gray-500 mb-6">
-        Select a company to view interview intel, round structure, and real questions.
+        View interview intel, round structure, and real questions. Add companies to your roadmap to track prep.
       </p>
 
       {/* Search */}
@@ -83,53 +93,72 @@ export default function CompaniesPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filtered.map((co) => (
-            <div
-              key={co.slug}
-              className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow flex flex-col"
-            >
-              {/* Header */}
-              <div className="flex items-center gap-3 mb-4">
-                <div
-                  className={`w-10 h-10 ${co.color} rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0`}
-                >
-                  {co.initial}
+          {filtered.map((co) => {
+            const inRoadmap = roadmapSlugs.includes(co.slug);
+            return (
+              <div
+                key={co.slug}
+                className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-md transition-shadow flex flex-col"
+              >
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div
+                    className={`w-10 h-10 ${co.color} rounded-lg flex items-center justify-center text-white font-bold text-sm shrink-0`}
+                  >
+                    {co.initial}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-gray-900 text-sm truncate">{co.name}</div>
+                    <div className="text-xs text-gray-400">{co.type}</div>
+                  </div>
+                  {inRoadmap && (
+                    <span className="text-[10px] font-bold text-green-600 bg-green-50 border border-green-200 rounded-full px-1.5 py-0.5 shrink-0">
+                      In Roadmap
+                    </span>
+                  )}
                 </div>
-                <div>
-                  <div className="font-semibold text-gray-900 text-sm">{co.name}</div>
-                  <div className="text-xs text-gray-400">{co.type}</div>
+
+                {/* Stats */}
+                <div className="flex justify-between text-xs text-gray-500 mb-4">
+                  <span>
+                    <span className="font-semibold text-gray-900">
+                      {co.questions.toLocaleString()}
+                    </span>{" "}
+                    questions
+                  </span>
+                  <span>Top: {co.topTopic}</span>
+                </div>
+
+                {/* CTAs */}
+                <div className="mt-auto flex gap-2">
+                  {/* Add to Roadmap button */}
+                  <button
+                    onClick={() => !inRoadmap && setModalCompany(co)}
+                    disabled={inRoadmap}
+                    className={`flex items-center gap-1 text-xs font-semibold px-3 py-2 rounded-lg transition-colors border ${
+                      inRoadmap
+                        ? "border-green-200 bg-green-50 text-green-600 cursor-default"
+                        : "border-gray-300 text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {inRoadmap ? (
+                      <><Check className="w-3 h-3" /> Added</>
+                    ) : (
+                      <><Plus className="w-3 h-3" /> Roadmap</>
+                    )}
+                  </button>
+
+                  {/* View Intel */}
+                  <Link
+                    href={`/companies/${co.slug}`}
+                    className="flex-1 text-center bg-gray-900 text-white text-xs font-semibold py-2 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-1"
+                  >
+                    View Intel <ChevronRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
               </div>
-
-              {/* Stats */}
-              <div className="flex justify-between text-xs text-gray-500 mb-4">
-                <span>
-                  <span className="font-semibold text-gray-900">
-                    {co.questions.toLocaleString()}
-                  </span>{" "}
-                  questions
-                </span>
-                <span>Top: {co.topTopic}</span>
-              </div>
-
-              {/* CTA */}
-              <div className="mt-auto flex gap-2">
-                <Link
-                  href={`/companies/${co.slug}`}
-                  className="flex-1 text-center bg-gray-900 text-white text-xs font-semibold py-2.5 rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-1"
-                >
-                  View Intel <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
-                <button
-                  onClick={() => handleAddToRoadmap(co)}
-                  className="px-3 py-2.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors flex items-center justify-center"
-                  title="Add to Roadmap"
-                >
-                  <PlusCircle className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -138,12 +167,14 @@ export default function CompaniesPage() {
         Showing {filtered.length} of {companiesList.length} companies
       </p>
 
-      <AddToRoadmapModal
-        isOpen={isModalOpen}
-        company={modalCompany}
-        onClose={() => setIsModalOpen(false)}
-        onConfirm={handleConfirmAdd}
-      />
+      {/* Add to Roadmap Modal */}
+      {modalCompany && (
+        <AddToRoadmapModal
+          company={modalCompany}
+          onClose={() => setModalCompany(null)}
+          onAdded={handleAdded}
+        />
+      )}
     </div>
   );
 }

@@ -3,9 +3,10 @@ import { useState, use } from "react";
 import Link from "next/link";
 import {
   BarChart2, Target, Layers, TrendingUp, ChevronRight,
-  ExternalLink, Flame, Play, Bookmark, CheckCircle,
+  ExternalLink, Flame, Play, CheckCircle,
   ChevronDown, ChevronUp,
 } from "lucide-react";
+
 import {
   LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip,
   Legend, CartesianGrid,
@@ -31,13 +32,6 @@ function RoundAccordion({ group }: { group: RoundGroup }) {
   const diffBadge = (d: string) =>
     d === "Easy"   ? "bg-green-50 text-green-700" :
     d === "Medium" ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-600";
-
-  // Group questions by topic
-  const topicsMap = group.questions.reduce((acc, q) => {
-    if (!acc[q.topic]) acc[q.topic] = [];
-    acc[q.topic].push(q);
-    return acc;
-  }, {} as Record<string, Question[]>);
 
   return (
     <div className="border border-gray-200 rounded-xl overflow-hidden mb-3">
@@ -66,22 +60,12 @@ function RoundAccordion({ group }: { group: RoundGroup }) {
         )}
       </button>
 
-      {/* Questions list by Topic */}
+      {/* Questions list */}
       {open && (
-        <div className="bg-white px-5 py-2">
-          {Object.entries(topicsMap).map(([topic, questions]) => (
-            <div key={topic} className="mt-4 mb-2">
-              <div className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 pl-2">
-                {topic}
-              </div>
-              <div className="divide-y divide-gray-50 border border-gray-100 rounded-lg overflow-hidden">
-                {questions.map((q) => (
-                  <QuestionRow key={q.id} q={q} />
-                ))}
-              </div>
-            </div>
+        <div className="divide-y divide-gray-50">
+          {group.questions.map((q) => (
+            <QuestionRow key={q.id} q={q} />
           ))}
-          <div className="pb-4"></div>
         </div>
       )}
     </div>
@@ -194,12 +178,18 @@ export default function CompanyPage({ params }: { params: Promise<{ name: string
             </div>
           </div>
           <div className="flex gap-3 mt-5">
-            <button className="bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-colors">
-              <Play className="w-4 h-4" /> Start Mock Interview
-            </button>
-            <button className="border border-gray-300 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-50 transition-colors">
-              <Bookmark className="w-4 h-4" /> Save Target
-            </button>
+            <Link
+              href={`/companies/${slug}/practice`}
+              className="bg-gray-900 text-white text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-800 transition-colors"
+            >
+              <Play className="w-4 h-4" /> Practice Questions
+            </Link>
+            <Link
+              href={`/roadmap?company=${slug}`}
+              className="border border-gray-300 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-50 transition-colors"
+            >
+              <CheckCircle className="w-4 h-4" /> View Roadmap
+            </Link>
           </div>
         </div>
 
@@ -401,10 +391,10 @@ export default function CompanyPage({ params }: { params: Promise<{ name: string
               </p>
             </div>
             <Link
-              href={`/practice?company=${slug}`}
-              className="text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors"
+              href={`/companies/${slug}/practice`}
+              className="text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5"
             >
-              Practice All →
+              <Play className="w-3.5 h-3.5" /> Practice All
             </Link>
           </div>
 

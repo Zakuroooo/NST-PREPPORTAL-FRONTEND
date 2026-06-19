@@ -1,6 +1,5 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
 import { Zap, Plus, X, CheckCircle, Clock, XCircle, Check } from "lucide-react";
 
 const companies = ["Google", "Amazon", "Microsoft", "Flipkart", "TCS", "Infosys", "Razorpay", "Swiggy", "Paytm", "Adobe"];
@@ -29,14 +28,9 @@ export default function SubmitPage() {
           +50 XP Earned!
         </div>
         <p className="text-gray-500 text-sm">Your experience will help future NST students prepare better.</p>
-        <div className="mt-6 flex justify-center gap-3">
-          <button onClick={() => setSubmitted(false)} className="border border-gray-300 text-gray-700 text-sm px-5 py-2 rounded-lg hover:bg-gray-50">
-            Submit Another
-          </button>
-          <Link href="/dashboard" className="bg-gray-900 text-white text-sm px-5 py-2 rounded-lg hover:bg-gray-800 transition-colors">
-            Go to Dashboard
-          </Link>
-        </div>
+        <button onClick={() => setSubmitted(false)} className="mt-6 border border-gray-300 text-gray-700 text-sm px-5 py-2 rounded-lg hover:bg-gray-50">
+          Submit Another
+        </button>
       </div>
     );
   }

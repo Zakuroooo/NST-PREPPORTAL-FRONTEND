@@ -82,6 +82,65 @@ export interface SearchResult {
   initial?: string;
 }
 
+// ── Multi-company Roadmap ──────────────────────────────
+export interface RoadmapWeek {
+  weekNumber: number;
+  topic: string;
+  totalQuestions: number;
+  doneQuestions: number;
+  status: "done" | "active" | "locked";
+  questions: { id: number; title: string; diff: Difficulty; xp: number; leetcodeUrl?: string; done?: boolean }[];
+}
+
+export interface UserRoadmapCompany {
+  slug: string;
+  name: string;
+  initial: string;
+  color: string;
+  role: string;
+  totalWeeks: number;
+  currentWeek: number;
+  pctComplete: number;
+  weeks: RoadmapWeek[];
+}
+
+/** Entry saved to sessionStorage when user adds a company to roadmap */
+export interface RoadmapCompanyEntry {
+  slug: string;
+  name: string;
+  initial: string;
+  color: string;
+  role: string;         // e.g. "SDE-1"
+  weeks: number;        // committed weeks
+  addedAt: string;      // ISO string
+}
+
+// ── Practice Categories ────────────────────────────────
+export interface PracticeCategory {
+  id: string;           // "dsa"
+  label: string;        // "DSA"
+  emoji: string;
+  description: string;
+  totalQuestions: number;
+  color: string;        // tailwind bg class
+  textColor: string;    // tailwind text class
+  borderColor: string;
+  roundTypes: RoundType[];  // which roundTypes this category maps to
+}
+
+// ── Notifications ──────────────────────────────────────
+export type NotificationType = "badge" | "new_company" | "roadmap" | "experience" | "question" | "xp";
+
+export interface AppNotification {
+  id: string;
+  type: NotificationType;
+  title: string;
+  subtitle?: string;
+  emoji: string;
+  createdAt: string;   // ISO string
+  read: boolean;
+}
+
 // ─────────────────────────────────────────────────────
 // ONBOARDING — TOPICS BY COMPANY CATEGORY
 // ─────────────────────────────────────────────────────
@@ -604,3 +663,323 @@ export const allTopics = [
 export const allRoundTypes: RoundType[] = ["Coding", "System Design", "LLD", "HR", "Aptitude", "Domain"];
 
 export const allCompanySlugs = companiesList.map((c) => ({ slug: c.slug, name: c.name }));
+
+// ─────────────────────────────────────────────────────
+// PRACTICE CATEGORIES
+// BACKEND TODO: GET /api/practice/categories
+// ─────────────────────────────────────────────────────
+export const practiceCategories: PracticeCategory[] = [
+  {
+    id: "dsa",
+    label: "DSA",
+    emoji: "💻",
+    description: "Data Structures & Algorithms — arrays, graphs, DP, trees",
+    totalQuestions: 2400,
+    color: "bg-blue-50",
+    textColor: "text-blue-700",
+    borderColor: "border-blue-200",
+    roundTypes: ["Coding"],
+  },
+  {
+    id: "system-design",
+    label: "System Design",
+    emoji: "🏗️",
+    description: "High-level design — scalability, databases, caching, APIs",
+    totalQuestions: 380,
+    color: "bg-purple-50",
+    textColor: "text-purple-700",
+    borderColor: "border-purple-200",
+    roundTypes: ["System Design"],
+  },
+  {
+    id: "aptitude",
+    label: "Aptitude",
+    emoji: "🧮",
+    description: "Quant, logical reasoning, verbal for TCS NQT, Infosys Spectra",
+    totalQuestions: 650,
+    color: "bg-amber-50",
+    textColor: "text-amber-700",
+    borderColor: "border-amber-200",
+    roundTypes: ["Aptitude"],
+  },
+  {
+    id: "hr",
+    label: "HR & Behavioral",
+    emoji: "🗣️",
+    description: "STAR method, leadership principles, culture-fit questions",
+    totalQuestions: 290,
+    color: "bg-green-50",
+    textColor: "text-green-700",
+    borderColor: "border-green-200",
+    roundTypes: ["HR"],
+  },
+  {
+    id: "lld",
+    label: "LLD / OOP",
+    emoji: "⚡",
+    description: "Low-level design, design patterns, class diagrams, OOP",
+    totalQuestions: 120,
+    color: "bg-indigo-50",
+    textColor: "text-indigo-700",
+    borderColor: "border-indigo-200",
+    roundTypes: ["LLD"],
+  },
+  {
+    id: "core-cs",
+    label: "Core CS",
+    emoji: "🎓",
+    description: "OS, DBMS, Computer Networks, OOP fundamentals",
+    totalQuestions: 500,
+    color: "bg-gray-50",
+    textColor: "text-gray-700",
+    borderColor: "border-gray-200",
+    roundTypes: ["Domain"],
+  },
+  {
+    id: "mock-oa",
+    label: "Mock OA",
+    emoji: "🎯",
+    description: "Timed Online Assessment sets — simulate real company tests",
+    totalQuestions: 40,
+    color: "bg-red-50",
+    textColor: "text-red-700",
+    borderColor: "border-red-200",
+    roundTypes: ["Coding", "Aptitude"],
+  },
+  {
+    id: "mcqs",
+    label: "MCQs",
+    emoji: "📝",
+    description: "Multiple choice: CS theory, output prediction, debugging",
+    totalQuestions: 500,
+    color: "bg-teal-50",
+    textColor: "text-teal-700",
+    borderColor: "border-teal-200",
+    roundTypes: ["Domain", "Aptitude"],
+  },
+];
+
+// ─────────────────────────────────────────────────────
+// MOCK NOTIFICATIONS
+// BACKEND TODO: GET /api/notifications
+// ─────────────────────────────────────────────────────
+export const mockNotifications: AppNotification[] = [
+  {
+    id: "n1",
+    type: "badge",
+    title: "You earned the \"5-Day Streak\" badge!",
+    subtitle: "Keep it going — practice every day",
+    emoji: "🏆",
+    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    read: false,
+  },
+  {
+    id: "n2",
+    type: "new_company",
+    title: "New company added: Zepto (Indian Startup)",
+    subtitle: "180 questions now available",
+    emoji: "📊",
+    createdAt: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+    read: false,
+  },
+  {
+    id: "n3",
+    type: "xp",
+    title: "You earned 50 XP for completing onboarding!",
+    subtitle: "Your roadmap is live",
+    emoji: "⚡",
+    createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+    read: false,
+  },
+  {
+    id: "n4",
+    type: "roadmap",
+    title: "You completed Week 1 of your Google roadmap",
+    subtitle: "14/14 problems solved — Week 2 is now unlocked!",
+    emoji: "✅",
+    createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+    read: true,
+  },
+  {
+    id: "n5",
+    type: "experience",
+    title: "Your interview experience was approved",
+    subtitle: "Your Flipkart SDE-1 experience is now public",
+    emoji: "📝",
+    createdAt: new Date(Date.now() - 26 * 60 * 60 * 1000).toISOString(),
+    read: true,
+  },
+  {
+    id: "n6",
+    type: "question",
+    title: "3 new questions added for Amazon SDE-1",
+    subtitle: "Dynamic Programming — new LP-style problems",
+    emoji: "🎯",
+    createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    read: true,
+  },
+  {
+    id: "n7",
+    type: "badge",
+    title: "\"First Solve\" badge unlocked!",
+    subtitle: "You solved your first problem on PlacePrep",
+    emoji: "🌟",
+    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    read: true,
+  },
+];
+
+// ─────────────────────────────────────────────────────
+// MULTI-COMPANY ROADMAP DATA
+// BACKEND TODO: GET /api/user/me/roadmap
+// ─────────────────────────────────────────────────────
+export const mockUserRoadmap: UserRoadmapCompany[] = [
+  {
+    slug: "google",
+    name: "Google",
+    initial: "G",
+    color: "bg-blue-600",
+    role: "SDE-1 (L3)",
+    totalWeeks: 12,
+    currentWeek: 3,
+    pctComplete: 45,
+    weeks: [
+      {
+        weekNumber: 1,
+        topic: "Arrays & Hashing",
+        totalQuestions: 14,
+        doneQuestions: 14,
+        status: "done",
+        questions: [
+          { id: 1,  title: "Two Sum",                   diff: "Easy",   xp: 10, leetcodeUrl: "https://leetcode.com/problems/two-sum/",                         done: true },
+          { id: 2,  title: "Merge Intervals",            diff: "Medium", xp: 25, leetcodeUrl: "https://leetcode.com/problems/merge-intervals/",                 done: true },
+          { id: 3,  title: "Maximum Subarray",           diff: "Medium", xp: 20, leetcodeUrl: "https://leetcode.com/problems/maximum-subarray/",                done: true },
+          { id: 13, title: "Longest Substring Without Repeating", diff: "Medium", xp: 25, leetcodeUrl: "https://leetcode.com/problems/longest-substring-without-repeating-characters/", done: true },
+        ],
+      },
+      {
+        weekNumber: 2,
+        topic: "Two Pointers & Sliding Window",
+        totalQuestions: 10,
+        doneQuestions: 6,
+        status: "active",
+        questions: [
+          { id: 5,  title: "Trapping Rain Water",        diff: "Hard",   xp: 40, leetcodeUrl: "https://leetcode.com/problems/trapping-rain-water/",            done: true },
+          { id: 6,  title: "Number of Islands",          diff: "Medium", xp: 25, leetcodeUrl: "https://leetcode.com/problems/number-of-islands/",              done: false },
+          { id: 15, title: "Word Ladder",                diff: "Hard",   xp: 40, leetcodeUrl: "https://leetcode.com/problems/word-ladder/",                    done: false },
+        ],
+      },
+      {
+        weekNumber: 3,
+        topic: "Trees & Binary Search",
+        totalQuestions: 12,
+        doneQuestions: 0,
+        status: "locked",
+        questions: [
+          { id: 14, title: "Binary Tree Level Order",    diff: "Medium", xp: 25, leetcodeUrl: "https://leetcode.com/problems/binary-tree-level-order-traversal/", done: false },
+          { id: 22, title: "Serialize Binary Tree",      diff: "Hard",   xp: 40, leetcodeUrl: "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/", done: false },
+        ],
+      },
+      { weekNumber: 4,  topic: "Graphs & BFS/DFS",         totalQuestions: 10, doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 5,  topic: "Dynamic Programming I",     totalQuestions: 12, doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 6,  topic: "Dynamic Programming II",    totalQuestions: 10, doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 7,  topic: "Backtracking",              totalQuestions: 8,  doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 8,  topic: "Heaps & Priority Queues",   totalQuestions: 8,  doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 9,  topic: "System Design Basics",      totalQuestions: 6,  doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 10, topic: "System Design Advanced",    totalQuestions: 6,  doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 11, topic: "Behavioral / Googlyness",   totalQuestions: 5,  doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 12, topic: "Mock Interviews & Revision",totalQuestions: 4,  doneQuestions: 0, status: "locked", questions: [] },
+    ],
+  },
+  {
+    slug: "amazon",
+    name: "Amazon",
+    initial: "A",
+    color: "bg-orange-500",
+    role: "SDE-1",
+    totalWeeks: 8,
+    currentWeek: 2,
+    pctComplete: 70,
+    weeks: [
+      {
+        weekNumber: 1,
+        topic: "Arrays, Strings & LP Stories",
+        totalQuestions: 12,
+        doneQuestions: 12,
+        status: "done",
+        questions: [
+          { id: 1,  title: "Two Sum",                   diff: "Easy",   xp: 10, leetcodeUrl: "https://leetcode.com/problems/two-sum/",                done: true },
+          { id: 2,  title: "Merge Intervals",            diff: "Medium", xp: 25, leetcodeUrl: "https://leetcode.com/problems/merge-intervals/",        done: true },
+          { id: 20, title: "Tell me about ownership (LP)", diff: "Medium", xp: 15, done: true },
+        ],
+      },
+      {
+        weekNumber: 2,
+        topic: "Trees, Heaps & Leadership Principles",
+        totalQuestions: 10,
+        doneQuestions: 7,
+        status: "active",
+        questions: [
+          { id: 17, title: "K-th Largest Element",       diff: "Medium", xp: 25, leetcodeUrl: "https://leetcode.com/problems/kth-largest-element-in-an-array/", done: true },
+          { id: 21, title: "Disagree with manager (LP)", diff: "Medium", xp: 15, done: false },
+          { id: 22, title: "Serialize Binary Tree",      diff: "Hard",   xp: 40, leetcodeUrl: "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/", done: false },
+        ],
+      },
+      { weekNumber: 3, topic: "Dynamic Programming",      totalQuestions: 10, doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 4, topic: "Graphs & BFS/DFS",          totalQuestions: 8,  doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 5, topic: "System Design (LP context)",totalQuestions: 6,  doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 6, topic: "All 16 LP Stories",          totalQuestions: 8,  doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 7, topic: "Mock Bar Raiser Round",      totalQuestions: 4,  doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 8, topic: "Full Revision",              totalQuestions: 4,  doneQuestions: 0, status: "locked", questions: [] },
+    ],
+  },
+  {
+    slug: "flipkart",
+    name: "Flipkart",
+    initial: "F",
+    color: "bg-blue-500",
+    role: "SDE-1",
+    totalWeeks: 8,
+    currentWeek: 1,
+    pctComplete: 20,
+    weeks: [
+      {
+        weekNumber: 1,
+        topic: "DSA Basics + LLD Intro",
+        totalQuestions: 10,
+        doneQuestions: 2,
+        status: "active",
+        questions: [
+          { id: 23, title: "House Robber",               diff: "Medium", xp: 20, leetcodeUrl: "https://leetcode.com/problems/house-robber/",          done: true },
+          { id: 24, title: "Design a Parking Lot (LLD)", diff: "Medium", xp: 50, done: false },
+          { id: 26, title: "Merge K Sorted Lists",        diff: "Hard",   xp: 40, leetcodeUrl: "https://leetcode.com/problems/merge-k-sorted-lists/", done: false },
+        ],
+      },
+      { weekNumber: 2, topic: "Machine Coding Practice",  totalQuestions: 6,  doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 3, topic: "LLD Deep Dive",             totalQuestions: 8,  doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 4, topic: "System Design (HLD)",       totalQuestions: 6,  doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 5, topic: "DP & Graphs",               totalQuestions: 10, doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 6, topic: "DBMS & Core CS",            totalQuestions: 8,  doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 7, topic: "Mock Machine Coding",       totalQuestions: 3,  doneQuestions: 0, status: "locked", questions: [] },
+      { weekNumber: 8, topic: "Full Revision",             totalQuestions: 4,  doneQuestions: 0, status: "locked", questions: [] },
+    ],
+  },
+];
+
+/** Read roadmap companies from sessionStorage (merges with mock data for demo) */
+export function getUserRoadmapCompanies(): UserRoadmapCompany[] {
+  // BACKEND TODO: GET /api/user/me/roadmap
+  // For now returns mock data. When backend is ready, fetch from API.
+  try {
+    if (typeof window === "undefined") return mockUserRoadmap;
+    const stored = sessionStorage.getItem("roadmap_companies");
+    if (!stored) return mockUserRoadmap;
+    const entries: RoadmapCompanyEntry[] = JSON.parse(stored);
+    // Merge stored entries with mock data
+    const slugsInStore = entries.map((e) => e.slug);
+    const existing = mockUserRoadmap.filter((c) => slugsInStore.includes(c.slug));
+    return existing.length > 0 ? existing : mockUserRoadmap;
+  } catch {
+    return mockUserRoadmap;
+  }
+}

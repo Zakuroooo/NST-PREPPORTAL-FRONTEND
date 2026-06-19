@@ -1,264 +1,309 @@
 "use client";
 import { Suspense, useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
-import { Search, CheckCircle, ExternalLink, Filter } from "lucide-react";
-import { PracticeCategory, getPracticeQuestions } from "@/lib/api";
-import { Difficulty, Question, companiesList } from "@/lib/mock-data";
-import CategoryCard from "@/components/practice/CategoryCard";
+import { useSearchParams, useRouter } from "next/navigation";
+import { ArrowLeft, ExternalLink, Search, X } from "lucide-react";
+import {
+  practiceCategories,
+  filterQuestions,
+  allTopics,
+  allCompanySlugs,
+  type PracticeCategory,
+  type Difficulty,
+} from "@/lib/mock-data";
 
-// Mock Categories - move to api.ts or mock-data.ts later
-const categories: PracticeCategory[] = [
-  { id: "dsa", label: "DSA", icon: "Code2", totalQuestions: 2400, color: "bg-blue-600", roundType: "Coding" },
-  { id: "system-design", label: "System Design", icon: "Server", totalQuestions: 380, color: "bg-purple-600", roundType: "System Design" },
-  { id: "aptitude", label: "Aptitude", icon: "Calculator", totalQuestions: 650, color: "bg-amber-500", roundType: "Aptitude" },
-  { id: "hr", label: "HR / Behavioral", icon: "Users", totalQuestions: 290, color: "bg-green-600", roundType: "HR" },
-  { id: "lld", label: "LLD", icon: "Binary", totalQuestions: 120, color: "bg-indigo-600", roundType: "LLD" },
-  { id: "mcqs", label: "MCQs", icon: "BookOpen", totalQuestions: 500, color: "bg-pink-600", roundType: "MCQs" },
-  { id: "mock-oa", label: "Mock OA", icon: "Target", totalQuestions: 40, color: "bg-red-500", roundType: "Mock OA" },
-  { id: "maths", label: "Maths", icon: "Brain", totalQuestions: 200, color: "bg-teal-600", roundType: "Maths" }
-];
+// ── Difficulty badge colours ─────────────────────────
+const diffBadge = (d: string) =>
+  d === "Easy"   ? "bg-green-50 text-green-700 border border-green-200" :
+  d === "Medium" ? "bg-amber-50 text-amber-700 border border-amber-200" :
+                   "bg-red-50 text-red-600 border border-red-200";
 
+// ── Category card component ──────────────────────────
+function CategoryCard({
+  cat,
+  active,
+  onClick,
+}: {
+  cat: PracticeCategory;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full text-left p-5 rounded-2xl border-2 transition-all duration-200 hover:shadow-md group ${
+        active
+          ? "border-blue-500 bg-blue-50 shadow-md"
+          : `${cat.color} ${cat.borderColor} hover:border-blue-300`
+      }`}
+    >
+      <div className="flex items-start justify-between mb-3">
+        <span className="text-2xl">{cat.emoji}</span>
+        {active && (
+          <span className="text-[10px] font-bold text-blue-600 bg-blue-100 rounded-full px-2 py-0.5">
+            ACTIVE
+          </span>
+        )}
+      </div>
+      <div className={`font-bold text-base mb-1 ${active ? "text-blue-700" : cat.textColor}`}>
+        {cat.label}
+      </div>
+      <div className="text-xs text-gray-500 mb-3 line-clamp-2">{cat.description}</div>
+      <div className={`text-xs font-semibold ${active ? "text-blue-600" : cat.textColor}`}>
+        {cat.totalQuestions.toLocaleString()}+ questions
+      </div>
+    </button>
+  );
+}
+
+// ── Main practice content (needs Suspense for useSearchParams) ──
 function PracticeContent() {
   const searchParams = useSearchParams();
-  
-  // URL Params parsing
-  const initialCategory = searchParams.get("category") || "";
-  const paramCompany = searchParams.get("company") || "All";
-  // Try to find if paramCompany is a slug
-  const foundCompany = companiesList.find(c => c.slug === paramCompany);
-  const initialCompany = foundCompany ? foundCompany.name : paramCompany;
-  
-  const initialTopic = searchParams.get("topic") || "All";
-  const initialDifficulty = (searchParams.get("difficulty") as Difficulty) || "";
+  const router = useRouter();
 
-  // State
-  const [activeCategory, setActiveCategory] = useState<string>(initialCategory);
-  const [company, setCompany] = useState<string>(initialCompany);
-  const [topic, setTopic] = useState<string>(initialTopic);
-  const [difficulty, setDifficulty] = useState<Difficulty | "">(initialDifficulty);
-  const [search, setSearch] = useState("");
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [page, setPage] = useState(1);
+  // Which category is active (from URL or selection)
+  const [activeCategory, setActiveCategory] = useState<string | null>(
+    searchParams.get("category") ?? null
+  );
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { setPage(1); }, [activeCategory, company, topic, difficulty, search]);
+  // Filters — only 3 as per design
+  const [search, setSearch] = useState(searchParams.get("search") ?? "");
+  const [company, setCompany] = useState(searchParams.get("company") ?? "");
+  const [topic, setTopic] = useState(searchParams.get("topic") ?? "");
+  const [difficulty, setDifficulty] = useState<Difficulty | "">(
+    (searchParams.get("difficulty") as Difficulty) ?? ""
+  );
 
+  // Sync URL when category changes
   useEffect(() => {
-    // In real app, call getPracticeQuestions
-    const fetchQ = async () => {
-      const res = await getPracticeQuestions({
-        category: activeCategory,
-        company: company,
-        topic: topic,
-        difficulty: difficulty,
-      });
-      // also filter by search text
-      const filtered = res.filter(q => 
-        !search.trim() || q.title.toLowerCase().includes(search.toLowerCase())
-      );
-      setQuestions(filtered);
-    };
-    fetchQ();
-  }, [activeCategory, company, topic, difficulty, search]);
+    if (activeCategory) {
+      const params = new URLSearchParams();
+      params.set("category", activeCategory);
+      if (search) params.set("search", search);
+      if (company) params.set("company", company);
+      if (topic) params.set("topic", topic);
+      if (difficulty) params.set("difficulty", difficulty);
+      router.replace(`/practice?${params.toString()}`, { scroll: false });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeCategory]);
 
-  // Pagination
-  const ITEMS_PER_PAGE = 15;
-  const totalPages = Math.max(1, Math.ceil(questions.length / ITEMS_PER_PAGE));
-  const paginated = questions.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+  const activeCat = practiceCategories.find((c) => c.id === activeCategory);
+
+  // Filter questions based on active category + user filters
+  const filteredQuestions = useMemo(() => {
+    if (!activeCat) return [];
+    const qs = filterQuestions({
+      company: company || undefined,
+      topic: topic || undefined,
+      difficulty: difficulty || undefined,
+      search: search || undefined,
+    });
+    // Keep only questions matching this category's roundTypes
+    return qs.filter((q) => activeCat.roundTypes.includes(q.roundType));
+  }, [activeCat, company, topic, difficulty, search]);
+
+  const handleSelectCategory = (id: string) => {
+    setActiveCategory((prev) => (prev === id ? null : id));
+    // Reset filters when changing category
+    setSearch("");
+    setCompany("");
+    setTopic("");
+    setDifficulty("");
+  };
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-2">Practice Zone</h1>
-        <p className="text-gray-500">Master every concept before your interview.</p>
+      <div className="mb-6">
+        <h1 className="text-xl font-bold text-gray-900">Practice Zone</h1>
+        <p className="text-sm text-gray-500 mt-0.5">
+          Choose a category to start practising. Use filters to narrow down questions.
+        </p>
       </div>
 
       {/* Category Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12 relative z-0">
-        {categories.map(cat => (
-          <CategoryCard 
-            key={cat.id} 
-            category={cat} 
-            isActive={activeCategory === cat.id}
-            onClick={() => setActiveCategory(activeCategory === cat.id ? "" : cat.id)}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        {practiceCategories.map((cat) => (
+          <CategoryCard
+            key={cat.id}
+            cat={cat}
+            active={activeCategory === cat.id}
+            onClick={() => handleSelectCategory(cat.id)}
           />
         ))}
       </div>
 
-      {/* Filters & Search */}
-      <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6 relative z-0">
-        <div className="flex flex-col md:flex-row gap-4 items-end">
-          
-          {/* Search */}
-          <div className="flex-1 w-full">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Search</label>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+      {/* Question list panel — shown only when a category is selected */}
+      {activeCat && (
+        <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+          {/* Panel header */}
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100 bg-gray-50">
+            <button
+              onClick={() => setActiveCategory(null)}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Close category"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </button>
+            <span className="text-lg">{activeCat.emoji}</span>
+            <div>
+              <div className="font-bold text-gray-900 text-sm">{activeCat.label} Questions</div>
+              <div className="text-xs text-gray-500">{filteredQuestions.length} results</div>
+            </div>
+          </div>
+
+          {/* Filters — only 3: Search, Company, Topic, Difficulty */}
+          <div className="px-5 py-4 border-b border-gray-100 flex flex-wrap gap-3 items-center">
+            {/* Search */}
+            <div className="relative flex-1 min-w-[180px]">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-3.5 h-3.5 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Search questions..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-8 pr-8 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
               />
+              {search && (
+                <button
+                  onClick={() => setSearch("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
             </div>
-          </div>
 
-          {/* Company */}
-          <div className="w-full md:w-48">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Company</label>
+            {/* Company dropdown */}
             <select
               value={company}
               onChange={(e) => setCompany(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-700"
             >
-              <option value="All">All Companies</option>
-              {companiesList.map(c => <option key={c.slug} value={c.name}>{c.name}</option>)}
+              <option value="">All Companies</option>
+              {allCompanySlugs.map((c) => (
+                <option key={c.slug} value={c.slug}>{c.name}</option>
+              ))}
             </select>
-          </div>
 
-          {/* Topic */}
-          <div className="w-full md:w-48">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Topic</label>
+            {/* Topic dropdown */}
             <select
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 text-gray-700"
             >
-              <option value="All">All Topics</option>
-              {/* Dummy topics, fetch from API later */}
-              <option value="Arrays">Arrays</option>
-              <option value="Dynamic Programming">Dynamic Programming</option>
-              <option value="Graphs">Graphs</option>
-              <option value="System Design">System Design</option>
+              <option value="">All Topics</option>
+              {allTopics.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
             </select>
-          </div>
 
-          {/* Difficulty Toggles */}
-          <div className="w-full md:w-auto">
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Difficulty</label>
-            <div className="flex bg-gray-100 p-1 rounded-lg">
+            {/* Difficulty toggles */}
+            <div className="flex gap-1">
               {(["", "Easy", "Medium", "Hard"] as const).map((d) => (
                 <button
-                  key={d}
-                  onClick={() => setDifficulty(d)}
-                  className={`px-4 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                  key={d || "all"}
+                  onClick={() => setDifficulty(d as Difficulty | "")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                     difficulty === d
-                      ? "bg-white text-gray-900 shadow-sm"
-                      : "text-gray-500 hover:text-gray-900"
+                      ? d === "Easy"   ? "bg-green-600 text-white" :
+                        d === "Medium" ? "bg-amber-500 text-white" :
+                        d === "Hard"   ? "bg-red-500 text-white"   : "bg-gray-900 text-white"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
-                  {d === "" ? "All" : d}
+                  {d || "All"}
                 </button>
               ))}
             </div>
           </div>
 
-        </div>
-      </div>
+          {/* Question rows */}
+          {filteredQuestions.length === 0 ? (
+            <div className="py-16 text-center text-gray-400">
+              <div className="text-4xl mb-3">🔍</div>
+              <div className="font-medium">No questions found</div>
+              <div className="text-sm mt-1">Try adjusting your filters</div>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-50">
+              {filteredQuestions.map((q, idx) => (
+                <div
+                  key={q.id}
+                  className="flex items-center gap-4 px-5 py-3.5 hover:bg-gray-50 transition-colors"
+                >
+                  <span className="text-xs text-gray-400 font-mono w-6 shrink-0">{idx + 1}</span>
 
-      {/* Results Table */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden mb-6">
-        {paginated.length === 0 ? (
-          <div className="py-12 text-center text-gray-500 text-sm">No questions found. Try adjusting filters.</div>
-        ) : (
-          <table className="w-full text-left text-sm text-gray-700">
-            <thead className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-4 w-8">Status</th>
-                <th className="px-6 py-4">Title</th>
-                <th className="px-6 py-4 w-48">Company</th>
-                <th className="px-6 py-4 w-32">Topic</th>
-                <th className="px-6 py-4 w-24">Difficulty</th>
-                <th className="px-6 py-4 w-20">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {paginated.map((q) => (
-                <tr key={q.id} className="hover:bg-gray-50 transition-colors group">
-                  <td className="px-6 py-4">
-                    <button className="text-gray-300 hover:text-green-500 transition-colors">
-                      <CheckCircle className="w-5 h-5" />
-                    </button>
-                  </td>
-                  <td className="px-6 py-4 font-medium text-gray-900">{q.title}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex flex-wrap gap-1">
-                      {q.companies.slice(0, 2).map((co, i) => (
-                        <span key={i} className="inline-block px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] font-bold uppercase tracking-wider">
+                  {/* Title */}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm text-gray-900 truncate">{q.title}</div>
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                      <span className="text-xs text-gray-500">{q.topic}</span>
+                      {q.companies.slice(0, 2).map((co) => (
+                        <span key={co} className="text-xs bg-gray-100 text-gray-600 rounded px-1.5 py-0.5 capitalize">
                           {co}
                         </span>
                       ))}
-                      {q.companies.length > 2 && (
-                        <span className="inline-block px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-[10px] font-bold uppercase tracking-wider">
-                          +{q.companies.length - 2}
-                        </span>
+                      {q.hot && (
+                        <span className="text-xs bg-red-50 text-red-600 rounded px-1.5 py-0.5">🔥 Hot</span>
                       )}
                     </div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="inline-block px-2 py-1 bg-blue-50 text-blue-700 rounded text-xs font-medium">
-                      {q.topic}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-block px-2 py-1 rounded text-xs font-bold ${
-                      q.diff === "Easy" ? "bg-green-50 text-green-700" :
-                      q.diff === "Medium" ? "bg-amber-50 text-amber-700" :
-                      "bg-red-50 text-red-600"
-                    }`}>
-                      {q.diff}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">
+                  </div>
+
+                  {/* Difficulty badge */}
+                  <span className={`text-xs font-semibold rounded-full px-2.5 py-1 shrink-0 ${diffBadge(q.diff)}`}>
+                    {q.diff}
+                  </span>
+
+                  {/* XP */}
+                  <span className="text-xs font-bold text-amber-600 shrink-0">+{q.xp} XP</span>
+
+                  {/* LeetCode link */}
+                  {q.leetcodeUrl ? (
                     <a
-                      href={q.leetcodeUrl || "#"}
+                      href={q.leetcodeUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="opacity-0 group-hover:opacity-100 p-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-600 transition-all inline-flex items-center justify-center"
+                      className="text-blue-600 hover:text-blue-700 shrink-0"
+                      aria-label={`Open ${q.title} on LeetCode`}
                     >
                       <ExternalLink className="w-4 h-4" />
                     </a>
-                  </td>
-                </tr>
+                  ) : (
+                    <div className="w-4 shrink-0" />
+                  )}
+                </div>
               ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
+      )}
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">
-            Showing <span className="font-medium">{(page - 1) * ITEMS_PER_PAGE + 1}</span> to <span className="font-medium">{Math.min(page * ITEMS_PER_PAGE, questions.length)}</span> of <span className="font-medium">{questions.length}</span> results
-          </p>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="px-4 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
-            >
-              Next
-            </button>
-          </div>
+      {/* If no category selected, show hint */}
+      {!activeCategory && (
+        <div className="text-center py-12 text-gray-400">
+          <div className="text-4xl mb-3">👆</div>
+          <div className="font-medium text-gray-600">Select a category above to start practising</div>
+          <div className="text-sm mt-1">Each category has filtered questions with difficulty & company tags</div>
         </div>
       )}
     </div>
   );
 }
 
+// Suspense wrapper required for useSearchParams in App Router
 export default function PracticePage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center text-gray-500">Loading practice zone...</div>}>
+    <Suspense fallback={
+      <div className="space-y-4">
+        <div className="h-8 bg-gray-100 rounded-lg w-48 animate-pulse" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[...Array(8)].map((_, i) => (
+            <div key={i} className="h-32 bg-gray-100 rounded-2xl animate-pulse" />
+          ))}
+        </div>
+      </div>
+    }>
       <PracticeContent />
     </Suspense>
   );

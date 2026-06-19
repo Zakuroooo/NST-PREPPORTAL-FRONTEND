@@ -92,7 +92,7 @@ export default function DashboardPage() {
                 <p className="text-sm text-gray-500 mt-1">Master the fundamentals of array manipulation and hash maps.</p>
               </div>
               <Link
-                href="/roadmap"
+                href="/practice"
                 className="bg-gray-900 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-gray-800 transition-colors shrink-0"
               >
                 Start Today&apos;s Practice

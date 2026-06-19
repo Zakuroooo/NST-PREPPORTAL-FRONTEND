@@ -1,6 +1,5 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
 import { Rocket, CheckCircle, Map, Zap, Calendar } from "lucide-react";
 import Stepper from "@/components/onboarding/Stepper";
 
@@ -13,7 +12,40 @@ const readyItems = [
 
 export default function Step4() {
   const router = useRouter();
-  const { user } = useUser();
+
+  const handleLaunch = () => {
+    // Auto-populate roadmap from onboarding step2 company selections
+    // BACKEND TODO: POST /api/user/me/onboarding/complete
+    try {
+      const storedCompanies = sessionStorage.getItem("onboarding_companies");
+      if (storedCompanies) {
+        const companies: string[] = JSON.parse(storedCompanies);
+        const companyData: Record<string, { name: string; initial: string; color: string }> = {
+          google:    { name: "Google",    initial: "G", color: "bg-blue-600" },
+          amazon:    { name: "Amazon",    initial: "A", color: "bg-orange-500" },
+          flipkart:  { name: "Flipkart",  initial: "F", color: "bg-blue-500" },
+          microsoft: { name: "Microsoft", initial: "M", color: "bg-teal-600" },
+          tcs:       { name: "TCS",       initial: "T", color: "bg-indigo-600" },
+          razorpay:  { name: "Razorpay",  initial: "R", color: "bg-blue-800" },
+        };
+        const roadmapEntries = companies
+          .filter((slug) => companyData[slug])
+          .map((slug) => ({
+            slug,
+            ...companyData[slug],
+            role: "SDE-1",
+            weeks: 12,
+            addedAt: new Date().toISOString(),
+          }));
+        if (roadmapEntries.length > 0) {
+          sessionStorage.setItem("roadmap_companies", JSON.stringify(roadmapEntries));
+        }
+      }
+    } catch {
+      // sessionStorage might not be available
+    }
+    router.push("/dashboard");
+  };
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center px-4 py-12 text-center">
@@ -60,14 +92,7 @@ export default function Step4() {
       </div>
 
       <button
-        onClick={async () => {
-          if (user) {
-            await user.update({
-              unsafeMetadata: { onboarding_done: true }
-            });
-          }
-          router.push("/dashboard");
-        }}
+        onClick={handleLaunch}
         className="w-full max-w-md bg-gray-900 text-white py-3 rounded-lg text-sm font-bold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
       >
         <Rocket className="w-4 h-4" /> Launch My Dashboard
@@ -75,3 +100,4 @@ export default function Step4() {
     </div>
   );
 }
+

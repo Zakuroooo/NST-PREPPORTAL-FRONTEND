@@ -111,6 +111,17 @@ export default function Step2() {
             // For now, store in sessionStorage for Step 3 to read
             if (typeof window !== "undefined") {
               sessionStorage.setItem("onboarding_categories", JSON.stringify(selected));
+              // Map categories → company slugs for auto-populating roadmap in step4
+              const categoryToSlugs: Record<string, string[]> = {
+                maang:   ["google", "amazon", "microsoft"],
+                product: ["flipkart", "razorpay"],
+                service: ["tcs"],
+                startup: ["razorpay"],
+                bfsi:    [],
+                other:   [],
+              };
+              const slugs = [...new Set(selected.flatMap((cat) => categoryToSlugs[cat] ?? []))];
+              sessionStorage.setItem("onboarding_companies", JSON.stringify(slugs));
             }
             router.push("/onboarding/step3");
           }}
