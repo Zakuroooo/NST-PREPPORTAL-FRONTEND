@@ -121,7 +121,7 @@ export default function LoginPage() {
           {/* EMERGENCY GUEST BUTTON */}
           <button
             type="button"
-            onClick={() => router.push("/dashboard")}
+            onClick={() => router.push("/onboarding/step1")}
             className="w-full bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold py-2.5 rounded-lg text-sm transition-colors border border-gray-300"
           >
             Guest Access (Demo Mode)
