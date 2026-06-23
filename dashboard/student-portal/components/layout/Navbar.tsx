@@ -1,10 +1,11 @@
 "use client";
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Bell, Zap, Search, X, Building2, Tag } from "lucide-react";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { searchAll, type SearchResult } from "@/lib/mock-data";
+import { useNavbar } from "@/lib/navbar-context";
 
 // Unread notification count — reads from sessionStorage
 function useUnreadCount() {
@@ -23,7 +24,9 @@ function useUnreadCount() {
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user } = useUser();
+  useNavbar(); // kept for context availability
   const [query, setQuery] = useState("");
   const [selectedIdx, setSelectedIdx] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -79,7 +82,6 @@ export default function Navbar() {
     setQuery("");
     setSelectedIdx(-1);
   };
-
   return (
     <header className="fixed top-0 left-0 right-0 h-14 bg-white border-b border-gray-200 flex items-center px-4 z-50">
       {/* Logo */}
@@ -157,37 +159,63 @@ export default function Navbar() {
       </div>
 
       {/* Right side */}
-      <div className="flex items-center gap-3 ml-auto">
-        {/* XP */}
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-500">XP</span>
-          <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
-          <span className="text-sm font-bold text-amber-600">{xp.toLocaleString()}</span>
+      <div className="flex items-center ml-auto">
+        {/* XP Badge */}
+        <div className="flex items-center gap-1 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-1 hover:bg-amber-100 transition-colors cursor-default">
+          <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+          <span className="text-xs font-bold text-amber-700">{xp.toLocaleString()}</span>
+          <span className="text-[10px] font-semibold text-amber-500 uppercase tracking-wide">XP</span>
         </div>
+
+        {/* Divider */}
+        <div className="w-px h-5 bg-gray-200 mx-3" />
 
         {/* Notification Bell */}
         <Link
           href="/notifications"
           aria-label="Notifications"
-          className="text-gray-400 hover:text-gray-600 transition-colors relative"
+          className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700"
           onClick={() => sessionStorage.setItem("notifications_last_read", new Date().toISOString())}
         >
-          <Bell className="w-5 h-5" />
+          <Bell className="w-4.5 h-4.5" />
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 min-w-[14px] h-[14px] bg-red-500 rounded-full flex items-center justify-center text-[9px] text-white font-bold px-0.5">
+            <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] bg-red-500 rounded-full flex items-center justify-center text-[9px] text-white font-bold px-0.5">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
         </Link>
 
-        {/* Clerk User Button — handles avatar, profile, sign out */}
-        <UserButton
-          appearance={{
-            elements: {
-              avatarBox: "w-8 h-8",
-            },
-          }}
-        />
+        {/* Profile Avatar — links to /profile page */}
+        <Link
+          href="/profile"
+          aria-label="Profile"
+          className="relative ml-1 w-9 h-9 rounded-full overflow-hidden ring-2 ring-transparent hover:ring-blue-400 transition-all flex items-center justify-center"
+          title="View Profile"
+        >
+          {user?.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={user.imageUrl}
+              alt={user.fullName ?? "Profile"}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-xs font-bold">
+              {user?.firstName?.[0] ?? "U"}
+            </div>
+          )}
+        </Link>
+
+        {/* Clerk User Button — hidden visually but provides sign-out + account management */}
+        <div className="hidden">
+          <UserButton
+            appearance={{
+              elements: {
+                avatarBox: "w-8 h-8",
+              },
+            }}
+          />
+        </div>
       </div>
     </header>
   );

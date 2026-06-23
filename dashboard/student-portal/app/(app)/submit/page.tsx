@@ -1,12 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
   Zap, Plus, X, CheckCircle, Clock, XCircle, Check,
   ChevronRight, ChevronDown, ChevronUp, Bookmark, ThumbsUp, Share2,
   History, Code, Sparkles, Filter, ArrowUpDown
 } from "lucide-react";
+import { useNavbar } from "@/lib/navbar-context";
 
 // Mock logos matching Stitch and other company logos
 const logos: Record<string, string> = {
@@ -129,9 +130,13 @@ const popularCompanies = [
 ];
 
 export default function SubmitPage() {
-  const [view, setView] = useState<"feed" | "submit">("feed");
+  const { setOnSubmitClick } = useNavbar();
   const [experiences, setExperiences] = useState<Experience[]>(initialExperiences);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   // Filters state
   const [filterDifficulty, setFilterDifficulty] = useState<string>("All");
@@ -152,10 +157,39 @@ export default function SubmitPage() {
   const [formTipsText, setFormTipsText] = useState("");
   const [formRoundsCount, setFormRoundsCount] = useState(3);
   const [formProblemsCount, setFormProblemsCount] = useState(2);
-  const [formSubmitted, setFormSubmitted] = useState(false);
   const [formTags, setFormTags] = useState<string[]>(["Arrays", "Dynamic Programming"]);
   const [formTagInput, setFormTagInput] = useState("");
   const [formRoundType, setFormRoundType] = useState("DSA Coding");
+
+  // Register the modal-open callback in the Navbar via context
+  const openModal = useCallback(() => {
+    setShowModal(true);
+    setFormSubmitted(false);
+  }, []);
+
+  useEffect(() => {
+    setOnSubmitClick(openModal);
+    return () => setOnSubmitClick(null);
+  }, [openModal, setOnSubmitClick]);
+
+  // Close modal on Escape key
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowModal(false);
+    };
+    if (showModal) document.addEventListener("keydown", handleEsc);
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, [showModal]);
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (showModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [showModal]);
 
   const addTag = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && formTagInput.trim()) {
@@ -220,6 +254,12 @@ export default function SubmitPage() {
     setFormRoundType("DSA Coding");
   };
 
+  const closeModal = () => {
+    setShowModal(false);
+    setFormSubmitted(false);
+    clearForm();
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formExperienceText.trim()) {
@@ -274,533 +314,545 @@ export default function SubmitPage() {
       }
     });
 
-  if (view === "submit") {
-    if (formSubmitted) {
-      return (
-        <div className="max-w-xl mx-auto text-center py-20 bg-white border border-gray-200 rounded-xl p-8 shadow-sm">
-          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Thank you for contributing!</h2>
-          <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-6 py-3 text-amber-800 font-bold text-lg mt-4 mb-4 shadow-sm">
-            <Zap className="w-5 h-5 text-amber-500 fill-amber-500" />
-            +50 XP Earned!
-          </div>
-          <p className="text-gray-500 text-sm">Your experience will help future NST students prepare better.</p>
-          <div className="flex justify-center gap-3 mt-8">
-            <button
-              onClick={() => {
-                setFormSubmitted(false);
-                setView("feed");
-                clearForm();
-              }}
-              className="border border-gray-300 text-gray-700 text-sm px-5 py-2.5 rounded-lg hover:bg-gray-50 transition-colors font-medium"
-            >
-              Back to Feed
-            </button>
-            <button
-              onClick={() => {
-                setFormSubmitted(false);
-                clearForm();
-              }}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-5 py-2.5 rounded-lg transition-colors font-medium"
-            >
-              Submit Another
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="max-w-3xl">
-        <button
-          onClick={() => {
-            setView("feed");
-            clearForm();
-          }}
-          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-5 font-medium"
-        >
-          ← Back to Experiences Feed
-        </button>
-
-        <h1 className="text-2xl font-semibold text-gray-900">Share Your Interview Experience</h1>
-        <p className="text-sm text-gray-500 mt-1 mb-5">Help your juniors prepare better. Every submission makes PlacePrep smarter.</p>
-
-        {/* XP Banner */}
-        <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 shadow-sm">
-          <Zap className="w-5 h-5 text-amber-500 fill-amber-500 shrink-0" />
-          <span className="text-amber-800 font-medium text-sm">Earn 50 XP for submitting your interview experience this week!</span>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-xl p-7 space-y-5 shadow-sm">
-          {/* Row 1 */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-1.5 block">Company</label>
-              <select
-                value={formCompany}
-                onChange={(e) => setFormCompany(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {companies.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-1.5 block">Role / Level</label>
-              <select
-                value={formRole}
-                onChange={(e) => setFormRole(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="SDE-1">SDE-1</option>
-                <option value="SDE-2">SDE-2</option>
-                <option value="Data Analyst">Data Analyst</option>
-                <option value="Frontend Engineer">Frontend Engineer</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Row 2 */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-1.5 block">Interview Date</label>
-              <input
-                type="date"
-                value={formDate}
-                onChange={(e) => setFormDate(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-1.5 block">Outcome</label>
-              <div className="flex gap-2">
-                {[
-                  { key: "offer", label: "Offer", icon: CheckCircle, activeClass: "bg-green-600 text-white border-green-600" },
-                  { key: "rejected", label: "Rejected", icon: XCircle, activeClass: "bg-red-600 text-white border-red-600" },
-                  { key: "waiting", label: "Waiting", icon: Clock, activeClass: "bg-amber-500 text-white border-amber-500" },
-                ].map(({ key, label, icon: Icon, activeClass }) => (
-                  <button
-                    type="button"
-                    key={key}
-                    onClick={() => setFormOutcome(key)}
-                    className={`flex-1 text-xs font-medium py-2.5 rounded-lg border transition-all flex items-center justify-center gap-1.5 ${ formOutcome === key ? activeClass : "border-gray-200 text-gray-700 hover:bg-gray-50"}`}
-                  >
-                    <Icon className="w-3.5 h-3.5" />{label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Stars */}
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">Overall Difficulty</label>
-            <div className="flex gap-2">
-              {[1, 2, 3, 4, 5].map((s) => (
-                <button
-                  type="button"
-                  key={s}
-                  onClick={() => setFormStars(s)}
-                  className={`text-2xl ${s <= formStars ? "text-yellow-400" : "text-gray-200"} hover:text-yellow-400 transition-colors`}
-                >
-                  ★
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Rounds Configuration */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-1.5 block">Rounds Conducted</label>
-              <input
-                type="number"
-                min={1}
-                max={10}
-                value={formRoundsCount}
-                onChange={(e) => setFormRoundsCount(Number(e.target.value))}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-1.5 block">Problems Asked</label>
-              <input
-                type="number"
-                min={0}
-                max={20}
-                value={formProblemsCount}
-                onChange={(e) => setFormProblemsCount(Number(e.target.value))}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
-
-          {/* Round detail mockup */}
-          <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-gray-50/50">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-gray-500">PRIMARY ROUND</span>
-              <select
-                value={formRoundType}
-                onChange={(e) => setFormRoundType(e.target.value)}
-                className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="Online Assessment">Online Assessment</option>
-                <option value="DSA Coding">DSA Coding</option>
-                <option value="System Design">System Design</option>
-                <option value="HR">HR</option>
-                <option value="Managerial">Managerial</option>
-              </select>
-            </div>
-            <div>
-              <label className="text-xs text-gray-500 mb-1.5 block">Topics Asked</label>
-              <div className="flex flex-wrap gap-2 border border-gray-200 bg-white rounded-lg p-2 min-h-[42px]">
-                {formTags.map((t) => (
-                  <span key={t} className="flex items-center gap-1 bg-blue-50 text-blue-700 text-xs rounded px-2 py-1">
-                    {t}
-                    <button type="button" onClick={() => setFormTags(formTags.filter((x) => x !== t))}>
-                      <X className="w-3 h-3 text-blue-500 hover:text-blue-700" />
-                    </button>
-                  </span>
-                ))}
-                <input
-                  value={formTagInput}
-                  onChange={(e) => setFormTagInput(e.target.value)}
-                  onKeyDown={addTag}
-                  placeholder="Type topic + Enter"
-                  className="flex-1 min-w-[120px] text-xs outline-none bg-transparent"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Experience Description */}
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Your Interview Experience</label>
-            <textarea
-              rows={4}
-              required
-              value={formExperienceText}
-              onChange={(e) => setFormExperienceText(e.target.value)}
-              placeholder="What questions were asked? How did you approach them? What was the difficulty level?"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            />
-          </div>
-
-          {/* Tips */}
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Any surprises or tips?</label>
-            <textarea
-              rows={3}
-              value={formTipsText}
-              onChange={(e) => setFormTipsText(e.target.value)}
-              placeholder="What wasn't covered in any prep guide? What surprised you?"
-              className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-3 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
-          >
-            Submit Experience
-          </button>
-        </form>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-10 relative">
-      {/* Toast Feedback Notification */}
-      {showToast && (
-        <div className="fixed bottom-5 right-5 bg-gray-900 text-white px-4 py-3 rounded-xl shadow-lg z-50 flex items-center gap-2 border border-gray-800 text-sm transition-opacity duration-300">
-          <CheckCircle className="w-4 h-4 text-green-400" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
+    <>
+      {/* Main page content */}
+      <div className="space-y-10 relative max-w-[1200px] mx-auto">
+        {/* Toast Feedback Notification */}
+        {showToast && (
+          <div className="fixed bottom-5 right-5 bg-gray-900 text-white px-4 py-3 rounded-xl shadow-lg z-50 flex items-center gap-2 border border-gray-800 text-sm transition-opacity duration-300">
+            <CheckCircle className="w-4 h-4 text-green-400" />
+            <span>{toastMessage}</span>
+          </div>
+        )}
 
-      {/* Hero section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <h2 className="text-[32px] leading-tight font-extrabold text-gray-900">
-            Ace your interview with <span className="text-orange-500">Interview Experience</span>
-          </h2>
-          <p className="text-gray-500 text-lg mt-2 font-normal">Turn your placement story into someone's prep guide.</p>
-        </div>
-        <button
-          onClick={() => setView("submit")}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm hover:shadow transition-all self-start flex items-center gap-1.5 shrink-0"
-        >
-          <Sparkles className="w-4 h-4" /> Share Yours
-        </button>
-      </div>
-
-      {/* Popular Companies Grid */}
-      <section>
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            Popular Companies
-          </h3>
-          <Link
-            href="/companies"
-            className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-semibold transition-colors"
+        {/* Hero section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h2 className="text-[32px] leading-tight font-extrabold text-gray-900">
+              Ace your interview with <span className="text-orange-500">Interview Experience</span>
+            </h2>
+            <p className="text-gray-500 text-lg mt-2 font-normal">Turn your placement story into someone&apos;s prep guide.</p>
+          </div>
+          <button
+            onClick={() => { setShowModal(true); setFormSubmitted(false); }}
+            className="bg-gray-900 hover:bg-gray-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold shadow-sm hover:shadow transition-all self-start flex items-center gap-1.5 shrink-0"
           >
-            View all <ChevronRight className="w-4 h-4 ml-0.5" />
-          </Link>
+            <Sparkles className="w-4 h-4" /> Share Yours
+          </button>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {popularCompanies.map((c) => (
-            <div
-              key={c.name}
-              onClick={() => setFilterCompany(c.name)}
-              className={`bg-white border p-4 rounded-xl flex flex-col items-center text-center group cursor-pointer transition-all hover:-translate-y-0.5 ${
-                filterCompany === c.name
-                  ? "border-blue-600 ring-2 ring-blue-500/20 shadow-md"
-                  : "border-gray-200 hover:shadow-md"
-              }`}
+        {/* Popular Companies Grid */}
+        <section>
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+              Popular Companies
+            </h3>
+            <Link
+              href="/companies"
+              className="text-gray-500 hover:text-gray-900 flex items-center text-sm font-semibold transition-colors"
             >
-              <div className="w-12 h-12 bg-white border border-gray-200 rounded-lg flex items-center justify-center p-2 mb-3 shadow-sm">
-                <img alt={c.name} className="w-full h-full object-contain animate-fadeIn" src={c.logo} />
-              </div>
-              <p className="font-bold text-gray-900 text-sm">{c.name}</p>
-              <span className="text-[9px] uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full mt-2 font-bold shrink-0">
-                {c.type}
-              </span>
-              <p className="text-[11px] text-gray-500 mt-2 font-medium">{c.count} Experiences</p>
-
-              {/* View Intel details */}
-              <Link
-                href={`/companies/${c.slug}`}
-                onClick={(e) => e.stopPropagation()}
-                className="mt-3 text-[10px] font-semibold text-blue-600 hover:underline inline-flex items-center"
-              >
-                View Intel →
-              </Link>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Experience Feed list */}
-      <section className="max-w-5xl">
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
-          <div className="flex items-center gap-3">
-            <h3 className="text-xl font-bold text-gray-900">Experiences Feed</h3>
-            {/* Active Company Filter indicator */}
-            {filterCompany !== "All" && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
-                Company: {filterCompany}
-                <button onClick={() => setFilterCompany("All")} className="focus:outline-none">
-                  <X className="w-3 h-3 hover:text-blue-900" />
-                </button>
-              </span>
-            )}
+              View all <ChevronRight className="w-4 h-4 ml-0.5" />
+            </Link>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Filter by Difficulty */}
-            <div className="flex items-center gap-2">
-              <Filter className="w-3.5 h-3.5 text-gray-400" />
-              <select
-                value={filterDifficulty}
-                onChange={(e) => setFilterDifficulty(e.target.value)}
-                className="bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="All">All Difficulties</option>
-                <option value="Easy">Easy</option>
-                <option value="Medium">Medium</option>
-                <option value="Hard">Hard</option>
-              </select>
-            </div>
-
-            {/* Filter by Company */}
-            <div className="flex items-center gap-2">
-              <select
-                value={filterCompany}
-                onChange={(e) => setFilterCompany(e.target.value)}
-                className="bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="All">All Companies</option>
-                {companies.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
-            </div>
-
-            {/* Sort by */}
-            <div className="flex items-center gap-2">
-              <ArrowUpDown className="w-3.5 h-3.5 text-gray-400" />
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="Most Upvoted">Most Upvoted</option>
-                <option value="Newest">Newest</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {filteredExperiences.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-xl p-12 text-center shadow-sm">
-            <p className="text-gray-500 font-medium mb-2">No experiences match your filters.</p>
-            <button
-              onClick={() => {
-                setFilterCompany("All");
-                setFilterDifficulty("All");
-              }}
-              className="text-blue-600 hover:text-blue-700 font-semibold text-sm"
-            >
-              Reset Filters
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {filteredExperiences.map((exp) => (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {popularCompanies.map((c) => (
               <div
-                key={exp.id}
-                className="bg-white border border-gray-200 rounded-xl p-6 relative group hover:shadow-md transition-shadow cursor-default"
+                key={c.name}
+                onClick={() => setFilterCompany(c.name)}
+                className={`bg-white border p-4 rounded-xl flex flex-col items-center text-center group cursor-pointer transition-all hover:-translate-y-0.5 ${
+                  filterCompany === c.name
+                    ? "border-blue-600 ring-2 ring-blue-500/20 shadow-md"
+                    : "border-gray-200 hover:shadow-md"
+                }`}
               >
-                <div className="flex flex-col sm:flex-row sm:justify-between items-start gap-4">
-                  <div className="flex gap-4">
-                    <div className="w-12 h-12 border border-gray-200 rounded-lg flex items-center justify-center p-2 shadow-sm bg-white shrink-0">
-                      <img alt={exp.company} className="w-full h-full object-contain" src={exp.logoUrl} />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-gray-900 text-base flex flex-wrap items-center gap-1.5">
-                        {exp.company}
-                        <span className="font-normal text-gray-300">|</span>
-                        <span className="text-gray-800 text-sm font-medium">{exp.role}</span>
-                      </h4>
-                      <div className="flex flex-wrap items-center gap-4 mt-1 text-xs text-gray-500 font-medium">
-                        <div className="flex items-center gap-1">
-                          <History className="w-3.5 h-3.5 text-gray-400" />
-                          {exp.roundsCount} Rounds
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Code className="w-3.5 h-3.5 text-gray-400" />
-                          {exp.problemsCount} Problems
-                        </div>
-                        <span className="text-green-600 font-bold ml-1">Selected</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2 self-end sm:self-auto">
-                    {/* Upvote Button */}
-                    <button
-                      onClick={() => handleUpvote(exp.id)}
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all ${
-                        exp.hasUpvoted
-                          ? "bg-blue-50 text-blue-600 border-blue-200"
-                          : "border-gray-200 text-gray-700 hover:bg-gray-50"
-                      }`}
-                    >
-                      <ThumbsUp className={`w-3.5 h-3.5 ${exp.hasUpvoted ? "fill-blue-600 animate-pulse" : ""}`} />
-                      {exp.upvotes}
-                    </button>
-
-                    {/* Bookmark Button */}
-                    <button
-                      onClick={() => handleBookmark(exp.id)}
-                      className={`p-2 rounded-full border transition-all ${
-                        exp.hasBookmarked
-                          ? "bg-blue-50 text-blue-600 border-blue-200"
-                          : "border-gray-200 text-gray-500 hover:bg-gray-50"
-                      }`}
-                    >
-                      <Bookmark className={`w-3.5 h-3.5 ${exp.hasBookmarked ? "fill-blue-600" : ""}`} />
-                    </button>
-
-                    {/* Share Button */}
-                    <button
-                      onClick={() => handleShare(exp.id, exp.company)}
-                      className="p-2 rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors"
-                    >
-                      <Share2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                <div className="w-12 h-12 bg-white border border-gray-200 rounded-lg flex items-center justify-center p-2 mb-3 shadow-sm">
+                  <img alt={c.name} className="w-full h-full object-contain animate-fadeIn" src={c.logo} />
                 </div>
+                <p className="font-bold text-gray-900 text-sm">{c.name}</p>
+                <span className="text-[9px] uppercase tracking-wider text-orange-600 bg-orange-50 px-2 py-0.5 rounded-full mt-2 font-bold shrink-0">
+                  {c.type}
+                </span>
+                <p className="text-[11px] text-gray-500 mt-2 font-medium">{c.count} Experiences</p>
 
-                <div className="flex gap-2 mt-4">
-                  <span className={`px-2.5 py-0.5 text-[11px] font-semibold rounded-full ${
-                    exp.difficulty === 'Easy' ? 'bg-green-50 text-green-700 border border-green-200' :
-                    exp.difficulty === 'Medium' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                    'bg-red-50 text-red-700 border border-red-200'
-                  }`}>
-                    {exp.difficulty}
-                  </span>
-                  <span className="px-2.5 py-0.5 bg-gray-50 text-gray-600 text-[11px] font-semibold rounded-full border border-gray-100">
-                    {exp.workType}
-                  </span>
-                  <span className="px-2.5 py-0.5 bg-gray-50 text-gray-600 text-[11px] font-semibold rounded-full border border-gray-100">
-                    0-1 years
-                  </span>
-                </div>
-
-                <div className="mt-5 border-l-4 border-orange-500 pl-4 bg-gray-50/50 py-3 pr-3 rounded-r-lg">
-                  <h5 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Experience Highlights</h5>
-                  <p className="text-sm text-gray-700 leading-relaxed font-normal">
-                    {exp.experience}
-                  </p>
-                </div>
-
-                {/* Inline Accordion for Detailed Rounds */}
-                {expandedId === exp.id && (
-                  <div className="mt-5 pt-5 border-t border-gray-100 space-y-3">
-                    <h5 className="text-xs font-bold uppercase tracking-wider text-gray-900 mb-2">Round Details</h5>
-                    <div className="space-y-3">
-                      {exp.rounds.map((round) => (
-                        <div key={round.roundNumber} className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
-                                Round {round.roundNumber}
-                              </span>
-                              <span className="text-xs font-bold text-gray-800">{round.type}</span>
-                            </div>
-                            <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${round.cleared ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
-                              {round.cleared ? 'Cleared' : 'Not Cleared'}
-                            </span>
-                          </div>
-                          {round.topics && round.topics.length > 0 && (
-                            <div className="flex flex-wrap gap-1.5 mb-2">
-                              {round.topics.map((t) => (
-                                <span key={t} className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-medium">
-                                  {t}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                          <p className="text-xs text-gray-600 leading-relaxed">{round.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
-                  <div className="flex items-center gap-3">
-                    <span className="font-bold text-gray-800">-{exp.author}</span>
-                    <span>{exp.authorRole}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => setExpandedId(expandedId === exp.id ? null : exp.id)}
-                      className="text-blue-600 hover:text-blue-700 font-bold hover:underline inline-flex items-center gap-0.5"
-                    >
-                      {expandedId === exp.id ? "Hide Details" : "View Details"}
-                      {expandedId === exp.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                    </button>
-                    <span>Posted on: {exp.postedAgo}</span>
-                  </div>
-                </div>
+                {/* View Intel details */}
+                <Link
+                  href={`/companies/${c.slug}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="mt-3 text-[10px] font-semibold text-blue-600 hover:underline inline-flex items-center"
+                >
+                  View Intel →
+                </Link>
               </div>
             ))}
           </div>
-        )}
-      </section>
-    </div>
+        </section>
+
+        {/* Experience Feed list */}
+        <section>
+          <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+            <div className="flex items-center gap-3">
+              <h3 className="text-xl font-bold text-gray-900">Experiences Feed</h3>
+              {/* Active Company Filter indicator */}
+              {filterCompany !== "All" && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                  Company: {filterCompany}
+                  <button onClick={() => setFilterCompany("All")} className="focus:outline-none">
+                    <X className="w-3 h-3 hover:text-blue-900" />
+                  </button>
+                </span>
+              )}
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3">
+              {/* Filter by Difficulty */}
+              <div className="flex items-center gap-2">
+                <Filter className="w-3.5 h-3.5 text-gray-400" />
+                <select
+                  value={filterDifficulty}
+                  onChange={(e) => setFilterDifficulty(e.target.value)}
+                  className="bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="All">All Difficulties</option>
+                  <option value="Easy">Easy</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Hard">Hard</option>
+                </select>
+              </div>
+
+              {/* Filter by Company */}
+              <div className="flex items-center gap-2">
+                <select
+                  value={filterCompany}
+                  onChange={(e) => setFilterCompany(e.target.value)}
+                  className="bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="All">All Companies</option>
+                  {companies.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+
+              {/* Sort by */}
+              <div className="flex items-center gap-2">
+                <ArrowUpDown className="w-3.5 h-3.5 text-gray-400" />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="Most Upvoted">Most Upvoted</option>
+                  <option value="Newest">Newest</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {filteredExperiences.length === 0 ? (
+            <div className="bg-white border border-gray-200 rounded-xl p-12 text-center shadow-sm">
+              <p className="text-gray-500 font-medium mb-2">No experiences match your filters.</p>
+              <button
+                onClick={() => {
+                  setFilterCompany("All");
+                  setFilterDifficulty("All");
+                }}
+                className="text-blue-600 hover:text-blue-700 font-semibold text-sm"
+              >
+                Reset Filters
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {filteredExperiences.map((exp) => (
+                <div
+                  key={exp.id}
+                  className="bg-white border border-gray-200 rounded-xl p-6 relative group hover:shadow-md transition-shadow cursor-default"
+                >
+                  <div className="flex flex-col sm:flex-row sm:justify-between items-start gap-4">
+                    <div className="flex gap-4">
+                      <div className="w-12 h-12 border border-gray-200 rounded-lg flex items-center justify-center p-2 shadow-sm bg-white shrink-0">
+                        <img alt={exp.company} className="w-full h-full object-contain" src={exp.logoUrl} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-gray-900 text-base flex flex-wrap items-center gap-1.5">
+                          {exp.company}
+                          <span className="font-normal text-gray-300">|</span>
+                          <span className="text-gray-800 text-sm font-medium">{exp.role}</span>
+                        </h4>
+                        <div className="flex flex-wrap items-center gap-4 mt-1 text-xs text-gray-500 font-medium">
+                          <div className="flex items-center gap-1">
+                            <History className="w-3.5 h-3.5 text-gray-400" />
+                            {exp.roundsCount} Rounds
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Code className="w-3.5 h-3.5 text-gray-400" />
+                            {exp.problemsCount} Problems
+                          </div>
+                          <span className="text-green-600 font-bold ml-1">Selected</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 self-end sm:self-auto">
+                      {/* Upvote Button */}
+                      <button
+                        onClick={() => handleUpvote(exp.id)}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all ${
+                          exp.hasUpvoted
+                            ? "bg-blue-50 text-blue-600 border-blue-200"
+                            : "border-gray-200 text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        <ThumbsUp className={`w-3.5 h-3.5 ${exp.hasUpvoted ? "fill-blue-600 animate-pulse" : ""}`} />
+                        {exp.upvotes}
+                      </button>
+
+                      {/* Bookmark Button */}
+                      <button
+                        onClick={() => handleBookmark(exp.id)}
+                        className={`p-2 rounded-full border transition-all ${
+                          exp.hasBookmarked
+                            ? "bg-blue-50 text-blue-600 border-blue-200"
+                            : "border-gray-200 text-gray-500 hover:bg-gray-50"
+                        }`}
+                      >
+                        <Bookmark className={`w-3.5 h-3.5 ${exp.hasBookmarked ? "fill-blue-600" : ""}`} />
+                      </button>
+
+                      {/* Share Button */}
+                      <button
+                        onClick={() => handleShare(exp.id, exp.company)}
+                        className="p-2 rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 mt-4">
+                    <span className={`px-2.5 py-0.5 text-[11px] font-semibold rounded-full ${
+                      exp.difficulty === 'Easy' ? 'bg-green-50 text-green-700 border border-green-200' :
+                      exp.difficulty === 'Medium' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                      'bg-red-50 text-red-700 border border-red-200'
+                    }`}>
+                      {exp.difficulty}
+                    </span>
+                    <span className="px-2.5 py-0.5 bg-gray-50 text-gray-600 text-[11px] font-semibold rounded-full border border-gray-100">
+                      {exp.workType}
+                    </span>
+                    <span className="px-2.5 py-0.5 bg-gray-50 text-gray-600 text-[11px] font-semibold rounded-full border border-gray-100">
+                      0-1 years
+                    </span>
+                  </div>
+
+                  <div className="mt-5 border-l-4 border-orange-500 pl-4 bg-gray-50/50 py-3 pr-3 rounded-r-lg">
+                    <h5 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-1.5">Experience Highlights</h5>
+                    <p className="text-sm text-gray-700 leading-relaxed font-normal">
+                      {exp.experience}
+                    </p>
+                  </div>
+
+                  {/* Inline Accordion for Detailed Rounds */}
+                  {expandedId === exp.id && (
+                    <div className="mt-5 pt-5 border-t border-gray-100 space-y-3">
+                      <h5 className="text-xs font-bold uppercase tracking-wider text-gray-900 mb-2">Round Details</h5>
+                      <div className="space-y-3">
+                        {exp.rounds.map((round) => (
+                          <div key={round.roundNumber} className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-700 px-2 py-0.5 rounded">
+                                  Round {round.roundNumber}
+                                </span>
+                                <span className="text-xs font-bold text-gray-800">{round.type}</span>
+                              </div>
+                              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${round.cleared ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
+                                {round.cleared ? 'Cleared' : 'Not Cleared'}
+                              </span>
+                            </div>
+                            {round.topics && round.topics.length > 0 && (
+                              <div className="flex flex-wrap gap-1.5 mb-2">
+                                {round.topics.map((t) => (
+                                  <span key={t} className="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-medium">
+                                    {t}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                            <p className="text-xs text-gray-600 leading-relaxed">{round.description}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-500">
+                    <div className="flex items-center gap-3">
+                      <span className="font-bold text-gray-800">-{exp.author}</span>
+                      <span>{exp.authorRole}</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => setExpandedId(expandedId === exp.id ? null : exp.id)}
+                        className="text-blue-600 hover:text-blue-700 font-bold hover:underline inline-flex items-center gap-0.5"
+                      >
+                        {expandedId === exp.id ? "Hide Details" : "View Details"}
+                        {expandedId === exp.id ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                      </button>
+                      <span>Posted on: {exp.postedAgo}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+
+      {/* ── Submit Experience MODAL ── */}
+      {showModal && (
+        <div
+          className="fixed inset-0 z-[60] flex items-start justify-center bg-black/50 backdrop-blur-sm pt-10 pb-6 px-4 overflow-y-auto"
+          onClick={(e) => { if (e.target === e.currentTarget) closeModal(); }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title"
+        >
+          <div className="relative w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-7 pt-6 pb-4 border-b border-gray-100">
+              <div>
+                <h2 id="modal-title" className="text-xl font-bold text-gray-900">Share Your Interview Experience</h2>
+                <p className="text-sm text-gray-500 mt-0.5">Help your juniors prepare better. Every submission makes PlacePrep smarter.</p>
+              </div>
+              <button
+                onClick={closeModal}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors ml-4 shrink-0"
+                aria-label="Close modal"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="px-7 py-5 overflow-y-auto max-h-[calc(100vh-220px)]">
+              {formSubmitted ? (
+                /* Success State */
+                <div className="text-center py-10">
+                  <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Thank you for contributing!</h3>
+                  <div className="inline-flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-6 py-3 text-amber-800 font-bold text-lg mt-4 mb-4 shadow-sm">
+                    <Zap className="w-5 h-5 text-amber-500 fill-amber-500" />
+                    +50 XP Earned!
+                  </div>
+                  <p className="text-gray-500 text-sm">Your experience will help future NST students prepare better.</p>
+                  <div className="flex justify-center gap-3 mt-8">
+                    <button
+                      onClick={closeModal}
+                      className="border border-gray-300 text-gray-700 text-sm px-5 py-2.5 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+                    >
+                      Back to Feed
+                    </button>
+                    <button
+                      onClick={() => {
+                        setFormSubmitted(false);
+                        clearForm();
+                      }}
+                      className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-5 py-2.5 rounded-lg transition-colors font-medium"
+                    >
+                      Submit Another
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                /* Form */
+                <>
+                  {/* XP Banner */}
+                  <div className="flex items-center gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4 mb-5 shadow-sm">
+                    <Zap className="w-5 h-5 text-amber-500 fill-amber-500 shrink-0" />
+                    <span className="text-amber-800 font-medium text-sm">Earn 50 XP for submitting your interview experience this week!</span>
+                  </div>
+
+                  <form onSubmit={handleSubmit} className="space-y-5">
+                    {/* Row 1 */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-gray-700 mb-1.5 block">Company</label>
+                        <select
+                          value={formCompany}
+                          onChange={(e) => setFormCompany(e.target.value)}
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          {companies.map((c) => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-700 mb-1.5 block">Role / Level</label>
+                        <select
+                          value={formRole}
+                          onChange={(e) => setFormRole(e.target.value)}
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="SDE-1">SDE-1</option>
+                          <option value="SDE-2">SDE-2</option>
+                          <option value="Data Analyst">Data Analyst</option>
+                          <option value="Frontend Engineer">Frontend Engineer</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Row 2 */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-gray-700 mb-1.5 block">Interview Date</label>
+                        <input
+                          type="date"
+                          value={formDate}
+                          onChange={(e) => setFormDate(e.target.value)}
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-700 mb-1.5 block">Outcome</label>
+                        <div className="flex gap-2">
+                          {[
+                            { key: "offer", label: "Offer", icon: CheckCircle, activeClass: "bg-green-600 text-white border-green-600" },
+                            { key: "rejected", label: "Rejected", icon: XCircle, activeClass: "bg-red-600 text-white border-red-600" },
+                            { key: "waiting", label: "Waiting", icon: Clock, activeClass: "bg-amber-500 text-white border-amber-500" },
+                          ].map(({ key, label, icon: Icon, activeClass }) => (
+                            <button
+                              type="button"
+                              key={key}
+                              onClick={() => setFormOutcome(key)}
+                              className={`flex-1 text-xs font-medium py-2.5 rounded-lg border transition-all flex items-center justify-center gap-1.5 ${ formOutcome === key ? activeClass : "border-gray-200 text-gray-700 hover:bg-gray-50"}`}
+                            >
+                              <Icon className="w-3.5 h-3.5" />{label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Stars */}
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-2 block">Overall Difficulty</label>
+                      <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5].map((s) => (
+                          <button
+                            type="button"
+                            key={s}
+                            onClick={() => setFormStars(s)}
+                            className={`text-2xl ${s <= formStars ? "text-yellow-400" : "text-gray-200"} hover:text-yellow-400 transition-colors`}
+                          >
+                            ★
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Rounds Configuration */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium text-gray-700 mb-1.5 block">Rounds Conducted</label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={10}
+                          value={formRoundsCount}
+                          onChange={(e) => setFormRoundsCount(Number(e.target.value))}
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-700 mb-1.5 block">Problems Asked</label>
+                        <input
+                          type="number"
+                          min={0}
+                          max={20}
+                          value={formProblemsCount}
+                          onChange={(e) => setFormProblemsCount(Number(e.target.value))}
+                          className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Round detail */}
+                    <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-gray-50/50">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-semibold text-gray-500">PRIMARY ROUND</span>
+                        <select
+                          value={formRoundType}
+                          onChange={(e) => setFormRoundType(e.target.value)}
+                          className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="Online Assessment">Online Assessment</option>
+                          <option value="DSA Coding">DSA Coding</option>
+                          <option value="System Design">System Design</option>
+                          <option value="HR">HR</option>
+                          <option value="Managerial">Managerial</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-xs text-gray-500 mb-1.5 block">Topics Asked</label>
+                        <div className="flex flex-wrap gap-2 border border-gray-200 bg-white rounded-lg p-2 min-h-[42px]">
+                          {formTags.map((t) => (
+                            <span key={t} className="flex items-center gap-1 bg-blue-50 text-blue-700 text-xs rounded px-2 py-1">
+                              {t}
+                              <button type="button" onClick={() => setFormTags(formTags.filter((x) => x !== t))}>
+                                <X className="w-3 h-3 text-blue-500 hover:text-blue-700" />
+                              </button>
+                            </span>
+                          ))}
+                          <input
+                            value={formTagInput}
+                            onChange={(e) => setFormTagInput(e.target.value)}
+                            onKeyDown={addTag}
+                            placeholder="Type topic + Enter"
+                            className="flex-1 min-w-[120px] text-xs outline-none bg-transparent"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Experience Description */}
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-1.5 block">Your Interview Experience</label>
+                      <textarea
+                        rows={4}
+                        required
+                        value={formExperienceText}
+                        onChange={(e) => setFormExperienceText(e.target.value)}
+                        placeholder="What questions were asked? How did you approach them? What was the difficulty level?"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      />
+                    </div>
+
+                    {/* Tips */}
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 mb-1.5 block">Any surprises or tips?</label>
+                      <textarea
+                        rows={3}
+                        value={formTipsText}
+                        onChange={(e) => setFormTipsText(e.target.value)}
+                        placeholder="What wasn't covered in any prep guide? What surprised you?"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full bg-blue-600 text-white py-3 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+                    >
+                      Submit Experience
+                    </button>
+                  </form>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
