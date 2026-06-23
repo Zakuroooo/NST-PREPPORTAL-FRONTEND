@@ -153,3 +153,6 @@ obj/
 # ------------------------------------------
 # Allow developers to have personal gitignores
 .gitlocalignore
+
+# clerk configuration (can include secrets)
+/.clerk/

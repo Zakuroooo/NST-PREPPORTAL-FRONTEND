@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Code2, Monitor, Brain, BarChart2, Cloud, Layers, CheckCircle } from "lucide-react";
-import Link from "next/link";
 import Stepper from "@/components/onboarding/Stepper";
 
 const domains = [
@@ -70,9 +69,6 @@ export default function Step1() {
         >
           Continue
         </button>
-        <Link href="/onboarding/step2" className="text-sm text-gray-400 hover:text-gray-600">
-          Skip for now
-        </Link>
       </div>
     </div>
   );
