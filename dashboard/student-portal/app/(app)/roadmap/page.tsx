@@ -192,13 +192,16 @@ function ActiveRoadmapCard({
             <span className="text-lg font-bold text-blue-600">{daysElapsed}</span>
             <span className="text-[10px] text-gray-500">/ {totalDays} days</span>
           </div>
-          <Link
-            href={`/companies/${company.slug}/practice`}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick();
+              document.getElementById("roadmap-curriculum")?.scrollIntoView({ behavior: 'smooth' });
+            }}
             className="px-5 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-lg hover:bg-gray-800 transition-all shadow-sm"
-            onClick={(e) => e.stopPropagation()}
           >
             Track
-          </Link>
+          </button>
         </div>
       </div>
     </div>
@@ -377,6 +380,191 @@ function RoadmapContent() {
           ))}
         </div>
       </section>
+
+      {/* ── Active Roadmap Detail View ── */}
+      <div id="roadmap-curriculum">
+        <h2 className="text-lg font-semibold text-gray-900 mb-5 border-t pt-8">Roadmap Curriculum</h2>
+        <RoadmapCurriculumView company={activeCompany} />
+      </div>
+    </div>
+  );
+}
+
+function RoadmapCurriculumView({ company }: { company: UserRoadmapCompany }) {
+  const [expandedWeek, setExpandedWeek] = useState<number | null>(company.currentWeek);
+
+  // Sync expanded week when company changes
+  useEffect(() => {
+    setExpandedWeek(company.currentWeek);
+  }, [company.slug]);
+
+  const logoUrl = getLogoUrl(company.slug);
+
+  return (
+    <div className="pb-12">
+      {/* Hero Header */}
+      <div className="bg-white border border-gray-200 rounded-xl p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 shadow-sm">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 bg-gray-50 rounded-xl flex items-center justify-center border border-gray-200 shrink-0">
+            {logoUrl ? (
+              <img src={logoUrl} alt={company.name} className="w-8 h-8 object-contain" />
+            ) : (
+              <span className={`text-xl font-bold text-blue-600`}>{company.initial}</span>
+            )}
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">{company.name}</h1>
+            <p className="text-gray-500 text-sm">{company.role} · {company.totalWeeks}-week plan</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col md:flex-row items-end md:items-center gap-6 w-full md:w-auto">
+          {/* Overall Progress */}
+          <div className="w-full md:w-64">
+            <div className="flex justify-between items-end mb-1.5">
+              <span className="text-2xl font-bold text-gray-900 leading-none">{company.pctComplete}%</span>
+              <span className="text-xs text-gray-500 font-medium">{company.currentWeek}/{company.totalWeeks} weeks done</span>
+            </div>
+            <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
+              <div 
+                className="bg-blue-600 h-2.5 rounded-full transition-all duration-500" 
+                style={{ width: `${company.pctComplete}%` }}
+              ></div>
+            </div>
+          </div>
+          
+          <div className="flex gap-2 shrink-0">
+            <Link
+              href={`/companies/${company.slug}/practice`}
+              className="flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm"
+            >
+              <Play className="w-4 h-4 fill-white" /> Practice
+            </Link>
+            <Link
+              href={`/companies/${company.slug}`}
+              className="flex items-center justify-center gap-2 bg-white hover:bg-gray-50 border border-gray-200 text-gray-700 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm"
+            >
+               Intel
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Curriculum List */}
+      <div className="space-y-4">
+        {company.weeks.map((week) => {
+          const isExpanded = expandedWeek === week.weekNumber;
+          const isDone = week.status === "done";
+          const isActive = week.status === "active";
+          const isLocked = week.status === "locked";
+          const pct = week.totalQuestions > 0 ? Math.round((week.doneQuestions / week.totalQuestions) * 100) : 0;
+
+          return (
+            <div 
+              key={week.weekNumber} 
+              className={`border rounded-xl bg-white overflow-hidden transition-all ${
+                isActive ? 'border-blue-200 shadow-sm' : 'border-gray-200'
+              }`}
+            >
+              <div 
+                className={`p-5 flex items-center justify-between cursor-pointer hover:bg-gray-50/50 ${isLocked ? 'opacity-60 cursor-not-allowed' : ''}`}
+                onClick={() => {
+                  if (!isLocked) setExpandedWeek(isExpanded ? null : week.weekNumber);
+                }}
+              >
+                <div className="flex items-center gap-4">
+                  {isDone && <CheckCircle className="w-6 h-6 text-green-500" />}
+                  {isActive && <Play className="w-6 h-6 text-blue-600 fill-blue-50" />}
+                  {isLocked && <Lock className="w-6 h-6 text-gray-300" />}
+
+                  <div>
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                        isDone ? 'text-gray-500' : isActive ? 'text-blue-600' : 'text-gray-400'
+                      }`}>
+                        WEEK {week.weekNumber}
+                      </span>
+                      {isActive && (
+                        <span className="bg-blue-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded uppercase">
+                          Current
+                        </span>
+                      )}
+                    </div>
+                    <h3 className={`font-bold text-base ${isLocked ? 'text-gray-400' : 'text-gray-900'}`}>
+                      {week.topic}
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-6">
+                  <div className="text-right w-28 hidden sm:block">
+                    <div className="text-xs font-bold text-gray-700 mb-1">
+                      {week.doneQuestions}/{week.totalQuestions}
+                    </div>
+                    <div className="flex items-center gap-2 justify-end">
+                      <span className="text-[10px] text-gray-400 font-medium whitespace-nowrap">{pct}% done</span>
+                      <div className="w-12 bg-gray-100 rounded-full h-1.5 overflow-hidden">
+                        <div 
+                          className={`h-1.5 rounded-full transition-all duration-500 ${isDone ? 'bg-green-500' : isActive ? 'bg-blue-600' : 'bg-gray-300'}`} 
+                          style={{ width: `${pct}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {!isLocked && (
+                    <div className="text-gray-400">
+                      {isExpanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                    </div>
+                  )}
+                  {isLocked && <Lock className="w-4 h-4 text-gray-300" />}
+                </div>
+              </div>
+
+              {isExpanded && !isLocked && (
+                <div className="border-t border-gray-100 bg-gray-50/30 p-5">
+                  <div className="space-y-3">
+                    {week.questions.map((q) => (
+                      <div key={q.id} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:border-blue-300 transition-colors cursor-pointer group">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 ${q.done ? 'bg-green-500 border-green-500' : 'border-gray-300 bg-white'}`}>
+                            {q.done && <CheckCircle className="w-3.5 h-3.5 text-white" />}
+                          </div>
+                          <span className={`font-semibold text-sm ${q.done ? 'text-gray-400 line-through' : 'text-gray-700 group-hover:text-blue-600'}`}>
+                            {q.title}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                            q.diff === 'Easy' ? 'bg-green-50 text-green-700 border-green-200' :
+                            q.diff === 'Medium' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                            'bg-red-50 text-red-700 border-red-200'
+                          }`}>
+                            {q.diff}
+                          </span>
+                          <span className="text-xs font-bold text-orange-500 flex items-center gap-0.5">
+                            +{q.xp}
+                          </span>
+                          <a 
+                            href={q.leetcodeUrl || '#'} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="text-blue-500 hover:text-blue-700 p-1 rounded-md hover:bg-blue-50 transition-colors"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                          </a>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
