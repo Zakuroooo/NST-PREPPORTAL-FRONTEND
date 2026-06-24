@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Note: The 'Compaction failed' warnings in dev are a known Turbopack
+  // LevelDB caching bug in Next.js 16. They are non-fatal and can be ignored.
+  // https://github.com/vercel/next.js/issues
 };
 
 export default nextConfig;
