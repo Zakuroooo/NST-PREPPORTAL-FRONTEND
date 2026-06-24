@@ -645,9 +645,9 @@ export const dashboardTodayProblems = [
 ];
 
 export const dashboardRecentReports = [
-  { initial: "U", name: "Uber",  color: "bg-gray-800",  role: "Software Engineer (L4)", rounds: 4, time: "2 days ago", tags: ["System Design", "Graphs"] },
-  { initial: "M", name: "Meta",  color: "bg-blue-700",  role: "Production Engineer",    rounds: 5, time: "5 days ago", tags: ["Linux", "Python"] },
-  { initial: "A", name: "Apple", color: "bg-gray-600",  role: "Frontend Engineer",      rounds: 3, time: "1 week ago", tags: ["React", "JS Core"] },
+  { id: 4, initial: "U", name: "Uber",  color: "bg-gray-800",  role: "Software Engineer (L4)", rounds: 4, time: "2 days ago", tags: ["System Design", "Graphs"] },
+  { id: 5, initial: "M", name: "Meta",  color: "bg-blue-700",  role: "Production Engineer",    rounds: 5, time: "5 days ago", tags: ["Linux", "Python"] },
+  { id: 6, initial: "A", name: "Apple", color: "bg-gray-600",  role: "Frontend Engineer",      rounds: 3, time: "1 week ago", tags: ["React", "JS Core"] },
 ];
 
 // ─────────────────────────────────────────────────────

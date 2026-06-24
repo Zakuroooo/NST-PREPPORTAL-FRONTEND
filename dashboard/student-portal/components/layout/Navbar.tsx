@@ -101,7 +101,7 @@ export default function Navbar() {
             onChange={(e) => { setQuery(e.target.value); setSelectedIdx(-1); }}
             onKeyDown={handleKeyDown}
             placeholder="Search company, topic, or question..."
-            className="w-full pl-9 pr-8 py-2 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+            className="w-full pl-9 pr-8 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-gray-900 placeholder-gray-400"
             aria-label="Global search"
             aria-autocomplete="list"
           />
@@ -159,22 +159,22 @@ export default function Navbar() {
       </div>
 
       {/* Right side */}
-      <div className="flex items-center ml-auto">
+      <div className="flex items-center gap-3.5 ml-auto">
         {/* XP Badge */}
-        <div className="flex items-center gap-1 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-1 hover:bg-amber-100 transition-colors cursor-default">
+        <div className="flex items-center gap-1 bg-amber-50 border border-amber-200 rounded-full px-2.5 py-1 hover:bg-amber-100 transition-colors cursor-default shrink-0">
           <Zap className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
           <span className="text-xs font-bold text-amber-700">{xp.toLocaleString()}</span>
           <span className="text-[10px] font-semibold text-amber-500 uppercase tracking-wide">XP</span>
         </div>
 
         {/* Divider */}
-        <div className="w-px h-5 bg-gray-200 mx-3" />
+        <div className="w-px h-5 bg-gray-200 shrink-0" />
 
         {/* Notification Bell */}
         <Link
           href="/notifications"
           aria-label="Notifications"
-          className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700"
+          className="relative w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-700 shrink-0"
           onClick={() => sessionStorage.setItem("notifications_last_read", new Date().toISOString())}
         >
           <Bell className="w-4.5 h-4.5" />
@@ -189,7 +189,7 @@ export default function Navbar() {
         <Link
           href="/profile"
           aria-label="Profile"
-          className="relative ml-1 w-9 h-9 rounded-full overflow-hidden ring-2 ring-transparent hover:ring-blue-400 transition-all flex items-center justify-center"
+          className="relative w-8 h-8 rounded-full overflow-hidden ring-2 ring-transparent hover:ring-blue-400 transition-all flex items-center justify-center shrink-0"
           title="View Profile"
         >
           {user?.imageUrl ? (
@@ -205,6 +205,7 @@ export default function Navbar() {
             </div>
           )}
         </Link>
+
 
         {/* Clerk User Button — hidden visually but provides sign-out + account management */}
         <div className="hidden">

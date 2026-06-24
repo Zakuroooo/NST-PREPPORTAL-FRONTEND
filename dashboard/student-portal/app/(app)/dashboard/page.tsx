@@ -138,7 +138,11 @@ export default function DashboardPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {dashboardRecentReports.map((r) => (
-              <div key={r.name} className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow">
+              <Link
+                key={r.name}
+                href={`/submit?expand=${r.id}`}
+                className="block bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md hover:border-gray-300 transition-all cursor-pointer"
+              >
                 <div className="flex items-center gap-2 mb-3">
                   <div className={`w-8 h-8 ${r.color} rounded-lg flex items-center justify-center text-white font-bold text-xs`}>
                     {r.initial}
@@ -153,7 +157,7 @@ export default function DashboardPage() {
                     <span key={t} className="bg-gray-100 text-gray-600 text-xs rounded px-2 py-0.5">{t}</span>
                   ))}
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </section>

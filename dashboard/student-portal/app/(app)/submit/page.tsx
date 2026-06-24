@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Zap, Plus, X, CheckCircle, Clock, XCircle, Check,
@@ -16,10 +17,12 @@ const logos: Record<string, string> = {
   Microsoft: "https://lh3.googleusercontent.com/aida-public/AB6AXuDhuXLkHZDPcAy4XvMJPw67imDyTAjmHdup2A9VGo3-SRjKRfu_LOT4Iu7ZE8UtCS8alFYSfPYPemKC2iKUDzKFaF9UhAcyfMfNKlqXu51iUwdCu3yI8kpFeuCsqfyFapD9wJiP3KA_nd02x1I-6FgNYU9DJuT-3lX0OXstdNIGrZI8yxa9klG0shaBqrBUtHHZwI5hnOr_Ii2XWyquuKQDDZc-OWY3NBQ00ctZeG1-mboNBLU_r71miQbay8cIMfuG-mOwCjOOrzgG",
   Oracle: "https://lh3.googleusercontent.com/aida-public/AB6AXuBt--Bjh49LYHRDqjL-sGCT5qd5lGsNgmCPazwoRF50sqWcFZYzOCwddHULAy0oVZ-UqkPpMZt1b0orruHo7HKjB2d23i5n4wEN_QpRDgUNRoS21qLVtOiraT9qQffLakfduOiyK18liwk04Qdg6uyKocz4Q_ujX9gA-AgBAeXMOmiWDcRDI87XWSHJCDCgHI7GpqfXQA5meH5HaxFU0YaWxYONZZmKSPpJlIu0GqYVfOujjdy-mGD8-DoP9qrSz7w887D2Sy6DDkBC",
   "Goldman Sachs": "https://lh3.googleusercontent.com/aida-public/AB6AXuDdcYKnUW5FRfN85A6hcvfcQc4YWouCSzoIAHEXhesOXOl5lBcmldkCmnI5E8AZ6keWKUVO_VvARuVV-5VfLSnljZfksDSx1ODaI6Diuik2ZhzRBlZ5TyHWJP8dcOl_d6oHMKDtcmfh6vyry8FUrSEzjfIkC4m27wq8eGPJhyNIDH1uG98va-z_rkEd3UXd6AgtUvZHOR1VymVKgYhW04Ci4pLqJFAIADg58zfR_O7BZF9o6LW_yxuUjGTJRvAGOtIvrAHmQwzzHHW9",
-  Uber: "https://lh3.googleusercontent.com/aida-public/AB6AXuC_9GpoBxbsK9qtZSMXC828cF1TybC934juVeq1JZMNymJ8sCTfx3EU9IsvTQ7iCPHVnaXm-Ji0f1kOXZbiL_Qe64l8GA6CP0ncofY_jXfmMOVf6cuylumvNf95IFA7VpUGKo93yS9tKpKtMMEZ-Ed4heMDq7YmD9QDteFo2_-wwlXbGiGgTUE0RLE78OqOuDOLHRLI90GHxnlqcJATDF3-L_EDoZWmZdVZ0EWwyjZyJqwF8lhIQfL0QqI3YELn94SPrUsiHQOZcJJ6"
+  Uber: "https://lh3.googleusercontent.com/aida-public/AB6AXuC_9GpoBxbsK9qtZSMXC828cF1TybC934juVeq1JZMNymJ8sCTfx3EU9IsvTQ7iCPHVnaXm-Ji0f1kOXZbiL_Qe64l8GA6CP0ncofY_jXfmMOVf6cuylumvNf95IFA7VpUGKo93yS9tKpKtMMEZ-Ed4heMDq7YmD9QDteFo2_-wwlXbGiGgTUE0RLE78OqOuDOLHRLI90GHxnlqcJATDF3-L_EDoZWmZdVZ0EWwyjZyJqwF8lhIQfL0QqI3YELn94SPrUsiHQOZcJJ6",
+  Meta: "https://cdn-icons-png.flaticon.com/512/6033/6033716.png",
+  Apple: "https://cdn-icons-png.flaticon.com/512/0/747.png"
 };
 
-const companies = ["Google", "Amazon", "Microsoft", "Flipkart", "TCS", "Infosys", "Razorpay", "Swiggy", "Paytm", "Adobe", "Oracle", "Goldman Sachs", "Uber"];
+const companies = ["Google", "Amazon", "Microsoft", "Flipkart", "TCS", "Infosys", "Razorpay", "Swiggy", "Paytm", "Adobe", "Oracle", "Goldman Sachs", "Uber", "Meta", "Apple"];
 
 interface InterviewRound {
   roundNumber: number;
@@ -117,6 +120,74 @@ const initialExperiences: Experience[] = [
       { roundNumber: 3, type: "System Design", topics: ["LLD", "Design Patterns"], description: "Designed a parking lot system. Interviewer checked object-oriented design and SOLID principles.", cleared: true },
       { roundNumber: 4, type: "HR", topics: ["Resume Review", "Behavioral"], description: "Detailed walkthrough of past internship projects and questions about work ethic and collaboration.", cleared: true }
     ]
+  },
+  {
+    id: 4,
+    company: "Uber",
+    logoUrl: logos.Uber,
+    role: "Software Engineer (L4)",
+    roundsCount: 4,
+    problemsCount: 3,
+    outcome: "offer",
+    difficulty: "Hard",
+    workType: "On-site",
+    experience: "Uber's L4 interviews focus on highly scalable architecture and advanced graphs/algorithms. Be prepared to dive deep into system trade-offs and latency.",
+    author: "Sharma",
+    authorRole: "NST Student",
+    postedAgo: "2 days ago",
+    upvotes: 95,
+    hasUpvoted: false,
+    hasBookmarked: false,
+    rounds: [
+      { roundNumber: 1, type: "DSA Coding", topics: ["Graphs", "Shortest Path"], description: "Standard graph optimization problem with custom constraints.", cleared: true },
+      { roundNumber: 2, type: "DSA Coding", topics: ["Dynamic Programming"], description: "Asked to optimize a 2D dynamic programming problem with space optimizations.", cleared: true },
+      { roundNumber: 3, type: "System Design", topics: ["System Design", "Graphs"], description: "Designed a distributed rate limiter and ride matching system.", cleared: true },
+      { roundNumber: 4, type: "HR", topics: ["Behavioral"], description: "Behavioral interview focused on customer obsession and dealing with ambiguity.", cleared: true }
+    ]
+  },
+  {
+    id: 5,
+    company: "Meta",
+    logoUrl: logos.Meta,
+    role: "Production Engineer",
+    roundsCount: 5,
+    problemsCount: 4,
+    outcome: "offer",
+    difficulty: "Medium",
+    workType: "Hybrid",
+    experience: "Meta checks system internals, scripting ability, and practical troubleshooting. Expect systems and networks design with focus on scalability.",
+    author: "Patel",
+    authorRole: "NST Student",
+    postedAgo: "5 days ago",
+    upvotes: 82,
+    hasUpvoted: false,
+    hasBookmarked: false,
+    rounds: [
+      { roundNumber: 1, type: "Systems Coding", topics: ["Linux", "Python"], description: "Scripting and systems automation tools analysis.", cleared: true },
+      { roundNumber: 2, type: "Systems Networking", topics: ["OS", "Networking"], description: "Troubleshooting Linux system performance, memory bottlenecks and network congestion issues.", cleared: true }
+    ]
+  },
+  {
+    id: 6,
+    company: "Apple",
+    logoUrl: logos.Apple,
+    role: "Frontend Engineer",
+    roundsCount: 3,
+    problemsCount: 2,
+    outcome: "offer",
+    difficulty: "Medium",
+    workType: "On-site",
+    experience: "Apple values perfection in UI rendering, web performance, and core JS knowledge. Brush up on DOM rendering lifecycles and layout optimization.",
+    author: "Das",
+    authorRole: "NST Student",
+    postedAgo: "1 week ago",
+    upvotes: 64,
+    hasUpvoted: false,
+    hasBookmarked: false,
+    rounds: [
+      { roundNumber: 1, type: "Frontend Coding", topics: ["React", "JS Core"], description: "Built custom component implementing performant list virtualization.", cleared: true },
+      { roundNumber: 2, type: "UI Architecture", topics: ["Web Performance", "System Design"], description: "Design a client-side telemetry and logging system with offline caching support.", cleared: true }
+    ]
   }
 ];
 
@@ -129,10 +200,25 @@ const popularCompanies = [
   { name: "Uber", slug: "uber", logo: logos.Uber, type: "Product Based", count: 11 }
 ];
 
-export default function SubmitPage() {
+function SubmitContent() {
   const { setOnSubmitClick } = useNavbar();
+  const searchParams = useSearchParams();
   const [experiences, setExperiences] = useState<Experience[]>(initialExperiences);
   const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const expand = searchParams?.get("expand");
+    if (expand) {
+      const id = parseInt(expand, 10);
+      if (!isNaN(id)) {
+        setExpandedId(id);
+        const found = experiences.find((e) => e.id === id);
+        if (found) {
+          setFilterCompany(found.company);
+        }
+      }
+    }
+  }, [searchParams, experiences]);
 
   // Modal state
   const [showModal, setShowModal] = useState(false);
@@ -307,6 +393,8 @@ export default function SubmitPage() {
       return true;
     })
     .sort((a, b) => {
+      if (a.id === expandedId) return -1;
+      if (b.id === expandedId) return 1;
       if (sortBy === "Most Upvoted") {
         return b.upvotes - a.upvotes;
       } else {
@@ -854,5 +942,20 @@ export default function SubmitPage() {
         </div>
       )}
     </>
+  );
+}
+
+export default function SubmitPage() {
+  return (
+    <Suspense fallback={
+      <div className="space-y-4 max-w-[1200px] mx-auto py-12">
+        <div className="h-10 bg-gray-100 rounded-lg w-64 animate-pulse mb-6" />
+        <div className="h-4 bg-gray-100 rounded-lg w-full animate-pulse" />
+        <div className="h-24 bg-gray-100 rounded-xl animate-pulse" />
+        <div className="h-24 bg-gray-100 rounded-xl animate-pulse" />
+      </div>
+    }>
+      <SubmitContent />
+    </Suspense>
   );
 }
