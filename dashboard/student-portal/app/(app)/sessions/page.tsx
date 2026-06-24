@@ -22,7 +22,6 @@ interface Session {
 }
 
 const TIME_SLOTS = ["9:00 AM", "10:00 AM", "11:00 AM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"];
-const FACULTY_AVAILABLE_DAYS = [1, 2, 3, 4, 5];
 
 const mockSessions: Session[] = [
   {
@@ -77,6 +76,7 @@ const STATUS_CFG: Record<SessionStatus, { label: string; cls: string; icon: Reac
 // ── Calendar ──────────────────────────────────────────
 function MiniCalendar({ onSelect, selected }: { onSelect: (d: string) => void; selected: string }) {
   const today = new Date();
+  today.setHours(0, 0, 0, 0);
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
 
@@ -88,7 +88,8 @@ function MiniCalendar({ onSelect, selected }: { onSelect: (d: string) => void; s
 
   const isAvail = (day: number) => {
     const d = new Date(viewYear, viewMonth, day);
-    return d >= today && FACULTY_AVAILABLE_DAYS.includes(d.getDay());
+    // All future dates (including today) are bookable — no day-of-week restriction
+    return d >= today;
   };
 
   const ds = (day: number) =>
@@ -143,7 +144,7 @@ function MiniCalendar({ onSelect, selected }: { onSelect: (d: string) => void; s
       <div className="flex items-center gap-4 px-4 py-2.5 border-t border-gray-100 text-[10px] text-gray-400">
         <span className="flex items-center gap-1">
           <span className="w-2.5 h-2.5 rounded-sm bg-blue-50 border border-blue-200 inline-block" />
-          Available
+          Available (any future date)
         </span>
         <span className="flex items-center gap-1">
           <span className="w-2.5 h-2.5 rounded-sm bg-blue-600 inline-block" />

@@ -22,10 +22,10 @@ export default function Step4() {
         const companies: string[] = JSON.parse(storedCompanies);
         const companyData: Record<string, { name: string; initial: string; color: string }> = {
           google:    { name: "Google",    initial: "G", color: "bg-blue-600" },
-          amazon:    { name: "Amazon",    initial: "A", color: "bg-orange-500" },
+          amazon:    { name: "Amazon",    initial: "A", color: "bg-blue-500" },
           flipkart:  { name: "Flipkart",  initial: "F", color: "bg-blue-500" },
-          microsoft: { name: "Microsoft", initial: "M", color: "bg-teal-600" },
-          tcs:       { name: "TCS",       initial: "T", color: "bg-indigo-600" },
+          microsoft: { name: "Microsoft", initial: "M", color: "bg-blue-600" },
+          tcs:       { name: "TCS",       initial: "T", color: "bg-blue-600" },
           razorpay:  { name: "Razorpay",  initial: "R", color: "bg-blue-800" },
         };
         const roadmapEntries = companies
@@ -83,7 +83,7 @@ export default function Step4() {
         <div className="flex items-center gap-2 bg-blue-50 text-blue-700 rounded-lg px-4 py-2 text-sm font-medium">
           <Map className="w-4 h-4" /> 84-day roadmap
         </div>
-        <div className="flex items-center gap-2 bg-amber-50 text-amber-700 rounded-lg px-4 py-2 text-sm font-medium">
+        <div className="flex items-center gap-2 bg-blue-50 text-blue-700 rounded-lg px-4 py-2 text-sm font-medium">
           <Zap className="w-4 h-4" /> XP rewards enabled
         </div>
         <div className="flex items-center gap-2 bg-green-50 text-green-700 rounded-lg px-4 py-2 text-sm font-medium">

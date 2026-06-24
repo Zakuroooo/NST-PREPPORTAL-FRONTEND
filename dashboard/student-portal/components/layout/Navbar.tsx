@@ -12,19 +12,46 @@ function useUnreadCount() {
   const [count, setCount] = useState(0);
   useEffect(() => {
     // BACKEND TODO: GET /api/notifications/unread-count
-    const lastRead = sessionStorage.getItem("notifications_last_read");
-    if (!lastRead) {
-      setCount(3); // 3 unread by default for new users
-    } else {
-      setCount(0);
-    }
+    setTimeout(() => {
+      const lastRead = sessionStorage.getItem("notifications_last_read");
+      if (!lastRead) {
+        setCount(3); // 3 unread by default for new users
+      } else {
+        setCount(0);
+      }
+    }, 0);
   }, []);
   return count;
+}
+
+// Function to get title instead of search bar for specific pages
+function getPageTitle(pathname: string): string | null {
+  if (pathname === "/profile") return "My Profile";
+  if (pathname === "/doubts") return "My Doubts";
+  if (pathname === "/sessions") return "Book a Session";
+  if (pathname === "/messages") return "Messages";
+  if (pathname === "/notifications") return "Notifications";
+  if (pathname === "/leaderboard") return "Leaderboard";
+  if (pathname === "/progress") return "My Progress";
+  if (pathname === "/roadmap") return "My Roadmap";
+  if (pathname === "/submit") return "Code Editor";
+  if (pathname.startsWith("/companies/") && pathname.endsWith("/practice")) {
+    const parts = pathname.split("/");
+    const co = parts[2].charAt(0).toUpperCase() + parts[2].slice(1);
+    return `${co} Practice`;
+  }
+  if (pathname.startsWith("/companies/") && pathname !== "/companies") {
+    const parts = pathname.split("/");
+    const co = parts[2].charAt(0).toUpperCase() + parts[2].slice(1);
+    return `${co} Hub`;
+  }
+  return null; // show search bar
 }
 
 export default function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
+  const pageTitle = getPageTitle(pathname);
   const { user } = useUser();
   useNavbar(); // kept for context availability
   const [query, setQuery] = useState("");
@@ -92,29 +119,33 @@ export default function Navbar() {
 
       {/* Search — global command palette */}
       <div className="flex-1 max-w-md mx-auto relative" ref={wrapperRef}>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={(e) => { setQuery(e.target.value); setSelectedIdx(-1); }}
-            onKeyDown={handleKeyDown}
-            placeholder="Search company, topic, or question..."
-            className="w-full pl-9 pr-8 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-gray-900 placeholder-gray-400"
-            aria-label="Global search"
-            aria-autocomplete="list"
-          />
-          {query && (
-            <button
-              onClick={() => { setQuery(""); setSelectedIdx(-1); }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              aria-label="Clear search"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
+        {pageTitle ? (
+          <h1 className="text-gray-900 font-semibold text-lg">{pageTitle}</h1>
+        ) : (
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
+            <input
+              ref={inputRef}
+              type="text"
+              value={query}
+              onChange={(e) => { setQuery(e.target.value); setSelectedIdx(-1); }}
+              onKeyDown={handleKeyDown}
+              placeholder="Search company, topic, or question..."
+              className="w-full pl-9 pr-8 py-2 text-sm bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-gray-900 placeholder-gray-400"
+              aria-label="Global search"
+              aria-autocomplete="list"
+            />
+            {query && (
+              <button
+                onClick={() => { setQuery(""); setSelectedIdx(-1); }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                aria-label="Clear search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Dropdown results */}
         {open && results.length > 0 && (

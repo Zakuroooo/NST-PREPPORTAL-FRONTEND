@@ -1,7 +1,7 @@
 "use client";
 import { Suspense, useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ArrowLeft, ExternalLink, Search, X, Monitor, Building, Calculator, Users, Zap, GraduationCap, Target, FileText, HelpCircle, SearchX, MousePointerClick } from "lucide-react";
+import { ArrowLeft, ExternalLink, Search, X, Monitor, Building, Calculator, Users, Zap, GraduationCap, Target, FileText, HelpCircle, SearchX, MousePointerClick, Flame } from "lucide-react";
 
 const IconMap: Record<string, React.ElementType> = {
   Monitor, Building, Calculator, Users, Zap, GraduationCap, Target, FileText
@@ -18,7 +18,7 @@ import {
 // ── Difficulty badge colours ─────────────────────────
 const diffBadge = (d: string) =>
   d === "Easy"   ? "bg-green-50 text-green-700 border border-green-200" :
-  d === "Medium" ? "bg-amber-50 text-amber-700 border border-amber-200" :
+  d === "Medium" ? "bg-blue-50 text-blue-700 border border-blue-200" :
                    "bg-red-50 text-red-600 border border-red-200";
 
 // ── Category card component ──────────────────────────
@@ -221,7 +221,7 @@ function PracticeContent() {
                   className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                     difficulty === d
                       ? d === "Easy"   ? "bg-green-600 text-white" :
-                        d === "Medium" ? "bg-amber-500 text-white" :
+                        d === "Medium" ? "bg-blue-600 text-white" :
                         d === "Hard"   ? "bg-red-500 text-white"   : "bg-gray-900 text-white"
                       : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
@@ -261,7 +261,7 @@ function PracticeContent() {
                         </span>
                       ))}
                       {q.hot && (
-                        <span className="text-xs bg-red-50 text-red-600 rounded px-1.5 py-0.5">🔥 Hot</span>
+                        <span className="text-xs bg-red-50 text-red-600 rounded px-1.5 py-0.5"><Flame className="w-3 h-3 mr-1 inline-block" /> Hot</span>
                       )}
                     </div>
                   </div>

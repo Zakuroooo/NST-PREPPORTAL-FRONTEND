@@ -22,16 +22,16 @@ function RoundAccordion({ group }: { group: RoundGroup }) {
 
   const typeColors: Record<string, string> = {
     "Coding":        "bg-blue-100 text-blue-700",
-    "System Design": "bg-purple-100 text-purple-700",
+    "System Design": "bg-indigo-100 text-indigo-700",
     "LLD":           "bg-indigo-100 text-indigo-700",
     "HR":            "bg-green-100 text-green-700",
-    "Aptitude":      "bg-amber-100 text-amber-700",
+    "Aptitude":      "bg-slate-100 text-slate-700",
     "Domain":        "bg-gray-100 text-gray-700",
   };
 
   const diffBadge = (d: string) =>
     d === "Easy"   ? "bg-green-50 text-green-700" :
-    d === "Medium" ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-600";
+    d === "Medium" ? "bg-blue-50 text-blue-700" : "bg-red-50 text-red-600";
 
   return (
     <div className="border border-gray-200 rounded-xl overflow-hidden mb-3">
@@ -75,7 +75,7 @@ function RoundAccordion({ group }: { group: RoundGroup }) {
 function QuestionRow({ q }: { q: Question }) {
   const diffBadge = (d: string) =>
     d === "Easy"   ? "bg-green-50 text-green-700" :
-    d === "Medium" ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-600";
+    d === "Medium" ? "bg-blue-50 text-blue-700" : "bg-red-50 text-red-600";
 
   return (
     <div className="flex items-center gap-3 px-5 py-3 hover:bg-gray-50 transition-colors group">
@@ -154,11 +154,13 @@ export default function CompanyPage({ params }: { params: Promise<{ name: string
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="col-span-2 bg-white border border-gray-200 rounded-xl p-6">
           <div className="flex items-start gap-4">
-            <div
-              className={`w-14 h-14 ${bg} rounded-xl flex items-center justify-center text-white text-2xl font-bold shrink-0`}
-            >
-              {initial}
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`https://www.google.com/s2/favicons?sz=64&domain=${slug}.com`}
+              alt={displayName}
+              className="w-14 h-14 rounded-xl shrink-0 object-contain bg-white border border-gray-100 p-1.5"
+              onError={(e) => { (e.target as HTMLImageElement).src = "https://www.google.com/s2/favicons?sz=64&domain=example.com"; }}
+            />
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900">{displayName}</h1>
               <p className="text-sm text-gray-500 mt-1">Software Engineering Intelligence</p>
@@ -273,7 +275,7 @@ export default function CompanyPage({ params }: { params: Promise<{ name: string
                   <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold mx-auto mb-3 ${
                       r.n === intel.roundStructure.length
-                        ? "bg-amber-100 text-amber-700"
+                        ? "bg-slate-100 text-slate-700"
                         : "bg-blue-100 text-blue-700"
                     }`}
                   >
@@ -435,9 +437,13 @@ export default function CompanyPage({ params }: { params: Promise<{ name: string
           {[1, 2, 3].map((i) => (
             <div key={i} className="bg-white border border-gray-200 rounded-xl p-5">
               <div className="flex items-center gap-3 mb-3">
-                <div className={`w-8 h-8 ${bg} rounded-lg flex items-center justify-center text-white font-bold text-xs`}>
-                  {initial}
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`https://www.google.com/s2/favicons?sz=64&domain=${slug}.com`}
+                  alt={displayName}
+                  className="w-8 h-8 rounded-lg shrink-0 object-contain bg-white border border-gray-100 p-1"
+                  onError={(e) => { (e.target as HTMLImageElement).src = "https://www.google.com/s2/favicons?sz=64&domain=example.com"; }}
+                />
                 <div>
                   <span className="font-medium text-gray-900 text-sm">{displayName}</span>
                   <span className="text-xs text-gray-500 ml-2">

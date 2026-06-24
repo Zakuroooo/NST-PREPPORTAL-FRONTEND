@@ -35,9 +35,13 @@ export default function DashboardPage() {
               <div key={co.name} className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 ${co.color} rounded-lg flex items-center justify-center text-white font-bold text-sm`}>
-                      {co.initial}
-                    </div>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`https://www.google.com/s2/favicons?sz=64&domain=${co.name.toLowerCase()}.com`}
+                      alt={co.name}
+                      className="w-10 h-10 rounded-lg shrink-0 object-contain bg-white border border-gray-100 p-1"
+                      onError={(e) => { (e.target as HTMLImageElement).src = "https://www.google.com/s2/favicons?sz=64&domain=example.com"; }}
+                    />
                     <div>
                       <div className="font-semibold text-gray-900 text-sm">{co.name}</div>
                       <div className="text-xs text-gray-500">{co.role}</div>
@@ -122,7 +126,7 @@ export default function DashboardPage() {
                   </span>
                   <span className={`text-xs font-medium px-2 py-0.5 rounded ${
                     p.difficulty === "Easy" ? "bg-green-50 text-green-700" :
-                    p.difficulty === "Medium" ? "bg-amber-50 text-amber-700" : "bg-red-50 text-red-600"
+                    p.difficulty === "Medium" ? "bg-blue-50 text-blue-700" : "bg-red-50 text-red-600"
                   }`}>{p.difficulty}</span>
                 </div>
               ))}
@@ -144,9 +148,13 @@ export default function DashboardPage() {
                 className="block bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md hover:border-gray-300 transition-all cursor-pointer"
               >
                 <div className="flex items-center gap-2 mb-3">
-                  <div className={`w-8 h-8 ${r.color} rounded-lg flex items-center justify-center text-white font-bold text-xs`}>
-                    {r.initial}
-                  </div>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`https://www.google.com/s2/favicons?sz=64&domain=${r.name.toLowerCase()}.com`}
+                    alt={r.name}
+                    className="w-8 h-8 rounded-lg shrink-0 object-contain bg-white border border-gray-100 p-0.5"
+                    onError={(e) => { (e.target as HTMLImageElement).src = "https://www.google.com/s2/favicons?sz=64&domain=example.com"; }}
+                  />
                   <span className="font-semibold text-gray-900 text-sm">{r.name}</span>
                   <span className="ml-auto text-xs text-gray-400">{r.time}</span>
                   <span className="bg-gray-100 text-gray-600 text-xs rounded px-2 py-0.5">{r.rounds} Rounds</span>
@@ -215,9 +223,9 @@ export default function DashboardPage() {
                 <div
                   key={i}
                   className={`h-4 w-full rounded-sm ${
-                    dark.includes(i) ? "bg-blue-600" :
-                    mid.includes(i) ? "bg-blue-300" :
-                    actives.includes(i) ? "bg-blue-200" : "bg-gray-100"
+                    dark.includes(i) ? "bg-green-700" :
+                    mid.includes(i) ? "bg-green-500" :
+                    actives.includes(i) ? "bg-green-300" : "bg-gray-100"
                   }`}
                 />
               );

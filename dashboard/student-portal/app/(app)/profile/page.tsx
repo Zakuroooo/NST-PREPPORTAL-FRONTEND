@@ -63,9 +63,9 @@ const mockUser = {
  solved: { easy: 52, medium: 67, hard: 9 },
  badges: ["5-Day Streak", "First Solve", "Problem Master", "Speed Coder"],
  companyReadiness: [
-  { name: "Google",  pct: 45, color: "bg-blue-600" },
-  { name: "Amazon",  pct: 70, color: "bg-orange-500" },
-  { name: "Flipkart", pct: 20, color: "bg-blue-500" },
+  { name: "Google",  pct: 45, logo: "https://www.google.com/favicon.ico" },
+  { name: "Amazon",  pct: 70, logo: "https://www.amazon.com/favicon.ico" },
+  { name: "Flipkart", pct: 20, logo: "https://www.flipkart.com/favicon.ico" },
  ],
 };
 
@@ -91,7 +91,7 @@ function Toggle({ on, onChange }: { on: boolean; onChange: () => void }) {
 
 // ── Skill Rating Slider ───────────────────────────────
 function SkillSlider({ label, value, onChange }: { label: string; value: number; onChange: (v: number) => void }) {
- const color = value >= 7 ? "bg-green-500" : value >= 5 ? "bg-blue-500" : value >= 3 ? "bg-amber-500" : "bg-red-400";
+ const color = value >= 7 ? "bg-green-500" : value >= 5 ? "bg-blue-500" : value >= 3 ? "bg-blue-600" : "bg-red-400";
  return (
   <div>
    <div className="flex items-center justify-between mb-1.5">
@@ -162,7 +162,7 @@ function OverviewTab({ user, onEdit }: { user: typeof mockUser; onEdit: () => vo
 
      <button
       onClick={() => setEditing(true)}
-      className="mt-5 w-full border border-gray-300 text-gray-700 text-sm font-medium py-2.5 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-2 "
+      className="mt-5 w-full border border-gray-300 text-gray-700 text-sm font-medium py-2 rounded hover:bg-gray-50 flex items-center justify-center gap-2"
      >
       <Edit2 className="w-3.5 h-3.5" /> Edit Profile
      </button>
@@ -174,7 +174,7 @@ function OverviewTab({ user, onEdit }: { user: typeof mockUser; onEdit: () => vo
      <div className="space-y-3">
       <div className="flex items-center justify-between">
        <span className="text-sm text-gray-600">Global Rank</span>
-       <span className="text-sm font-bold text-blue-600">#{user.rank}</span>
+       <span className="text-sm font-bold text-indigo-600">#{user.rank}</span>
       </div>
       <div className="flex items-center justify-between">
        <span className="text-sm text-gray-600">Problems Solved</span>
@@ -182,9 +182,9 @@ function OverviewTab({ user, onEdit }: { user: typeof mockUser; onEdit: () => vo
       </div>
       <div className="flex items-center justify-between">
        <span className="text-sm text-gray-600">Current Streak</span>
-       <span className="flex items-center gap-1 bg-amber-50 text-amber-700 text-xs font-bold px-2.5 py-1 rounded-full">
-        <Flame className="w-3.5 h-3.5 text-orange-500" /> {user.streak} Days
-       </span>
+        <span className="flex items-center gap-1.5 bg-violet-50 text-violet-700 text-xs font-bold px-2.5 py-1 rounded">
+         <Flame className="w-3.5 h-3.5" /> {user.streak} Days
+        </span>
       </div>
      </div>
     </div>
@@ -464,26 +464,42 @@ function CareerTab({ user }: { user: typeof mockUser }) {
 function PerformanceTab({ user }: { user: typeof mockUser }) {
  const total = user.solved.easy + user.solved.medium + user.solved.hard;
 
- // Generate dummy activity heatmap (84 days)
- const heatmap = Array.from({ length: 84 }, (_, i) => {
+ // Generate 364 days (52 weeks) of dummy activity — proper GitHub heatmap dimensions
+ const heatmapData = Array.from({ length: 364 }, (_, i) => {
   const rand = Math.random();
-  if ([3, 4, 5, 10, 11, 12, 17, 18, 19, 24, 25, 26, 30, 31].includes(i % 30)) return rand > 0.3 ? (rand > 0.7 ? 3 : 2) : 1;
-  return rand > 0.7 ? 1 : 0;
+  // Simulate a realistic activity pattern: more active on weekdays, some heavy days
+  const dayOfWeek = i % 7;
+  const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+  if (isWeekend) return rand > 0.85 ? 1 : 0;
+  if (rand > 0.55) return rand > 0.85 ? 3 : rand > 0.72 ? 2 : 1;
+  return 0;
  });
+
+ const getHeatmapColor = (v: number) =>
+  v === 0 ? "bg-gray-100" : v === 1 ? "bg-green-300" : v === 2 ? "bg-green-500" : "bg-green-700";
+
+ // Group into 52 weeks (columns) × 7 days (rows)
+ const weeks: number[][] = [];
+ for (let w = 0; w < 52; w++) {
+  weeks.push(heatmapData.slice(w * 7, w * 7 + 7));
+ }
+
+ const MONTH_LABELS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+ const DAY_LABELS = ["Sun","","Tue","","Thu","","Sat"];
 
  return (
   <div className="space-y-6">
    {/* Top Stats Row */}
    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
     {[
-     { label: "Total XP", value: `${user.xp.toLocaleString()}`, icon: Zap, color: "text-amber-500 bg-amber-50 border-amber-200" },
-     { label: "Global Rank", value: `#${user.rank}`, icon: Trophy, color: "text-blue-600 bg-blue-50 border-blue-200" },
-     { label: "Day Streak", value: `${user.streak}`, icon: Flame, color: "text-orange-500 bg-orange-50 border-orange-200" },
-     { label: "Problems Solved", value: `${total}`, icon: Target, color: "text-green-600 bg-green-50 border-green-200" },
+     { label: "Total XP", value: `${user.xp.toLocaleString()}`, icon: Zap, color: "text-blue-600 bg-blue-50 border-blue-200" },
+     { label: "Global Rank", value: `#${user.rank}`, icon: Trophy, color: "text-indigo-600 bg-indigo-50 border-indigo-200" },
+     { label: "Day Streak", value: `${user.streak}`, icon: Flame, color: "text-violet-600 bg-violet-50 border-violet-200" },
+     { label: "Problems Solved", value: `${total}`, icon: Target, color: "text-cyan-600 bg-cyan-50 border-cyan-200" },
     ].map(({ label, value, icon: Icon, color }) => (
      <div key={label} className="bg-white border border-gray-200 rounded-md p-4">
-      <div className={`w-9 h-9 rounded-lg flex items-center justify-center border mb-3 ${color}`}>
-       <Icon className="w-5 h-5" />
+      <div className={`w-8 h-8 rounded flex items-center justify-center border mb-3 ${color}`}>
+       <Icon className="w-4 h-4" />
       </div>
       <div className="text-2xl font-black text-gray-900">{value}</div>
       <div className="text-xs text-gray-500 font-medium mt-0.5">{label}</div>
@@ -515,7 +531,7 @@ function PerformanceTab({ user }: { user: typeof mockUser }) {
       <div className="space-y-2 flex-1">
        {[
         { label: "Easy", count: user.solved.easy, color: "bg-green-500" },
-        { label: "Medium", count: user.solved.medium, color: "bg-amber-500" },
+        { label: "Medium", count: user.solved.medium, color: "bg-blue-600" },
         { label: "Hard", count: user.solved.hard, color: "bg-red-500" },
        ].map(({ label, count, color }) => (
         <div key={label} className="flex items-center justify-between">
@@ -530,18 +546,26 @@ function PerformanceTab({ user }: { user: typeof mockUser }) {
      </div>
     </div>
 
-    {/* Company Readiness */}
+    {/* Company Readiness — with real logos */}
     <div className="bg-white border border-gray-200 rounded-md p-4">
      <h3 className="font-semibold text-gray-900 mb-4">Company Readiness</h3>
      <div className="space-y-4">
-      {user.companyReadiness.map(({ name, pct, color }) => (
+      {user.companyReadiness.map(({ name, pct }) => (
        <div key={name}>
-        <div className="flex items-center justify-between mb-1.5">
-         <span className="text-sm font-medium text-gray-700">{name}</span>
+        <div className="flex items-center gap-2 mb-1.5">
+         {/* Real company favicon */}
+         {/* eslint-disable-next-line @next/next/no-img-element */}
+         <img
+          src={`https://www.google.com/s2/favicons?sz=16&domain=${name.toLowerCase()}.com`}
+          alt={name}
+          className="w-4 h-4 rounded-sm"
+          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+         />
+         <span className="text-sm font-medium text-gray-700 flex-1">{name}</span>
          <span className="text-sm font-bold text-gray-900">{pct}%</span>
         </div>
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-         <div className={`h-full ${color} rounded-full `} style={{ width: `${pct}%` }} />
+        <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+         <div className="h-full bg-blue-600 rounded-full" style={{ width: `${pct}%` }} />
         </div>
        </div>
       ))}
@@ -549,31 +573,51 @@ function PerformanceTab({ user }: { user: typeof mockUser }) {
     </div>
    </div>
 
-   {/* Activity Heatmap */}
+   {/* GitHub-style Activity Heatmap — 52 weeks × 7 days */}
    <div className="bg-white border border-gray-200 rounded-md p-4">
-    <div className="flex items-center justify-between mb-4">
-     <h3 className="font-semibold text-gray-900">Activity — Last 84 Days</h3>
-     <div className="flex items-center gap-1.5 text-xs text-gray-400">
+    <div className="flex items-center justify-between mb-3">
+     <h3 className="font-semibold text-gray-900">Activity — Past Year</h3>
+     <div className="flex items-center gap-1.5 text-[11px] text-gray-400">
       <span>Less</span>
-      {["bg-gray-100", "bg-blue-200", "bg-blue-400", "bg-blue-600"].map((c, i) => (
-       <div key={i} className={`w-3.5 h-3.5 rounded-sm ${c}`} />
+      {["bg-gray-100", "bg-green-300", "bg-green-500", "bg-green-700"].map((c, i) => (
+       <div key={i} className={`w-3 h-3 rounded-sm ${c}`} />
       ))}
       <span>More</span>
      </div>
     </div>
-    <div className="grid grid-cols-12 gap-1">
-     {heatmap.map((level, i) => (
-      <div
-       key={i}
-       title={`Day ${i + 1}: ${level === 0 ? "No activity" : `${level} problems`}`}
-       className={`h-4 w-full rounded-sm cursor-pointer transition-opacity hover:opacity-70 ${
-        level === 0 ? "bg-gray-100" :
-        level === 1 ? "bg-blue-200" :
-        level === 2 ? "bg-blue-400" : "bg-blue-600"
-       }`}
-      />
+
+    {/* Month labels */}
+    <div className="flex mb-1 pl-7">
+     {MONTH_LABELS.map((m, i) => (
+      <div key={m} className="text-[10px] text-gray-400" style={{ width: `${(1/12) * 100}%` }}>{m}</div>
      ))}
     </div>
+
+    <div className="flex gap-0.5">
+     {/* Day-of-week labels */}
+     <div className="flex flex-col gap-0.5 mr-1">
+      {DAY_LABELS.map((d, i) => (
+       <div key={i} className="text-[9px] text-gray-400 h-3 flex items-center w-6 justify-end pr-1">{d}</div>
+      ))}
+     </div>
+
+     {/* Weeks grid */}
+     {weeks.map((week, wi) => (
+      <div key={wi} className="flex flex-col gap-0.5">
+       {week.map((val, di) => (
+        <div
+         key={di}
+         title={`${val === 0 ? "No" : val} problem${val !== 1 ? "s" : ""} solved`}
+         className={`w-3 h-3 rounded-sm cursor-default ${getHeatmapColor(val)}`}
+        />
+       ))}
+      </div>
+     ))}
+    </div>
+
+    <p className="text-xs text-gray-400 mt-3">
+     {heatmapData.filter(v => v > 0).length} active days in the past year
+    </p>
    </div>
 
    {/* Badges */}
@@ -581,8 +625,8 @@ function PerformanceTab({ user }: { user: typeof mockUser }) {
     <h3 className="font-semibold text-gray-900 mb-4">Badges Earned</h3>
     <div className="flex flex-wrap gap-3">
      {user.badges.map((badge) => (
-      <div key={badge} className="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-800 text-sm font-medium px-4 py-2 rounded-md">
-       <Trophy className="w-4 h-4 text-amber-500" />
+      <div key={badge} className="flex items-center gap-2 bg-indigo-50 border border-indigo-200 text-indigo-800 text-sm font-medium px-4 py-2 rounded-md">
+       <Trophy className="w-4 h-4 text-indigo-500" />
        {badge}
       </div>
      ))}

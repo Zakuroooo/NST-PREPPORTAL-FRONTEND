@@ -9,18 +9,18 @@ const companyReadiness = [
 ];
 
 const topics = [
-  { name: "Arrays & Strings", done: 12, total: 20, pct: 60, color: "bg-green-500", textColor: "text-green-600" },
-  { name: "Binary Search", done: 6, total: 12, pct: 50, color: "bg-green-400", textColor: "text-green-500" },
-  { name: "Dynamic Programming", done: 3, total: 15, pct: 20, color: "bg-red-400", textColor: "text-red-500" },
-  { name: "Trees", done: 5, total: 18, pct: 28, color: "bg-red-400", textColor: "text-red-500" },
-  { name: "Graphs", done: 2, total: 16, pct: 13, color: "bg-red-500", textColor: "text-red-600" },
-  { name: "System Design", done: 1, total: 10, pct: 10, color: "bg-red-500", textColor: "text-red-600" },
+  { name: "Arrays & Strings", done: 12, total: 20, pct: 60, color: "bg-blue-500", textColor: "text-blue-600" },
+  { name: "Binary Search", done: 6, total: 12, pct: 50, color: "bg-indigo-500", textColor: "text-indigo-600" },
+  { name: "Dynamic Programming", done: 3, total: 15, pct: 20, color: "bg-violet-500", textColor: "text-violet-600" },
+  { name: "Trees", done: 5, total: 18, pct: 28, color: "bg-cyan-500", textColor: "text-cyan-600" },
+  { name: "Graphs", done: 2, total: 16, pct: 13, color: "bg-sky-500", textColor: "text-sky-600" },
+  { name: "System Design", done: 1, total: 10, pct: 10, color: "bg-fuchsia-500", textColor: "text-fuchsia-600" },
 ];
 
 const weakAreas = [
-  { topic: "Dynamic Programming", pct: 20, companies: "Flipkart", companyPct: 72, color: "text-red-600", bgColor: "bg-red-50 border-red-200" },
-  { topic: "Graphs", pct: 13, companies: "Google", companyPct: 71, color: "text-orange-600", bgColor: "bg-orange-50 border-orange-200" },
-  { topic: "System Design", pct: 10, companies: "Amazon", companyPct: 65, color: "text-orange-600", bgColor: "bg-orange-50 border-orange-200" },
+  { topic: "Dynamic Programming", pct: 20, companies: "Flipkart", companyPct: 72, color: "text-indigo-600", bgColor: "bg-indigo-50 border-indigo-200" },
+  { topic: "Graphs", pct: 13, companies: "Google", companyPct: 71, color: "text-violet-600", bgColor: "bg-violet-50 border-violet-200" },
+  { topic: "System Design", pct: 10, companies: "Amazon", companyPct: 65, color: "text-cyan-600", bgColor: "bg-cyan-50 border-cyan-200" },
 ];
 
 // 12 weeks × 7 days heatmap data
@@ -29,9 +29,8 @@ const heatmap = Array.from({ length: 84 }, (_, i) => {
   const mids = [56, 57, 58, 63, 64, 65];
   const lights = [42, 43, 49, 50];
   if (actives.includes(i)) return "bg-green-600";
-  if (mids.includes(i)) return "bg-green-400";
-  if (lights.includes(i)) return "bg-green-200";
-  return "bg-gray-100";
+  const rand = Math.random();
+  return rand > 0.8 ? "bg-green-700" : rand > 0.5 ? "bg-green-500" : rand > 0.3 ? "bg-green-300" : "bg-gray-100";
 });
 
 export default function ProgressPage() {
@@ -45,9 +44,9 @@ export default function ProgressPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
           { icon: TrendingUp, color: "text-blue-600", bg: "bg-blue-50", val: "45", label: "Problems Solved" },
-          { icon: Flame, color: "text-orange-500", bg: "bg-orange-50", val: "12", label: "Day Streak" },
-          { icon: Trophy, color: "text-amber-500", bg: "bg-amber-50", val: "18", label: "Best Streak" },
-          { icon: Zap, color: "text-purple-600", bg: "bg-purple-50", val: "2,450", label: "XP Earned" },
+          { icon: Flame, color: "text-indigo-600", bg: "bg-indigo-50", val: "12", label: "Day Streak" },
+          { icon: Trophy, color: "text-violet-600", bg: "bg-violet-50", val: "18", label: "Best Streak" },
+          { icon: Zap, color: "text-cyan-600", bg: "bg-cyan-50", val: "2,450", label: "XP Earned" },
         ].map(({ icon: Icon, color, bg, val, label }) => (
           <div key={label} className="bg-white border border-gray-200 rounded-xl p-5">
             <div className={`w-10 h-10 ${bg} rounded-lg flex items-center justify-center mb-3`}>
@@ -76,7 +75,13 @@ export default function ProgressPage() {
                 <tr key={co.name} className="border-b border-gray-100 last:border-0 hover:bg-gray-50">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-2">
-                      <div className={`w-7 h-7 ${co.color} rounded flex items-center justify-center text-white font-bold text-xs`}>{co.co}</div>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`https://www.google.com/s2/favicons?sz=64&domain=${co.name.toLowerCase()}.com`}
+                        alt={co.name}
+                        className="w-7 h-7 rounded shrink-0 object-contain bg-white border border-gray-100 p-0.5"
+                        onError={(e) => { (e.target as HTMLImageElement).src = "https://www.google.com/s2/favicons?sz=64&domain=example.com"; }}
+                      />
                       <span className="font-medium text-gray-900">{co.name}</span>
                     </div>
                   </td>

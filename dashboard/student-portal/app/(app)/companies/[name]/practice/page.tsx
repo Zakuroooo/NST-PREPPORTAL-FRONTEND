@@ -1,7 +1,7 @@
 "use client";
 import { useState, useMemo, use } from "react";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, Search, X, SearchX } from "lucide-react";
+import { ArrowLeft, ExternalLink, Search, X, SearchX, Flame } from "lucide-react";
 import {
   filterQuestions,
   allTopics,
@@ -12,15 +12,15 @@ import {
 
 const diffBadge = (d: string) =>
   d === "Easy"   ? "bg-green-50 text-green-700 border border-green-200" :
-  d === "Medium" ? "bg-amber-50 text-amber-700 border border-amber-200" :
+  d === "Medium" ? "bg-blue-50 text-blue-700 border border-blue-200" :
                    "bg-red-50 text-red-600 border border-red-200";
 
 const roundColors: Record<string, string> = {
   "Coding":        "bg-blue-100 text-blue-700",
-  "System Design": "bg-purple-100 text-purple-700",
+  "System Design": "bg-indigo-100 text-indigo-700",
   "LLD":           "bg-indigo-100 text-indigo-700",
   "HR":            "bg-green-100 text-green-700",
-  "Aptitude":      "bg-amber-100 text-amber-700",
+  "Aptitude":      "bg-slate-100 text-slate-700",
   "Domain":        "bg-gray-100 text-gray-700",
 };
 
@@ -72,9 +72,13 @@ export default function CompanyPracticePage({
 
       {/* Company header banner */}
       <div className="bg-white border border-gray-200 rounded-2xl p-5 mb-6 flex items-center gap-4">
-        <div className={`w-12 h-12 ${companyBg} rounded-xl flex items-center justify-center text-white font-bold text-lg shrink-0`}>
-          {initial}
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={`https://www.google.com/s2/favicons?sz=64&domain=${slug}.com`}
+          alt={intel.name}
+          className="w-12 h-12 rounded-xl shrink-0 object-contain bg-white border border-gray-100 p-1.5"
+          onError={(e) => { (e.target as HTMLImageElement).src = "https://www.google.com/s2/favicons?sz=64&domain=example.com"; }}
+        />
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-0.5">
             <h1 className="text-lg font-bold text-gray-900">Practice for {intel.name}</h1>
@@ -147,7 +151,7 @@ export default function CompanyPracticePage({
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                 difficulty === d
                   ? d === "Easy"   ? "bg-green-600 text-white" :
-                    d === "Medium" ? "bg-amber-500 text-white" :
+                    d === "Medium" ? "bg-blue-600 text-white" :
                     d === "Hard"   ? "bg-red-500 text-white"   : "bg-gray-900 text-white"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
@@ -178,7 +182,7 @@ export default function CompanyPracticePage({
                   <div className="font-medium text-sm text-gray-900 truncate">{q.title}</div>
                   <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                     <span className="text-xs text-gray-500">{q.topic}</span>
-                    {q.hot && <span className="text-xs bg-red-50 text-red-600 rounded px-1.5 py-0.5">🔥 Hot</span>}
+                    {q.hot && <span className="text-xs bg-red-50 text-red-600 rounded px-1.5 py-0.5"><Flame className="w-3 h-3 mr-1 inline-block" /> Hot</span>}
                     {q.frequency && (
                       <span className="text-xs text-gray-400">Asked in {q.frequency}% of interviews</span>
                     )}

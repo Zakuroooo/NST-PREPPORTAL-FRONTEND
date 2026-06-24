@@ -6,7 +6,7 @@ import Link from "next/link";
 import {
   Zap, Plus, X, CheckCircle, Clock, XCircle, Check,
   ChevronRight, ChevronDown, ChevronUp, Bookmark, ThumbsUp, Share2,
-  History, Code, Sparkles, Filter, ArrowUpDown
+  History, Code, Sparkles, Filter, ArrowUpDown, Star
 } from "lucide-react";
 import { useNavbar } from "@/lib/navbar-context";
 
@@ -206,20 +206,6 @@ function SubmitContent() {
   const [experiences, setExperiences] = useState<Experience[]>(initialExperiences);
   const [expandedId, setExpandedId] = useState<number | null>(null);
 
-  useEffect(() => {
-    const expand = searchParams?.get("expand");
-    if (expand) {
-      const id = parseInt(expand, 10);
-      if (!isNaN(id)) {
-        setExpandedId(id);
-        const found = experiences.find((e) => e.id === id);
-        if (found) {
-          setFilterCompany(found.company);
-        }
-      }
-    }
-  }, [searchParams, experiences]);
-
   // Modal state
   const [showModal, setShowModal] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -228,6 +214,23 @@ function SubmitContent() {
   const [filterDifficulty, setFilterDifficulty] = useState<string>("All");
   const [filterCompany, setFilterCompany] = useState<string>("All");
   const [sortBy, setSortBy] = useState<string>("Most Upvoted");
+
+  useEffect(() => {
+    const expand = searchParams?.get("expand");
+    if (expand) {
+      const id = parseInt(expand, 10);
+      if (!isNaN(id)) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        setTimeout(() => {
+          setExpandedId(id);
+          const found = experiences.find((e) => e.id === id);
+          if (found) {
+            setFilterCompany(found.company);
+          }
+        }, 0);
+      }
+    }
+  }, [searchParams, experiences]);
 
   // Share link toast state
   const [showToast, setShowToast] = useState<boolean>(false);
@@ -831,9 +834,9 @@ function SubmitContent() {
                             type="button"
                             key={s}
                             onClick={() => setFormStars(s)}
-                            className={`text-2xl ${s <= formStars ? "text-yellow-400" : "text-gray-200"} hover:text-yellow-400 transition-colors`}
+                            className={`p-1 ${s <= formStars ? "text-blue-500" : "text-gray-200"} hover:text-blue-500 transition-colors`}
                           >
-                            ★
+                            <Star className="w-6 h-6 fill-current" />
                           </button>
                         ))}
                       </div>

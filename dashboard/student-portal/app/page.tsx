@@ -51,7 +51,7 @@ export default function LandingPage() {
           <div className="rounded-2xl border border-gray-200 shadow-2xl overflow-hidden bg-gray-50">
             <div className="bg-gray-800 flex items-center gap-2 px-4 py-3">
               <div className="w-3 h-3 rounded-full bg-red-500" />
-              <div className="w-3 h-3 rounded-full bg-yellow-500" />
+              <div className="w-3 h-3 rounded-full bg-blue-500" />
               <div className="w-3 h-3 rounded-full bg-green-500" />
             </div>
             <div className="p-6 space-y-3">
@@ -62,7 +62,7 @@ export default function LandingPage() {
               <div className="grid grid-cols-3 gap-3">
                 <div className="h-20 bg-blue-50 rounded-lg border border-blue-100" />
                 <div className="h-20 bg-green-50 rounded-lg border border-green-100" />
-                <div className="h-20 bg-purple-50 rounded-lg border border-purple-100" />
+                <div className="h-20 bg-blue-50 rounded-lg border border-blue-100" />
               </div>
               <div className="h-32 bg-gradient-to-r from-blue-100 to-blue-50 rounded-lg" />
               <div className="flex gap-2">

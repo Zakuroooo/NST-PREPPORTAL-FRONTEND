@@ -62,9 +62,10 @@ export default function RegisterPage() {
         console.error("OTP verification returned non-complete status:", JSON.stringify(result, null, 2));
         setError(`Incomplete! Status: ${result.status}. Missing: ${result.missingFields?.join(", ") || "none"}`);
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Clerk OTP verification error:", err);
-      const msg = err?.errors?.[0]?.longMessage || err?.errors?.[0]?.message || "Invalid verification code.";
+      const errorObj = err as { errors?: Array<{ longMessage?: string; message?: string }> };
+      const msg = errorObj?.errors?.[0]?.longMessage || errorObj?.errors?.[0]?.message || "Invalid verification code.";
       setError(msg);
     } finally {
       setLoading(false);

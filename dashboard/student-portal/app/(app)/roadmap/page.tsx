@@ -282,13 +282,15 @@ function RoadmapContent() {
 
   // Sync state if returned from other pages
   useEffect(() => {
-    setCompanies(getUserRoadmapCompanies());
+    setTimeout(() => {
+      setCompanies(getUserRoadmapCompanies());
+    }, 0);
   }, []);
 
   useEffect(() => {
     const slug = searchParams.get("company");
     if (slug && companies.some((c) => c.slug === slug)) {
-      setActiveSlug(slug);
+      setTimeout(() => setActiveSlug(slug), 0);
     }
   }, [searchParams, companies]);
 
@@ -395,7 +397,8 @@ function RoadmapCurriculumView({ company }: { company: UserRoadmapCompany }) {
 
   // Sync expanded week when company changes
   useEffect(() => {
-    setExpandedWeek(company.currentWeek);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setTimeout(() => setExpandedWeek(company.currentWeek), 0);
   }, [company.slug]);
 
   const logoUrl = getLogoUrl(company.slug);
@@ -538,7 +541,7 @@ function RoadmapCurriculumView({ company }: { company: UserRoadmapCompany }) {
                         <div className="flex items-center gap-3">
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                             q.diff === 'Easy' ? 'bg-green-50 text-green-700 border-green-200' :
-                            q.diff === 'Medium' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                            q.diff === 'Medium' ? 'bg-blue-50 text-blue-700 border-blue-200' :
                             'bg-red-50 text-red-700 border-red-200'
                           }`}>
                             {q.diff}

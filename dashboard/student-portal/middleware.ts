@@ -1,12 +1,12 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isPublicRoute = createRouteMatcher([
+const _isPublicRoute = createRouteMatcher([
   "/",
   "/login(.*)",
   "/register(.*)",
 ]);
 
-export default clerkMiddleware(async (auth, req) => {
+export default clerkMiddleware(async (_auth, _req) => {
   // EMERGENCY DEMO MODE: Bypassing Clerk protection so teachers can view the Vercel link!
   // if (!isPublicRoute(req)) {
   //   await auth.protect();

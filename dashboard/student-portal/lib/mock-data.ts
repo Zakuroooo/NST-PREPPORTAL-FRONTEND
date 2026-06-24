@@ -558,16 +558,16 @@ export function getCompanyIntel(slug: string): CompanyIntel {
 
 export const companyBgColors: Record<string, string> = {
   google:    "bg-blue-600",
-  amazon:    "bg-orange-500",
-  microsoft: "bg-teal-600",
+  amazon:    "bg-green-500",
+  microsoft: "bg-blue-600",
   flipkart:  "bg-blue-500",
   tcs:       "bg-indigo-600",
   infosys:   "bg-blue-700",
-  uber:      "bg-gray-800",
-  meta:      "bg-blue-700",
-  apple:     "bg-gray-600",
   razorpay:  "bg-blue-800",
-  swiggy:    "bg-orange-600",
+  adobe:     "bg-red-600",
+  oracle:    "bg-red-700",
+  "goldman sachs": "bg-blue-900",
+  swiggy:    "bg-fuchsia-600",
 };
 
 export function getCompanyBg(slug: string): string {
@@ -580,13 +580,13 @@ export function getCompanyBg(slug: string): string {
 // ─────────────────────────────────────────────────────
 export const companiesList = [
   { initial: "G", name: "Google",    color: "bg-blue-600",   questions: 2274, type: "FAANG",          topTopic: "Arrays",  slug: "google" },
-  { initial: "A", name: "Amazon",    color: "bg-orange-500", questions: 1957, type: "FAANG",          topTopic: "LP + DP", slug: "amazon" },
-  { initial: "M", name: "Microsoft", color: "bg-teal-600",   questions: 1560, type: "FAANG",          topTopic: "Trees",   slug: "microsoft" },
+  { initial: "A", name: "Amazon",    color: "bg-green-500", questions: 1957, type: "FAANG",          topTopic: "LP + DP", slug: "amazon" },
+  { initial: "M", name: "Microsoft", color: "bg-blue-600",   questions: 1560, type: "FAANG",          topTopic: "Trees",   slug: "microsoft" },
   { initial: "F", name: "Flipkart",  color: "bg-blue-500",   questions: 892,  type: "Indian Product", topTopic: "LLD",     slug: "flipkart" },
   { initial: "R", name: "Razorpay",  color: "bg-blue-800",   questions: 310,  type: "Indian Startup", topTopic: "SysDesign", slug: "razorpay" },
   { initial: "T", name: "TCS",       color: "bg-indigo-600", questions: 480,  type: "Service",        topTopic: "Aptitude", slug: "tcs" },
   { initial: "U", name: "Uber",      color: "bg-gray-800",   questions: 620,  type: "FAANG",          topTopic: "Graphs",  slug: "uber" },
-  { initial: "S", name: "Swiggy",    color: "bg-orange-600", questions: 245,  type: "Indian Product", topTopic: "System Design", slug: "swiggy" },
+  { initial: "S", name: "Swiggy",    color: "bg-fuchsia-600", questions: 245,  type: "Indian Product", topTopic: "System Design", slug: "swiggy" },
   { initial: "I", name: "Infosys",   color: "bg-blue-700",   questions: 390,  type: "Service",        topTopic: "OOP",     slug: "infosys" },
   { initial: "Z", name: "Zepto",     color: "bg-purple-600", questions: 180,  type: "Indian Startup", topTopic: "DSA",     slug: "zepto" },
   { initial: "W", name: "Wipro",     color: "bg-violet-600", questions: 350,  type: "Service",        topTopic: "Aptitude", slug: "wipro" },
@@ -634,7 +634,7 @@ export function searchAll(query: string): SearchResult[] {
 // ─────────────────────────────────────────────────────
 export const dashboardTargetCompanies = [
   { initial: "G", name: "Google",    role: "SDE-1 (L3)", readiness: 45, color: "bg-blue-600",   slug: "google" },
-  { initial: "A", name: "Amazon",    role: "SDE-1",      readiness: 70, color: "bg-orange-500", slug: "amazon" },
+  { initial: "A", name: "Amazon",    role: "SDE-1",      readiness: 70, color: "bg-green-500", slug: "amazon" },
   { initial: "F", name: "Flipkart",  role: "SDE-1",      readiness: 20, color: "bg-blue-500",   slug: "flipkart" },
 ];
 
@@ -675,9 +675,9 @@ export const practiceCategories: PracticeCategory[] = [
     iconName: "Monitor",
     description: "Data Structures & Algorithms — arrays, graphs, DP, trees",
     totalQuestions: 2400,
-    color: "bg-blue-50",
-    textColor: "text-blue-700",
-    borderColor: "border-blue-200",
+    color: "bg-green-50",
+    textColor: "text-green-700",
+    borderColor: "border-green-200",
     roundTypes: ["Coding"],
   },
   {
@@ -697,9 +697,9 @@ export const practiceCategories: PracticeCategory[] = [
     iconName: "Calculator",
     description: "Quant, logical reasoning, verbal for TCS NQT, Infosys Spectra",
     totalQuestions: 650,
-    color: "bg-amber-50",
-    textColor: "text-amber-700",
-    borderColor: "border-amber-200",
+    color: "bg-purple-50",
+    textColor: "text-purple-700",
+    borderColor: "border-purple-200",
     roundTypes: ["Aptitude"],
   },
   {
@@ -752,9 +752,9 @@ export const practiceCategories: PracticeCategory[] = [
     iconName: "FileText",
     description: "Multiple choice: CS theory, output prediction, debugging",
     totalQuestions: 500,
-    color: "bg-teal-50",
-    textColor: "text-teal-700",
-    borderColor: "border-teal-200",
+    color: "bg-cyan-50",
+    textColor: "text-cyan-700",
+    borderColor: "border-cyan-200",
     roundTypes: ["Domain", "Aptitude"],
   },
 ];
@@ -895,7 +895,7 @@ export const mockUserRoadmap: UserRoadmapCompany[] = [
     slug: "amazon",
     name: "Amazon",
     initial: "A",
-    color: "bg-orange-500",
+    color: "bg-green-500",
     role: "SDE-1",
     totalWeeks: 8,
     currentWeek: 2,
