@@ -2,9 +2,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Calendar, Flame, CheckSquare, Square, ExternalLink,
+  Flame, CheckSquare, Square, ExternalLink,
   Clock, Zap, TrendingUp, ChevronRight,
 } from "lucide-react";
+
 import {
   dashboardTargetCompanies,
   dashboardRecentReports,
@@ -49,12 +50,6 @@ export default function DashboardPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {dashboardTargetCompanies.map((co) => {
-              // Find matching company from todayTasksByCompany for days remaining
-              const roadmap = todayTasksByCompany.find((t) => t.slug === co.slug);
-              const daysRemaining = roadmap
-                ? Math.max((roadmap.totalWeeks * 7) - roadmap.daysPracticed, 0)
-                : null;
-
               return (
                 <div key={co.name} className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow">
                   <div className="flex items-center justify-between mb-3">
@@ -90,16 +85,6 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  {/* Days remaining badge */}
-                  {daysRemaining !== null && (
-                    <div className="flex items-center gap-1 mb-3">
-                      <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                      <span className="text-xs text-gray-500 font-medium">
-                        {daysRemaining > 0 ? `${daysRemaining} days remaining` : "Roadmap complete"}
-                      </span>
-                    </div>
-                  )}
-
                   <div className="flex gap-2">
                     <Link
                       href={`/companies/${co.slug}`}
@@ -120,13 +105,16 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        {/* Today's Tasks — per company */}
+        {/* Today's Tasks — per company, smart question count */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold text-gray-900">Today&apos;s Tasks</h2>
           </div>
           <div className="space-y-4">
-            {todayTasksByCompany.map((co) => (
+            {(() => {
+              // If user targets only 1 company → show 5 questions, otherwise show 3
+              const maxQPerCompany = todayTasksByCompany.length === 1 ? 5 : 3;
+              return todayTasksByCompany.map((co) => (
               <div key={co.slug} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
                 {/* Company header */}
                 <div className="flex items-center justify-between px-5 py-3 bg-gray-50 border-b border-gray-100">
@@ -151,9 +139,9 @@ export default function DashboardPage() {
                   </Link>
                 </div>
 
-                {/* Questions */}
+                {/* Questions — capped to maxQPerCompany */}
                 <div className="divide-y divide-gray-50">
-                  {co.questions.map((q) => (
+                  {co.questions.slice(0, maxQPerCompany).map((q) => (
                     <div
                       key={q.id}
                       className="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
@@ -183,8 +171,18 @@ export default function DashboardPage() {
                     </div>
                   ))}
                 </div>
+
+                {/* Show +N more if truncated */}
+                {co.questions.length > maxQPerCompany && (
+                  <div className="px-5 py-2 border-t border-gray-50 bg-gray-50/50">
+                    <Link href={`/roadmap?company=${co.slug}`} className="text-xs text-blue-600 font-medium hover:underline">
+                      +{co.questions.length - maxQPerCompany} more tasks in roadmap
+                    </Link>
+                  </div>
+                )}
               </div>
-            ))}
+            ));
+            })()}
           </div>
         </section>
 

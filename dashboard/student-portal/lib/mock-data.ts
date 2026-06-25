@@ -678,12 +678,31 @@ export const todayTasksByCompany = [
     totalWeeks: 4,
     daysPracticed: 5,
     questions: [
-      { id: 10, title: "Best Time to Buy Stock", difficulty: "Easy"   as Difficulty, xp: 10, done: true  },
-      { id: 11, title: "Contains Duplicate",      difficulty: "Easy"   as Difficulty, xp: 10, done: true  },
-      { id: 12, title: "Product of Array Except Self", difficulty: "Medium" as Difficulty, xp: 25, done: false },
+      { id: 10, title: "Best Time to Buy Stock",         difficulty: "Easy"   as Difficulty, xp: 10, done: true  },
+      { id: 11, title: "Contains Duplicate",             difficulty: "Easy"   as Difficulty, xp: 10, done: true  },
+      { id: 12, title: "Product of Array Except Self",   difficulty: "Medium" as Difficulty, xp: 25, done: false },
+      { id: 13, title: "Longest Consecutive Sequence",   difficulty: "Medium" as Difficulty, xp: 25, done: false },
+      { id: 14, title: "Missing Number",                 difficulty: "Easy"   as Difficulty, xp: 10, done: false },
+    ],
+  },
+  {
+    company: "Flipkart",
+    slug: "flipkart",
+    color: "bg-blue-500",
+    week: 1,
+    day: 2,
+    totalWeeks: 6,
+    daysPracticed: 2,
+    questions: [
+      { id: 20, title: "Trapping Rain Water",            difficulty: "Hard"   as Difficulty, xp: 35, done: false },
+      { id: 21, title: "Maximum Subarray (Kadane)",      difficulty: "Medium" as Difficulty, xp: 25, done: false },
+      { id: 22, title: "Merge Intervals",                difficulty: "Medium" as Difficulty, xp: 25, done: false },
+      { id: 23, title: "Number of Islands",              difficulty: "Medium" as Difficulty, xp: 30, done: false },
+      { id: 24, title: "Coin Change",                    difficulty: "Medium" as Difficulty, xp: 30, done: false },
     ],
   },
 ];
+
 
 // User stats used for Prep Score calculation
 // BACKEND TODO: GET /api/user/stats — returns real activity data

@@ -338,12 +338,6 @@ export default function DoubtsPage() {
             <h1 className="text-xl font-bold text-gray-900">My Doubts</h1>
             <p className="text-xs text-gray-400 mt-0.5">Ask questions · Get answers from faculty</p>
           </div>
-          <button
-            onClick={() => setShowForm(true)}
-            className="flex items-center gap-1.5 bg-blue-600 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-blue-700"
-          >
-            <Plus className="w-3.5 h-3.5" /> Ask a Doubt
-          </button>
         </div>
 
         {/* Filter tabs */}

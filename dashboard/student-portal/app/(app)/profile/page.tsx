@@ -464,6 +464,12 @@ function CareerTab({ user }: { user: typeof mockUser }) {
 function PerformanceTab({ user }: { user: typeof mockUser }) {
  const total = user.solved.easy + user.solved.medium + user.solved.hard;
 
+ const computedBadges: string[] = [];
+ if (user.streak >= 5) computedBadges.push("5-Day Streak");
+ if (total >= 1) computedBadges.push("First Solve");
+ if (total >= 100) computedBadges.push("Problem Master");
+ if (user.solved.hard >= 5) computedBadges.push("Speed Coder");
+
  // Generate 364 days (52 weeks) of dummy activity — proper GitHub heatmap dimensions
  const heatmapData = Array.from({ length: 364 }, (_, i) => {
   const rand = Math.random();
@@ -624,7 +630,7 @@ function PerformanceTab({ user }: { user: typeof mockUser }) {
    <div className="bg-white border border-gray-200 rounded-md p-4">
     <h3 className="font-semibold text-gray-900 mb-4">Badges Earned</h3>
     <div className="flex flex-wrap gap-3">
-     {user.badges.map((badge) => (
+     {computedBadges.map((badge) => (
       <div key={badge} className="flex items-center gap-2 bg-indigo-50 border border-indigo-200 text-indigo-800 text-sm font-medium px-4 py-2 rounded-md">
        <Trophy className="w-4 h-4 text-indigo-500" />
        {badge}
@@ -639,87 +645,18 @@ function PerformanceTab({ user }: { user: typeof mockUser }) {
  );
 }
 
-// ── Tab 4: Settings & Privacy ─────────────────────────
+// ── Tab 4: Settings ─────────────────────────────────────
 function SettingsTab() {
- const [notifs, setNotifs] = useState({ daily: true, companies: true, sessions: true, marketing: false });
- const [privacy, setPrivacy] = useState({ publicProfile: true, showLeaderboard: true, showProgress: false });
- const [saved, setSaved] = useState(false);
  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
- const handleSave = () => {
-  setSaved(true);
-  setTimeout(() => setSaved(false), 2000);
- };
-
  return (
   <div className="space-y-5 max-w-2xl">
-   {/* Notifications */}
+   {/* Account Info */}
    <div className="bg-white border border-gray-200 rounded-md p-4">
-    <div className="flex items-center gap-2 mb-4">
-     <Bell className="w-5 h-5 text-gray-600" />
-     <h3 className="font-semibold text-gray-900">Notification Preferences</h3>
-    </div>
-    <div className="space-y-4">
-     {[
-      { key: "daily",   label: "Daily Practice Reminders", sub: "Get nudged to practice every day" },
-      { key: "companies", label: "New Companies Added",    sub: "When new company data is available" },
-      { key: "sessions", label: "Session & Doubt Alerts",  sub: "Replies and booking confirmations" },
-      { key: "marketing", label: "Marketing Emails",     sub: "News, features, and announcements" },
-     ].map(({ key, label, sub }) => (
-      <div key={key} className="flex items-center justify-between">
-       <div>
-        <div className="text-sm font-medium text-gray-800">{label}</div>
-        <div className="text-xs text-gray-400">{sub}</div>
-       </div>
-       <Toggle
-        on={notifs[key as keyof typeof notifs]}
-        onChange={() => setNotifs((p) => ({ ...p, [key]: !p[key as keyof typeof notifs] }))}
-       />
-      </div>
-     ))}
-    </div>
-   </div>
-
-   {/* Privacy */}
-   <div className="bg-white border border-gray-200 rounded-md p-4">
-    <div className="flex items-center gap-2 mb-4">
-     <Shield className="w-5 h-5 text-gray-600" />
-     <h3 className="font-semibold text-gray-900">Privacy Controls</h3>
-    </div>
-    <div className="space-y-4">
-     {[
-      { key: "publicProfile",  label: "Public Profile",     sub: "Visible to recruiters & classmates", icon: Eye },
-      { key: "showLeaderboard", label: "Show on Leaderboard",   sub: "Display your rank to all users",  icon: Trophy },
-      { key: "showProgress",   label: "Share Progress Publicly", sub: "Show your XP and solved count",   icon: TrendingUp },
-     ].map(({ key, label, sub, icon: Icon }) => (
-      <div key={key} className="flex items-center justify-between">
-       <div className="flex items-start gap-3">
-        <Icon className="w-4 h-4 text-gray-400 mt-0.5 shrink-0" />
-        <div>
-         <div className="text-sm font-medium text-gray-800">{label}</div>
-         <div className="text-xs text-gray-400">{sub}</div>
-        </div>
-       </div>
-       <Toggle
-        on={privacy[key as keyof typeof privacy]}
-        onChange={() => setPrivacy((p) => ({ ...p, [key]: !p[key as keyof typeof privacy] }))}
-       />
-      </div>
-     ))}
-    </div>
-   </div>
-
-   {/* Save */}
-   <div className="flex items-center gap-3">
-    <button onClick={handleSave} className="flex items-center gap-2 bg-gray-900 text-white font-semibold px-4 py-2 rounded-md hover:bg-gray-800 ">
-     <Save className="w-4 h-4" /> Save Settings
-    </button>
-    {saved && (
-     <div className="flex items-center gap-2 text-green-600 text-sm bg-green-50 border border-green-200 rounded-md px-3 py-1.5">
-      <Check className="w-4 h-4" /> Settings saved
-     </div>
-    )}
+    <h3 className="font-semibold text-gray-900 mb-2">Account</h3>
+    <p className="text-sm text-gray-500">Logged in as <span className="font-medium text-gray-800">pranay.sarkar@nst.edu</span></p>
+    <p className="text-xs text-gray-400 mt-1">Authentication managed via NST SSO — contact IT for changes.</p>
    </div>
 
    {/* Danger Zone */}
@@ -769,6 +706,7 @@ function SettingsTab() {
   </div>
  );
 }
+
 
 // ── Main Profile Page ─────────────────────────────────
 export default function ProfilePage() {

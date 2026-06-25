@@ -31,10 +31,9 @@ function getPageTitle(pathname: string): string | null {
   if (pathname === "/sessions") return "Book a Session";
   if (pathname === "/messages") return "Messages";
   if (pathname === "/notifications") return "Notifications";
-  if (pathname === "/leaderboard") return "Leaderboard";
-  if (pathname === "/progress") return "My Progress";
   if (pathname === "/roadmap") return "My Roadmap";
-  if (pathname === "/submit") return "Code Editor";
+  if (pathname === "/submit") return "Interview Experience";
+  if (pathname === "/companies") return "Companies";
   if (pathname.startsWith("/companies/") && pathname.endsWith("/practice")) {
     const parts = pathname.split("/");
     const co = parts[2].charAt(0).toUpperCase() + parts[2].slice(1);

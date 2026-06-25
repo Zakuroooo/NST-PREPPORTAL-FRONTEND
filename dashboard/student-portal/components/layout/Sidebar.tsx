@@ -3,14 +3,16 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
  House, Building2, TrendingUp, Trophy, Send,
- MessageCircle, CalendarDays,
+ MessageCircle, CalendarDays, Map, Dumbbell,
 } from "lucide-react";
 
 const navItems = [
- { icon: House,     label: "Home",              href: "/dashboard" },
- { icon: Building2, label: "Companies",         href: "/companies" },
- { icon: TrendingUp,label: "My Progress",       href: "/progress" },
- { icon: Trophy,    label: "Leaderboard",       href: "/leaderboard" },
+ { icon: House,     label: "Home",               href: "/dashboard" },
+ { icon: Building2, label: "Companies",          href: "/companies" },
+ { icon: Map,       label: "My Roadmap",         href: "/roadmap" },
+ { icon: Dumbbell,  label: "Practice",           href: "/practice" },
+ { icon: TrendingUp,label: "My Progress",        href: "/progress" },
+ { icon: Trophy,    label: "Leaderboard",        href: "/leaderboard" },
  { icon: Send,      label: "Interview Experience", href: "/submit" },
 ];
 
