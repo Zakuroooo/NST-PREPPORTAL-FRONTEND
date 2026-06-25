@@ -2,21 +2,38 @@
 import { useState } from "react";
 import Link from "next/link";
 import {
-  Calendar, Flame, CheckSquare, Square, ExternalLink, Clock,
-  TrendingUp, Zap,
+  Calendar, Flame, CheckSquare, Square, ExternalLink,
+  Clock, Zap, TrendingUp, ChevronRight,
 } from "lucide-react";
 import {
   dashboardTargetCompanies,
-  dashboardTodayProblems,
   dashboardRecentReports,
+  todayTasksByCompany,
+  userPrepStats,
 } from "@/lib/mock-data";
 
+// Prep Score — calculated from real product features only:
+// 1. Practice consistency: problems solved vs. assigned (45%)
+// 2. Day streak score: current streak / 30 × 100 (30%)
+// 3. XP progress: xpEarned / maxXpForLevel × 100 (25%)
+function calcPrepScore(stats: typeof userPrepStats): number {
+  const practiceScore = Math.min((stats.problemsSolved / stats.totalAssigned) * 100, 100) * 0.45;
+  const streakScore = Math.min((stats.dayStreak / 30) * 100, 100) * 0.30;
+  const xpScore = Math.min((stats.xpEarned / stats.maxXpForLevel) * 100, 100) * 0.25;
+  return Math.round(practiceScore + streakScore + xpScore);
+}
+
 export default function DashboardPage() {
-  const [checked, setChecked] = useState<Record<number, boolean>>({ 1: true });
+  const [checked, setChecked] = useState<Record<number, boolean>>({
+    // Pre-mark questions already done in mock data
+    1: true, 10: true, 11: true,
+  });
+
+  const prepScore = calcPrepScore(userPrepStats);
 
   return (
     <div className="flex gap-6">
-      {/* Main content */}
+      {/* ── Main Content ── */}
       <div className="flex-1 min-w-0">
         {/* Activity bar */}
         <div className="flex items-center gap-2 mb-6 text-sm text-gray-500">
@@ -31,106 +48,143 @@ export default function DashboardPage() {
             <Link href="/companies" className="text-sm text-blue-600 font-medium hover:underline">View All</Link>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {dashboardTargetCompanies.map((co) => (
-              <div key={co.name} className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={`https://www.google.com/s2/favicons?sz=64&domain=${co.name.toLowerCase()}.com`}
-                      alt={co.name}
-                      className="w-10 h-10 rounded-lg shrink-0 object-contain bg-white border border-gray-100 p-1"
-                      onError={(e) => { (e.target as HTMLImageElement).src = "https://www.google.com/s2/favicons?sz=64&domain=example.com"; }}
-                    />
-                    <div>
-                      <div className="font-semibold text-gray-900 text-sm">{co.name}</div>
-                      <div className="text-xs text-gray-500">{co.role}</div>
-                    </div>
-                  </div>
-                  {/* Circular readiness */}
-                  <div className="relative w-12 h-12">
-                    <svg className="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
-                      <circle cx="24" cy="24" r="20" fill="none" stroke="#E5E7EB" strokeWidth="4" />
-                      <circle
-                        cx="24" cy="24" r="20"
-                        fill="none"
-                        stroke="#3B82F6"
-                        strokeWidth="4"
-                        strokeDasharray={`${co.readiness * 1.257} 125.7`}
-                        strokeLinecap="round"
+            {dashboardTargetCompanies.map((co) => {
+              // Find matching company from todayTasksByCompany for days remaining
+              const roadmap = todayTasksByCompany.find((t) => t.slug === co.slug);
+              const daysRemaining = roadmap
+                ? Math.max((roadmap.totalWeeks * 7) - roadmap.daysPracticed, 0)
+                : null;
+
+              return (
+                <div key={co.name} className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`https://www.google.com/s2/favicons?sz=64&domain=${co.name.toLowerCase()}.com`}
+                        alt={co.name}
+                        className="w-10 h-10 rounded-lg shrink-0 object-contain bg-white border border-gray-100 p-1"
+                        onError={(e) => { (e.target as HTMLImageElement).src = "https://www.google.com/s2/favicons?sz=64&domain=example.com"; }}
                       />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-gray-900">
-                      {co.readiness}%
+                      <div>
+                        <div className="font-semibold text-gray-900 text-sm">{co.name}</div>
+                        <div className="text-xs text-gray-500">{co.role}</div>
+                      </div>
+                    </div>
+                    {/* Circular readiness */}
+                    <div className="relative w-12 h-12">
+                      <svg className="w-12 h-12 -rotate-90" viewBox="0 0 48 48">
+                        <circle cx="24" cy="24" r="20" fill="none" stroke="#E5E7EB" strokeWidth="4" />
+                        <circle
+                          cx="24" cy="24" r="20"
+                          fill="none"
+                          stroke="#3B82F6"
+                          strokeWidth="4"
+                          strokeDasharray={`${co.readiness * 1.257} 125.7`}
+                          strokeLinecap="round"
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-gray-900">
+                        {co.readiness}%
+                      </div>
                     </div>
                   </div>
+
+                  {/* Days remaining badge */}
+                  {daysRemaining !== null && (
+                    <div className="flex items-center gap-1 mb-3">
+                      <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                      <span className="text-xs text-gray-500 font-medium">
+                        {daysRemaining > 0 ? `${daysRemaining} days remaining` : "Roadmap complete"}
+                      </span>
+                    </div>
+                  )}
+
+                  <div className="flex gap-2">
+                    <Link
+                      href={`/companies/${co.slug}`}
+                      className="flex-1 text-center text-xs font-medium border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      View Intel
+                    </Link>
+                    <Link
+                      href={`/roadmap?company=${co.slug}`}
+                      className="flex-1 text-center text-xs font-medium bg-gray-900 text-white py-2 rounded-lg hover:bg-gray-800 transition-colors"
+                    >
+                      Roadmap
+                    </Link>
+                  </div>
                 </div>
-                <div className="flex gap-2 mt-3">
-                  <Link
-                    href={`/companies/${co.slug}`}
-                    className="flex-1 text-center text-xs font-medium border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition-colors"
-                  >
-                    View Intel
-                  </Link>
-                  <Link
-                    href={`/roadmap?company=${co.slug}`}
-                    className="flex-1 text-center text-xs font-medium bg-gray-900 text-white py-2 rounded-lg hover:bg-gray-800 transition-colors"
-                  >
-                    Practice
-                  </Link>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
-        {/* Today's Focus */}
+        {/* Today's Tasks — per company */}
         <section className="mb-8">
-          <div className="bg-white border border-gray-200 rounded-xl p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <div className="inline-block text-xs font-semibold text-blue-600 bg-blue-50 rounded px-2 py-1 mb-2">
-                  DAY 14 OF 84
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-gray-900">Today&apos;s Tasks</h2>
+          </div>
+          <div className="space-y-4">
+            {todayTasksByCompany.map((co) => (
+              <div key={co.slug} className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+                {/* Company header */}
+                <div className="flex items-center justify-between px-5 py-3 bg-gray-50 border-b border-gray-100">
+                  <div className="flex items-center gap-2.5">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`https://www.google.com/s2/favicons?sz=32&domain=${co.slug}.com`}
+                      alt={co.company}
+                      className="w-5 h-5 rounded shrink-0 object-contain"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                    />
+                    <span className="font-semibold text-gray-900 text-sm">{co.company}</span>
+                    <span className="text-xs text-gray-500 bg-gray-200 rounded px-2 py-0.5 font-medium">
+                      Week {co.week}, Day {co.day}
+                    </span>
+                  </div>
+                  <Link
+                    href={`/roadmap?company=${co.slug}`}
+                    className="flex items-center gap-1 text-xs text-blue-600 font-medium hover:underline"
+                  >
+                    View Full Roadmap <ChevronRight className="w-3.5 h-3.5" />
+                  </Link>
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">Arrays &amp; Hashing</h2>
-                <p className="text-sm text-gray-500 mt-1">Master the fundamentals of array manipulation and hash maps.</p>
-              </div>
-              <Link
-                href="/practice"
-                className="bg-gray-900 text-white text-sm font-medium px-5 py-2.5 rounded-lg hover:bg-gray-800 transition-colors shrink-0"
-              >
-                Start Today&apos;s Practice
-              </Link>
-            </div>
 
-            <div className="space-y-3 mt-2">
-              {dashboardTodayProblems.map((p) => (
-                <div
-                  key={p.id}
-                  className="flex items-center gap-3 py-2 border-b border-gray-50 last:border-0 cursor-pointer"
-                  onClick={() => setChecked((c) => ({ ...c, [p.id]: !c[p.id] }))}
-                >
-                  <button className="shrink-0" aria-label={checked[p.id] ? "Mark as incomplete" : "Mark as complete"}>
-                    {checked[p.id] ? (
-                      <CheckSquare className="w-5 h-5 text-blue-600" />
-                    ) : (
-                      <Square className="w-5 h-5 text-gray-300" />
-                    )}
-                  </button>
-                  <span className={`flex-1 text-sm ${checked[p.id] ? "line-through text-gray-400" : "text-gray-900 font-medium"}`}>
-                    {p.title}
-                  </span>
-                  <span className="flex items-center gap-1 text-xs text-amber-600 font-medium">
-                    <Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
-                    {p.xp} XP
-                  </span>
-                  <span className={`text-xs font-medium px-2 py-0.5 rounded ${
-                    p.difficulty === "Easy" ? "bg-green-50 text-green-700" :
-                    p.difficulty === "Medium" ? "bg-blue-50 text-blue-700" : "bg-red-50 text-red-600"
-                  }`}>{p.difficulty}</span>
+                {/* Questions */}
+                <div className="divide-y divide-gray-50">
+                  {co.questions.map((q) => (
+                    <div
+                      key={q.id}
+                      className="flex items-center gap-3 px-5 py-3 cursor-pointer hover:bg-gray-50 transition-colors"
+                      onClick={() => setChecked((c) => ({ ...c, [q.id]: !c[q.id] }))}
+                    >
+                      <button className="shrink-0" aria-label={checked[q.id] ? "Mark incomplete" : "Mark complete"}>
+                        {checked[q.id] ? (
+                          <CheckSquare className="w-5 h-5 text-blue-600" />
+                        ) : (
+                          <Square className="w-5 h-5 text-gray-300" />
+                        )}
+                      </button>
+                      <span className={`flex-1 text-sm ${checked[q.id] ? "line-through text-gray-400" : "text-gray-900 font-medium"}`}>
+                        {q.title}
+                      </span>
+                      <span className="flex items-center gap-1 text-xs text-amber-600 font-medium shrink-0">
+                        <Zap className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                        {q.xp} XP
+                      </span>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded shrink-0 ${
+                        q.difficulty === "Easy" ? "bg-green-50 text-green-700" :
+                        q.difficulty === "Medium" ? "bg-blue-50 text-blue-700" : "bg-red-50 text-red-600"
+                      }`}>
+                        {q.difficulty}
+                      </span>
+                      <ExternalLink className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </section>
 
@@ -171,58 +225,79 @@ export default function DashboardPage() {
         </section>
       </div>
 
-      {/* Right Panel */}
+      {/* ── Right Panel ── */}
       <aside className="hidden xl:block w-64 shrink-0 space-y-4">
-        {/* Readiness */}
+        {/* Prep Score */}
         <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <h3 className="text-xs font-semibold text-gray-900 mb-4 uppercase tracking-wide">Your Readiness</h3>
+          <h3 className="text-xs font-semibold text-gray-900 mb-1 uppercase tracking-wide">Prep Score</h3>
+          <p className="text-[10px] text-gray-400 mb-4">Based on practice, streak &amp; XP progress</p>
           <div className="flex justify-center mb-3">
             <div className="relative w-24 h-24">
               <svg className="w-24 h-24 -rotate-90" viewBox="0 0 96 96">
                 <circle cx="48" cy="48" r="40" fill="none" stroke="#E5E7EB" strokeWidth="8" />
-                <circle cx="48" cy="48" r="40" fill="none" stroke="#3B82F6" strokeWidth="8"
-                  strokeDasharray="163 251" strokeLinecap="round" />
+                <circle cx="48" cy="48" r="40" fill="none"
+                  stroke={prepScore >= 70 ? "#10B981" : prepScore >= 40 ? "#3B82F6" : "#F59E0B"}
+                  strokeWidth="8"
+                  strokeDasharray={`${(prepScore / 100) * 251} 251`}
+                  strokeLinecap="round"
+                />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-2xl font-bold text-gray-900">68%</span>
+                <span className="text-2xl font-bold text-gray-900">{prepScore}%</span>
               </div>
             </div>
           </div>
-          <p className="text-xs text-gray-500 text-center">Based on practice volume and mock scores.</p>
+          {/* Score breakdown */}
+          <div className="space-y-2">
+            {[
+              { label: "Practice", val: Math.round(Math.min((userPrepStats.problemsSolved / userPrepStats.totalAssigned) * 100, 100)), color: "bg-blue-500" },
+              { label: "Streak", val: Math.round(Math.min((userPrepStats.dayStreak / 30) * 100, 100)), color: "bg-indigo-500" },
+              { label: "XP Progress", val: Math.round(Math.min((userPrepStats.xpEarned / userPrepStats.maxXpForLevel) * 100, 100)), color: "bg-violet-500" },
+            ].map(({ label, val, color }) => (
+              <div key={label}>
+                <div className="flex justify-between text-xs text-gray-500 mb-1">
+                  <span>{label}</span><span className="font-medium text-gray-700">{val}%</span>
+                </div>
+                <div className="h-1.5 bg-gray-100 rounded-full">
+                  <div className={`h-1.5 ${color} rounded-full`} style={{ width: `${val}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Days + Streak */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-            <Calendar className="w-6 h-6 text-blue-600 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">42</div>
-            <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Days to Target</div>
-          </div>
-          <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
-            <Flame className="w-6 h-6 text-orange-500 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-gray-900">12</div>
-            <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Day Streak</div>
-          </div>
+        {/* Streak */}
+        <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
+          <Flame className="w-6 h-6 text-orange-500 mx-auto mb-2" />
+          <div className="text-2xl font-bold text-gray-900">{userPrepStats.dayStreak}</div>
+          <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">Day Streak</div>
+        </div>
+
+        {/* XP Badge */}
+        <div className="bg-white border border-gray-200 rounded-xl p-4 text-center">
+          <Zap className="w-6 h-6 text-amber-500 mx-auto mb-2 fill-amber-400" />
+          <div className="text-2xl font-bold text-gray-900">{userPrepStats.xpEarned.toLocaleString()}</div>
+          <div className="text-xs text-gray-500 font-medium uppercase tracking-wide">XP Earned</div>
         </div>
 
         {/* Activity Map */}
         <div className="bg-white border border-gray-200 rounded-xl p-5">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wide">Activity Map</h3>
-            <span className="text-xs text-gray-400">Nov 2023</span>
+            <span className="text-xs text-gray-400">June 2026</span>
           </div>
           <div className="grid grid-cols-7 gap-1">
             {["M", "T", "W", "T", "F", "S", "S"].map((d, i) => (
               <div key={i} className="text-[10px] text-gray-400 text-center">{d}</div>
             ))}
-            {Array.from({ length: 28 }).map((_, i) => {
+            {Array.from({ length: 30 }).map((_, i) => {
               const actives = [2, 3, 5, 6, 7, 9, 12, 13, 14, 18, 19, 20, 25, 26, 27];
               const dark = [25, 26, 27];
               const mid = [12, 13, 14, 18, 19, 20];
               return (
                 <div
                   key={i}
-                  className={`h-4 w-full rounded-sm ${
+                  className={`h-3 w-full rounded-sm ${
                     dark.includes(i) ? "bg-green-700" :
                     mid.includes(i) ? "bg-green-500" :
                     actives.includes(i) ? "bg-green-300" : "bg-gray-100"
@@ -231,6 +306,32 @@ export default function DashboardPage() {
               );
             })}
           </div>
+          <div className="flex items-center gap-1.5 mt-2 text-[10px] text-gray-400">
+            <span>Less</span>
+            {["bg-gray-100", "bg-green-300", "bg-green-500", "bg-green-700"].map((c, i) => (
+              <div key={i} className={`w-3 h-3 rounded-sm ${c}`} />
+            ))}
+            <span>More</span>
+          </div>
+        </div>
+
+        {/* Quick stats */}
+        <div className="bg-white border border-gray-200 rounded-xl p-4">
+          <h3 className="text-xs font-semibold text-gray-900 mb-3 uppercase tracking-wide">Problems Solved</h3>
+          <div className="flex items-end justify-between">
+            <div>
+              <span className="text-3xl font-bold text-gray-900">{userPrepStats.problemsSolved}</span>
+              <span className="text-sm text-gray-400 ml-1">/ {userPrepStats.totalAssigned}</span>
+            </div>
+            <TrendingUp className="w-5 h-5 text-green-500" />
+          </div>
+          <div className="h-1.5 bg-gray-100 rounded-full mt-3">
+            <div
+              className="h-1.5 bg-green-500 rounded-full"
+              style={{ width: `${(userPrepStats.problemsSolved / userPrepStats.totalAssigned) * 100}%` }}
+            />
+          </div>
+          <p className="text-[10px] text-gray-400 mt-1.5">Assigned roadmap problems</p>
         </div>
       </aside>
     </div>

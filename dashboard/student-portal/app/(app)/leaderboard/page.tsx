@@ -2,19 +2,20 @@ import { TrendingUp, Zap, Medal, ChevronDown, Search } from "lucide-react";
 import Link from "next/link";
 
 const leaders = [
-  { rank: 1, initials: "MC", name: "Michael Chen", xp: 18900, change: "—", time: "5 mins ago", isYou: false },
-  { rank: 2, initials: "SJ", name: "Sarah Jenkins", xp: 14250, change: "—", time: "2 hrs ago", isYou: false },
-  { rank: 3, initials: "ED", name: "Emily Davis", xp: 13800, change: "—", time: "1 day ago", isYou: false },
-  { rank: 4, initials: "DK", name: "David Kim", xp: 12450, change: "↑ 2", time: "2 hrs ago", isYou: false },
-  { rank: 5, initials: "AJ", name: "Alex Johnson (You)", xp: 11920, change: "— 0", time: "5 mins ago", isYou: true },
-  { rank: 6, initials: "RJ", name: "Rachel Jones", xp: 11100, change: "↓ 1", time: "1 day ago", isYou: false },
-  { rank: 7, initials: "MG", name: "Maria Garcia", xp: 10850, change: "↑ 5", time: "3 hrs ago", isYou: false },
+  { rank: 1,   initials: "MC", name: "Michael Chen",       xp: 18900, change: "—",   time: "5 mins ago",  isYou: false },
+  { rank: 2,   initials: "SJ", name: "Sarah Jenkins",      xp: 14250, change: "—",   time: "2 hrs ago",   isYou: false },
+  { rank: 3,   initials: "ED", name: "Emily Davis",        xp: 13800, change: "—",   time: "1 day ago",   isYou: false },
+  { rank: 4,   initials: "DK", name: "David Kim",          xp: 12450, change: "↑ 2", time: "2 hrs ago",   isYou: false },
+  { rank: 5,   initials: "AJ", name: "Alex Johnson",       xp: 11920, change: "— 0", time: "5 mins ago",  isYou: true  },
+  { rank: 6,   initials: "RJ", name: "Rachel Jones",       xp: 11100, change: "↓ 1", time: "1 day ago",   isYou: false },
+  { rank: 7,   initials: "MG", name: "Maria Garcia",       xp: 10850, change: "↑ 5", time: "3 hrs ago",   isYou: false },
 ];
 
-export default function LeaderboardPage() {
-  const top3 = leaders.slice(0, 3);
-  const rest = leaders.slice(3);
+const me = leaders.find((u) => u.isYou)!;
+const top3 = leaders.slice(0, 3);
+const rest = leaders.slice(3);
 
+export default function LeaderboardPage() {
   return (
     <div>
       {/* Hero Banner */}
@@ -29,6 +30,29 @@ export default function LeaderboardPage() {
             Consistent practice yields the highest rewards.
           </p>
         </div>
+      </div>
+
+      {/* My Standing — always visible at top */}
+      <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-6 flex items-center gap-4">
+        <div className="text-indigo-700 text-xs font-bold uppercase tracking-wide shrink-0">Your Rank</div>
+        <div className="w-px h-6 bg-indigo-200 shrink-0" />
+        <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
+          {me.initials}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-semibold text-gray-900 text-sm">{me.name} <span className="text-indigo-600 font-bold text-xs ml-1">(You)</span></div>
+          <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+            <Zap className="w-3.5 h-3.5 fill-indigo-500 text-indigo-500" />
+            {me.xp.toLocaleString()} XP &nbsp;·&nbsp; {me.time}
+          </div>
+        </div>
+        <div className="text-right shrink-0">
+          <div className="text-2xl font-bold text-indigo-700">#{me.rank}</div>
+          <div className="text-xs text-gray-500">{me.change}</div>
+        </div>
+        <Link href="/practice" className="bg-indigo-600 text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shrink-0">
+          Improve Rank
+        </Link>
       </div>
 
       {/* Filters */}
@@ -50,10 +74,7 @@ export default function LeaderboardPage() {
       <div className="flex justify-center items-end gap-8 mb-8">
         {/* 2nd */}
         <div className="text-center flex flex-col items-center pb-4">
-          <div className="w-8 h-8 mb-2 flex items-center justify-center">
-            <Medal className="w-7 h-7 text-gray-400" />
-            <Medal className="w-7 h-7 text-blue-400" />
-          </div>
+          <Medal className="w-7 h-7 text-blue-400 mb-2" />
           <div className="w-16 h-16 rounded-full bg-blue-300 flex items-center justify-center text-white text-xl font-bold border-4 border-blue-200">
             {top3[1].initials}
           </div>
@@ -63,9 +84,7 @@ export default function LeaderboardPage() {
         </div>
         {/* 1st */}
         <div className="text-center flex flex-col items-center mb-4">
-          <div className="w-10 h-10 mb-2 flex items-center justify-center">
-            <Medal className="w-9 h-9 text-indigo-500" />
-          </div>
+          <Medal className="w-9 h-9 text-indigo-500 mb-2" />
           <div className="w-20 h-20 rounded-full bg-indigo-600 flex items-center justify-center text-white text-2xl font-bold border-4 border-indigo-200">
             {top3[0].initials}
           </div>
@@ -75,9 +94,7 @@ export default function LeaderboardPage() {
         </div>
         {/* 3rd */}
         <div className="text-center flex flex-col items-center pb-4">
-          <div className="w-8 h-8 mb-2 flex items-center justify-center">
-            <Medal className="w-7 h-7 text-sky-500" />
-          </div>
+          <Medal className="w-7 h-7 text-sky-500 mb-2" />
           <div className="w-16 h-16 rounded-full bg-sky-400 flex items-center justify-center text-white text-xl font-bold border-4 border-sky-100">
             {top3[2].initials}
           </div>
@@ -103,7 +120,7 @@ export default function LeaderboardPage() {
         </Link>
       </div>
 
-      {/* Table */}
+      {/* Full Table */}
       <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
         <div className="grid grid-cols-[80px_100px_1fr_150px_150px] gap-4 px-5 py-3 bg-gray-50 border-b border-gray-200">
           {["RANK", "CHANGE", "NAME", "XP THIS MONTH", "LATEST SUBMISSION"].map((h) => (
@@ -114,7 +131,7 @@ export default function LeaderboardPage() {
           <div
             key={u.rank}
             className={`grid grid-cols-[80px_100px_1fr_150px_150px] gap-4 px-5 py-4 border-b border-gray-100 last:border-0 ${
-              u.isYou ? "bg-indigo-50/50" : "hover:bg-gray-50"
+              u.isYou ? "bg-indigo-50/50 border-indigo-100" : "hover:bg-gray-50"
             } transition-colors`}
           >
             <div className="font-bold text-gray-900">#{u.rank}</div>
@@ -126,7 +143,9 @@ export default function LeaderboardPage() {
               <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold ${u.isYou ? "bg-blue-600" : "bg-gray-400"}`}>
                 {u.initials}
               </div>
-              <span className={`text-sm ${u.isYou ? "font-bold text-gray-900" : "text-gray-700"}`}>{u.name}</span>
+              <span className={`text-sm ${u.isYou ? "font-bold text-gray-900" : "text-gray-700"}`}>
+                {u.name}{u.isYou && <span className="text-blue-600 font-bold text-xs ml-1">(You)</span>}
+              </span>
             </div>
             <div className="text-sm font-semibold text-gray-900">{u.xp.toLocaleString()}</div>
             <div className="text-sm text-gray-500">{u.time}</div>

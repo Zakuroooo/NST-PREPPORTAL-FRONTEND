@@ -97,6 +97,7 @@ export default function Navbar() {
           setSelectedIdx(-1);
         }
       } else if (e.key === "Escape") {
+        setQuery("");
         setSelectedIdx(-1);
         inputRef.current?.blur();
       }
@@ -118,7 +119,8 @@ export default function Navbar() {
       </div>
 
       {/* Search — global command palette */}
-      <div className="flex-1 max-w-md mx-auto relative" ref={wrapperRef}>
+      <div className="flex-1 flex justify-center px-4" ref={wrapperRef}>
+        <div className="relative w-full max-w-md">
         {pageTitle ? (
           <h1 className="text-gray-900 font-semibold text-lg">{pageTitle}</h1>
         ) : (
@@ -187,6 +189,7 @@ export default function Navbar() {
             </div>
           </div>
         )}
+        </div>
       </div>
 
       {/* Right side */}

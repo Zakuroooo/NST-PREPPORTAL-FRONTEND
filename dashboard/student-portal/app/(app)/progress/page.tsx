@@ -3,50 +3,97 @@ import { useRouter } from "next/navigation";
 import { TrendingUp, Flame, Trophy, Zap, AlertCircle } from "lucide-react";
 
 const companyReadiness = [
-  { co: "G", name: "Google", color: "bg-blue-600", role: "SDE-1", pct: 34, done: 15, total: 2274, last: "2 days ago", trend: "↑ +5%", trendColor: "text-green-600" },
-  { co: "A", name: "Amazon", color: "bg-orange-500", role: "SDE-1", pct: 21, done: 8, total: 1957, last: "5 days ago", trend: "—", trendColor: "text-gray-400" },
-  { co: "F", name: "Flipkart", color: "bg-blue-500", role: "SDE-1", pct: 45, done: 22, total: 892, last: "Today", trend: "↑ +12%", trendColor: "text-green-600" },
+  { co: "G", name: "Google",   color: "bg-blue-600",   role: "SDE-1", pct: 34, done: 15, total: 2274, last: "2 days ago", trend: "↑ +5%",  trendColor: "text-green-600" },
+  { co: "A", name: "Amazon",   color: "bg-green-500",  role: "SDE-1", pct: 21, done: 8,  total: 1957, last: "5 days ago", trend: "—",       trendColor: "text-gray-400"  },
+  { co: "F", name: "Flipkart", color: "bg-blue-500",   role: "SDE-1", pct: 45, done: 22, total: 892,  last: "Today",     trend: "↑ +12%", trendColor: "text-green-600" },
 ];
 
 const topics = [
-  { name: "Arrays & Strings", done: 12, total: 20, pct: 60, color: "bg-blue-500", textColor: "text-blue-600" },
-  { name: "Binary Search", done: 6, total: 12, pct: 50, color: "bg-indigo-500", textColor: "text-indigo-600" },
-  { name: "Dynamic Programming", done: 3, total: 15, pct: 20, color: "bg-violet-500", textColor: "text-violet-600" },
-  { name: "Trees", done: 5, total: 18, pct: 28, color: "bg-cyan-500", textColor: "text-cyan-600" },
-  { name: "Graphs", done: 2, total: 16, pct: 13, color: "bg-sky-500", textColor: "text-sky-600" },
-  { name: "System Design", done: 1, total: 10, pct: 10, color: "bg-fuchsia-500", textColor: "text-fuchsia-600" },
+  { name: "Arrays & Strings",      done: 12, total: 20, pct: 60, color: "bg-blue-500",    textColor: "text-blue-600"    },
+  { name: "Binary Search",         done: 6,  total: 12, pct: 50, color: "bg-indigo-500",  textColor: "text-indigo-600"  },
+  { name: "Dynamic Programming",   done: 3,  total: 15, pct: 20, color: "bg-violet-500",  textColor: "text-violet-600"  },
+  { name: "Trees",                 done: 5,  total: 18, pct: 28, color: "bg-cyan-500",    textColor: "text-cyan-600"    },
+  { name: "Graphs",                done: 2,  total: 16, pct: 13, color: "bg-sky-500",     textColor: "text-sky-600"     },
+  { name: "System Design",         done: 1,  total: 10, pct: 10, color: "bg-fuchsia-500", textColor: "text-fuchsia-600" },
 ];
 
 const weakAreas = [
   { topic: "Dynamic Programming", pct: 20, companies: "Flipkart", companyPct: 72, color: "text-indigo-600", bgColor: "bg-indigo-50 border-indigo-200" },
-  { topic: "Graphs", pct: 13, companies: "Google", companyPct: 71, color: "text-violet-600", bgColor: "bg-violet-50 border-violet-200" },
-  { topic: "System Design", pct: 10, companies: "Amazon", companyPct: 65, color: "text-cyan-600", bgColor: "bg-cyan-50 border-cyan-200" },
+  { topic: "Graphs",              pct: 13, companies: "Google",   companyPct: 71, color: "text-violet-600", bgColor: "bg-violet-50 border-violet-200" },
+  { topic: "System Design",       pct: 10, companies: "Amazon",   companyPct: 65, color: "text-cyan-600",   bgColor: "bg-cyan-50 border-cyan-200"     },
 ];
 
-// 12 weeks × 7 days heatmap data
-const heatmap = Array.from({ length: 84 }, (_, i) => {
-  const actives = [70, 71, 72, 73, 74, 76, 77, 78, 79, 80, 81, 83];
-  const mids = [56, 57, 58, 63, 64, 65];
-  const lights = [42, 43, 49, 50];
-  if (actives.includes(i)) return "bg-green-600";
-  const rand = Math.random();
-  return rand > 0.8 ? "bg-green-700" : rand > 0.5 ? "bg-green-500" : rand > 0.3 ? "bg-green-300" : "bg-gray-100";
-});
+// Build a proper GitHub-style 52-week heatmap
+// Using current date to calculate which month each cell belongs to
+function buildHeatmap() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const start = new Date(today);
+  start.setDate(today.getDate() - 363); // 52 weeks back
+  // Align to Sunday of that week
+  start.setDate(start.getDate() - start.getDay());
+
+  const cells: { date: Date; level: number }[] = [];
+  const activeDays = new Set([
+    350, 351, 352, 353, 354, 356, 357, 358, 359, 360, 361, 363,
+    330, 331, 333, 334, 335, 315, 316, 317, 310,
+    280, 281, 282, 285, 290, 291,
+  ]);
+  for (let i = 0; i < 364; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    let level = 0;
+    if (activeDays.has(i)) level = 3;
+    else if (i % 11 === 0 && i > 150) level = 2;
+    else if (i % 7 === 3 && i > 100) level = 1;
+    cells.push({ date: d, level });
+  }
+  return { cells, startDate: start };
+}
+
+const MONTH_LABELS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function getHeatColor(level: number) {
+  if (level === 0) return "bg-gray-100";
+  if (level === 1) return "bg-green-300";
+  if (level === 2) return "bg-green-500";
+  return "bg-green-700";
+}
 
 export default function ProgressPage() {
   const router = useRouter();
+  const { cells, startDate } = buildHeatmap();
+
+  // Group into 52 weeks
+  const weeks: typeof cells[] = [];
+  for (let w = 0; w < 52; w++) {
+    weeks.push(cells.slice(w * 7, w * 7 + 7));
+  }
+
+  // Month label positions (which week index each month starts)
+  const monthPositions: { label: string; weekIdx: number }[] = [];
+  let lastMonth = -1;
+  weeks.forEach((week, wi) => {
+    const m = week[0].date.getMonth();
+    if (m !== lastMonth) {
+      monthPositions.push({ label: MONTH_LABELS[m], weekIdx: wi });
+      lastMonth = m;
+    }
+  });
+
+  const DAY_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
 
   return (
     <div className="max-w-5xl">
       <h1 className="text-2xl font-semibold text-gray-900 mb-6">My Progress</h1>
 
-      {/* Stats */}
+      {/* KPI Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { icon: TrendingUp, color: "text-blue-600", bg: "bg-blue-50", val: "45", label: "Problems Solved" },
-          { icon: Flame, color: "text-indigo-600", bg: "bg-indigo-50", val: "12", label: "Day Streak" },
-          { icon: Trophy, color: "text-violet-600", bg: "bg-violet-50", val: "18", label: "Best Streak" },
-          { icon: Zap, color: "text-cyan-600", bg: "bg-cyan-50", val: "2,450", label: "XP Earned" },
+          { icon: TrendingUp, color: "text-blue-600",   bg: "bg-blue-50",   val: "45",    label: "Problems Solved"  },
+          { icon: Flame,      color: "text-indigo-600", bg: "bg-indigo-50", val: "12",    label: "Day Streak"       },
+          { icon: Trophy,     color: "text-violet-600", bg: "bg-violet-50", val: "18",    label: "Best Streak"      },
+          { icon: Zap,        color: "text-cyan-600",   bg: "bg-cyan-50",   val: "2,450", label: "XP Earned"        },
         ].map(({ icon: Icon, color, bg, val, label }) => (
           <div key={label} className="bg-white border border-gray-200 rounded-xl p-5">
             <div className={`w-10 h-10 ${bg} rounded-lg flex items-center justify-center mb-3`}>
@@ -57,6 +104,30 @@ export default function ProgressPage() {
           </div>
         ))}
       </div>
+
+      {/* Focus Areas — shown right after KPIs */}
+      <section className="mb-8">
+        <h2 className="text-base font-semibold text-gray-900 mb-4">Focus Areas</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {weakAreas.map((w) => (
+            <div key={w.topic} className={`border rounded-xl p-5 ${w.bgColor}`}>
+              <div className="flex items-center gap-2 mb-2">
+                <AlertCircle className={`w-5 h-5 ${w.color}`} />
+                <span className="font-semibold text-gray-900 text-sm">{w.topic}</span>
+              </div>
+              <p className="text-xs text-gray-600 mb-4">
+                Only {w.pct}% mastered. {w.companies} tests this in {w.companyPct}% of interviews.
+              </p>
+              <button
+                onClick={() => router.push(`/practice?topic=${encodeURIComponent(w.topic)}`)}
+                className={`text-xs font-semibold px-3 py-2 rounded-lg border ${w.color} border-current hover:bg-white/50 transition-colors w-full`}
+              >
+                Practice Now
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* Company Readiness */}
       <section className="mb-8">
@@ -125,51 +196,52 @@ export default function ProgressPage() {
         </div>
       </section>
 
-      {/* Activity Heatmap */}
+      {/* GitHub-style Activity Heatmap — exactly 52 weeks × 7 days */}
       <section className="mb-8">
-        <h2 className="text-base font-semibold text-gray-900 mb-4">Activity — Last 12 Weeks</h2>
+        <h2 className="text-base font-semibold text-gray-900 mb-4">Activity — Past Year</h2>
         <div className="bg-white border border-gray-200 rounded-xl p-5">
-          <div className="flex gap-4 text-xs text-gray-400 mb-2">
-            {["Mar", "Apr", "May", "Jun"].map((m) => (
-              <span key={m} className="flex-1">{m}</span>
+          {/* Month labels */}
+          <div className="flex mb-1 pl-8 overflow-hidden">
+            {monthPositions.map(({ label, weekIdx }) => (
+              <div
+                key={label + weekIdx}
+                className="text-[10px] text-gray-400 absolute"
+                style={{ left: `calc(2rem + ${weekIdx * (12 + 2)}px)` }}
+              >
+                {label}
+              </div>
+            ))}
+            <div className="h-3" />
+          </div>
+
+          <div className="flex gap-0.5 mt-4">
+            {/* Day labels */}
+            <div className="flex flex-col gap-0.5 mr-1">
+              {DAY_LABELS.map((d, i) => (
+                <div key={i} className="text-[9px] text-gray-400 h-3 flex items-center w-6 justify-end pr-1">{d}</div>
+              ))}
+            </div>
+            {/* Weeks */}
+            {weeks.map((week, wi) => (
+              <div key={wi} className="flex flex-col gap-0.5">
+                {week.map((cell, di) => (
+                  <div
+                    key={di}
+                    title={`${cell.date.toDateString()} — ${cell.level === 0 ? "No activity" : cell.level === 1 ? "Light" : cell.level === 2 ? "Moderate" : "Active"}`}
+                    className={`w-3 h-3 rounded-sm cursor-default ${getHeatColor(cell.level)}`}
+                  />
+                ))}
+              </div>
             ))}
           </div>
-          <div className="grid gap-1" style={{ gridTemplateColumns: "repeat(12, 1fr)" }}>
-            {heatmap.map((cls, i) => (
-              <div key={i} className={`h-4 rounded-sm ${cls}`} title={`Day ${i + 1}`} />
-            ))}
-          </div>
-          <div className="flex items-center gap-2 mt-3 text-xs text-gray-400">
+
+          <div className="flex items-center gap-1.5 mt-3 text-[11px] text-gray-400">
             <span>Less</span>
-            {["bg-gray-100", "bg-green-200", "bg-green-400", "bg-green-600"].map((c) => (
-              <div key={c} className={`w-4 h-4 rounded-sm ${c}`} />
+            {["bg-gray-100", "bg-green-300", "bg-green-500", "bg-green-700"].map((c, i) => (
+              <div key={i} className={`w-3 h-3 rounded-sm ${c}`} />
             ))}
             <span>More</span>
           </div>
-        </div>
-      </section>
-
-      {/* Weak Areas */}
-      <section>
-        <h2 className="text-base font-semibold text-gray-900 mb-4">Focus Areas</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {weakAreas.map((w) => (
-            <div key={w.topic} className={`border rounded-xl p-5 ${w.bgColor}`}>
-              <div className="flex items-center gap-2 mb-2">
-                <AlertCircle className={`w-5 h-5 ${w.color}`} />
-                <span className="font-semibold text-gray-900 text-sm">{w.topic}</span>
-              </div>
-              <p className="text-xs text-gray-600 mb-4">
-                Only {w.pct}% mastered. {w.companies} tests this in {w.companyPct}% of interviews.
-              </p>
-              <button
-                onClick={() => router.push(`/practice?topic=${encodeURIComponent(w.topic)}`)}
-                className={`text-xs font-semibold px-3 py-2 rounded-lg border ${w.color} border-current hover:bg-white/50 transition-colors w-full`}
-              >
-                Practice Now →
-              </button>
-            </div>
-          ))}
         </div>
       </section>
     </div>

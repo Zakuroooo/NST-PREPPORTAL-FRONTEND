@@ -650,6 +650,52 @@ export const dashboardRecentReports = [
   { id: 6, initial: "A", name: "Apple", color: "bg-gray-600",  role: "Frontend Engineer",      rounds: 3, time: "1 week ago", tags: ["React", "JS Core"] },
 ];
 
+// Per-company today's task questions
+// BACKEND TODO: GET /api/dashboard/today-tasks — returns questions for current roadmap day per company
+export const todayTasksByCompany = [
+  {
+    company: "Google",
+    slug: "google",
+    color: "bg-blue-600",
+    week: 2,
+    day: 3,
+    totalWeeks: 8,
+    daysPracticed: 10,
+    questions: [
+      { id: 1,  title: "Two Sum",          difficulty: "Easy"   as Difficulty, xp: 10, done: true  },
+      { id: 2,  title: "Valid Anagram",     difficulty: "Easy"   as Difficulty, xp: 15, done: false },
+      { id: 3,  title: "Group Anagrams",    difficulty: "Medium" as Difficulty, xp: 25, done: false },
+      { id: 4,  title: "Top K Frequent",    difficulty: "Medium" as Difficulty, xp: 25, done: false },
+      { id: 5,  title: "Encode & Decode",   difficulty: "Medium" as Difficulty, xp: 20, done: false },
+    ],
+  },
+  {
+    company: "Amazon",
+    slug: "amazon",
+    color: "bg-green-500",
+    week: 1,
+    day: 5,
+    totalWeeks: 4,
+    daysPracticed: 5,
+    questions: [
+      { id: 10, title: "Best Time to Buy Stock", difficulty: "Easy"   as Difficulty, xp: 10, done: true  },
+      { id: 11, title: "Contains Duplicate",      difficulty: "Easy"   as Difficulty, xp: 10, done: true  },
+      { id: 12, title: "Product of Array Except Self", difficulty: "Medium" as Difficulty, xp: 25, done: false },
+    ],
+  },
+];
+
+// User stats used for Prep Score calculation
+// BACKEND TODO: GET /api/user/stats — returns real activity data
+export const userPrepStats = {
+  problemsSolved: 45,     // total problems solved by user
+  totalAssigned: 150,     // total problems in their roadmap so far
+  dayStreak: 12,          // current streak
+  bestStreak: 18,         // best ever streak
+  xpEarned: 2450,         // total XP
+  maxXpForLevel: 5000,    // XP needed to complete current roadmap
+};
+
 // ─────────────────────────────────────────────────────
 // UNIQUE TOPICS & COMPANIES (for filter dropdowns)
 // ─────────────────────────────────────────────────────

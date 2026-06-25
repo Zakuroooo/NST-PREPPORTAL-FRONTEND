@@ -3,7 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
  House, Map, Building2, Code2, TrendingUp, Trophy, Send,
- Shield, HelpCircle, MessageCircle, CalendarDays, MessageSquare,
+ MessageCircle, CalendarDays,
 } from "lucide-react";
 
 const navItems = [
@@ -19,7 +19,6 @@ const navItems = [
 const connectItems = [
  { icon: MessageCircle, label: "Ask a Doubt",  href: "/doubts" },
  { icon: CalendarDays, label: "Book a Session", href: "/sessions" },
- { icon: MessageSquare, label: "Messages",    href: "/messages" },
 ];
 
 export default function Sidebar() {
@@ -72,17 +71,6 @@ export default function Sidebar() {
      </div>
     </div>
    </nav>
-
-   <div className="px-3 pb-4 space-y-0.5 border-t border-gray-100 pt-3">
-    <button className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium w-full bg-green-50 text-green-700 hover:bg-green-100 ">
-     <Shield className="w-4 h-4 shrink-0" />
-     Share a Concern
-    </button>
-    <button className="flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium w-full text-gray-500 hover:bg-gray-100 ">
-     <HelpCircle className="w-4 h-4 shrink-0" />
-     Help &amp; Support
-    </button>
-   </div>
-  </aside>
+ </aside>
  );
 }

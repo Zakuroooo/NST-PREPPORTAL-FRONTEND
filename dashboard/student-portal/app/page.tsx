@@ -120,10 +120,10 @@ export default function LandingPage() {
             <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center mb-4">
               <Map className="w-5 h-5 text-blue-600" />
             </div>
-            <h3 className="font-semibold text-gray-900 mb-2">100-Day Roadmap</h3>
+            <h3 className="font-semibold text-gray-900 mb-2">Custom Roadmaps (4–16 Weeks)</h3>
             <p className="text-gray-500 text-sm leading-relaxed">
-              Structured, day-by-day study plans crafted from historical data to ensure
-              you cover all necessary topics efficiently.
+              Pick your target duration — 4, 8, 12, or 16 weeks — and get a personalized
+              day-by-day study plan tailored to your chosen companies.
             </p>
           </div>
           <div className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow">

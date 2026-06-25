@@ -329,70 +329,135 @@ export default function DoubtsPage() {
   };
 
   return (
-    <div className="max-w-3xl">
-      {/* Page header */}
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900">My Doubts</h1>
-          <p className="text-xs text-gray-400 mt-0.5">Ask questions · Get answers from faculty</p>
-        </div>
-        <button
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-1.5 bg-blue-600 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-blue-700"
-        >
-          <Plus className="w-3.5 h-3.5" /> Ask a Doubt
-        </button>
-      </div>
-
-      {/* Filter tabs */}
-      <div className="flex items-center gap-0 border border-gray-200 rounded overflow-hidden mb-5 w-fit bg-white">
-        {(["all", "pending", "answered", "resolved"] as const).map((f, i) => (
+    <div className="flex gap-6">
+      {/* ── Main: Doubts list ── */}
+      <div className="flex-1 min-w-0">
+        {/* Page header */}
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h1 className="text-xl font-bold text-gray-900">My Doubts</h1>
+            <p className="text-xs text-gray-400 mt-0.5">Ask questions · Get answers from faculty</p>
+          </div>
           <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold capitalize border-r border-gray-200 last:border-r-0 ${
-              filter === f
-                ? "bg-blue-600 text-white"
-                : "text-gray-500 hover:bg-gray-50"
-            }`}
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-1.5 bg-blue-600 text-white font-semibold px-3 py-1.5 rounded text-sm hover:bg-blue-700"
           >
-            {f}
-            <span className={`text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center ${
-              filter === f ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-500"
-            }`}>
-              {counts[f]}
-            </span>
+            <Plus className="w-3.5 h-3.5" /> Ask a Doubt
           </button>
-        ))}
+        </div>
+
+        {/* Filter tabs */}
+        <div className="flex items-center gap-0 border border-gray-200 rounded overflow-hidden mb-5 w-fit bg-white">
+          {(["all", "pending", "answered", "resolved"] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold capitalize border-r border-gray-200 last:border-r-0 ${
+                filter === f
+                  ? "bg-blue-600 text-white"
+                  : "text-gray-500 hover:bg-gray-50"
+              }`}
+            >
+              {f}
+              <span className={`text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center ${
+                filter === f ? "bg-blue-500 text-white" : "bg-gray-100 text-gray-500"
+              }`}>
+                {counts[f]}
+              </span>
+            </button>
+          ))}
+        </div>
+
+        {/* Stats row */}
+        <div className="grid grid-cols-3 gap-3 mb-5">
+          {[
+            { label: "Total Doubts",   value: counts.all,      color: "text-gray-900" },
+            { label: "Awaiting Reply", value: counts.pending,  color: "text-blue-600" },
+            { label: "Resolved",       value: counts.resolved, color: "text-gray-500" },
+          ].map(({ label, value, color }) => (
+            <div key={label} className="bg-white border border-gray-200 rounded px-3 py-2.5">
+              <p className={`text-lg font-bold ${color}`}>{value}</p>
+              <p className="text-xs text-gray-400">{label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* List */}
+        <div className="space-y-2">
+          {filtered.length === 0 ? (
+            <div className="text-center py-14 bg-white border border-gray-200 rounded">
+              <MessageCircle className="w-8 h-8 text-gray-200 mx-auto mb-2" />
+              <p className="text-sm font-medium text-gray-400">No doubts in this category</p>
+            </div>
+          ) : (
+            filtered.map((d) => <DoubtCard key={d.id} doubt={d} onResolve={handleResolve} />)
+          )}
+        </div>
       </div>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-3 gap-3 mb-5">
-        {[
-          { label: "Total Doubts",   value: counts.all,      color: "text-gray-900" },
-          { label: "Awaiting Reply", value: counts.pending,  color: "text-blue-600" },
-          { label: "Resolved",       value: counts.resolved, color: "text-gray-500" },
-        ].map(({ label, value, color }) => (
-          <div key={label} className="bg-white border border-gray-200 rounded px-3 py-2.5">
-            <p className={`text-lg font-bold ${color}`}>{value}</p>
-            <p className="text-xs text-gray-400">{label}</p>
-          </div>
-        ))}
-      </div>
+      {/* ── Right Panel: Tips + Info ── */}
+      <aside className="hidden lg:block w-64 shrink-0 space-y-4">
+        {/* Ask a doubt CTA */}
+        <div className="bg-blue-600 rounded-xl p-5">
+          <MessageCircle className="w-7 h-7 text-white mb-3" />
+          <h3 className="text-white font-bold text-sm mb-1">Have a doubt?</h3>
+          <p className="text-blue-200 text-xs mb-4">Faculty reviews all doubts within 24 hours.</p>
+          <button
+            onClick={() => setShowForm(true)}
+            className="w-full bg-white text-blue-700 font-semibold text-xs py-2 rounded-lg hover:bg-blue-50 transition-colors flex items-center justify-center gap-1.5"
+          >
+            <Plus className="w-3.5 h-3.5" /> Ask a Doubt
+          </button>
+        </div>
 
-      {/* List */}
-      <div className="space-y-2">
-        {filtered.length === 0 ? (
-          <div className="text-center py-14 bg-white border border-gray-200 rounded">
-            <MessageCircle className="w-8 h-8 text-gray-200 mx-auto mb-2" />
-            <p className="text-sm font-medium text-gray-400">No doubts in this category</p>
+        {/* Tips for a great doubt */}
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <h3 className="text-xs font-bold text-gray-900 mb-3 uppercase tracking-wide">Tips for a Good Doubt</h3>
+          <ul className="space-y-2.5">
+            {[
+              { icon: CheckCircle2, text: "Be specific — include error messages or code snippets" },
+              { icon: Tag, text: "Tag correctly (DSA, System Design, etc.)" },
+              { icon: AlertCircle, text: "Mention what you already tried" },
+              { icon: Clock, text: "One doubt per question — keep it focused" },
+            ].map(({ icon: Icon, text }, i) => (
+              <li key={i} className="flex items-start gap-2 text-xs text-gray-600">
+                <Icon className="w-3.5 h-3.5 text-blue-500 mt-0.5 shrink-0" />
+                {text}
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Quick stats */}
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <h3 className="text-xs font-bold text-gray-900 mb-3 uppercase tracking-wide">Your Stats</h3>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-gray-500">Doubts Asked</span>
+              <span className="text-sm font-bold text-gray-900">{counts.all}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-gray-500">Answered</span>
+              <span className="text-sm font-bold text-blue-600">{counts.answered}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-gray-500">Resolved</span>
+              <span className="text-sm font-bold text-gray-500">{counts.resolved}</span>
+            </div>
+            <div className="h-px bg-gray-100" />
+            <div className="flex justify-between items-center">
+              <span className="text-xs text-gray-500">Resolution Rate</span>
+              <span className="text-sm font-bold text-green-600">
+                {counts.all > 0 ? Math.round((counts.resolved / counts.all) * 100) : 0}%
+              </span>
+            </div>
           </div>
-        ) : (
-          filtered.map((d) => <DoubtCard key={d.id} doubt={d} onResolve={handleResolve} />)
-        )}
-      </div>
+        </div>
+      </aside>
 
       {showForm && <NewDoubtDrawer onClose={() => setShowForm(false)} onSubmit={handleSubmit} />}
     </div>
   );
 }
+
+

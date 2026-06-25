@@ -778,7 +778,7 @@ export default function ProfilePage() {
   { id: "overview",   label: "Overview",     icon: User },
   { id: "career",    label: "Career Settings",  icon: Target },
   { id: "performance", label: "Performance",    icon: BarChart2 },
-  { id: "settings",   label: "Notifications & Privacy", icon: Settings },
+  { id: "settings",   label: "Settings", icon: Settings },
  ];
 
  return (
