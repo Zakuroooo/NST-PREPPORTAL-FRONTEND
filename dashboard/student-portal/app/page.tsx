@@ -37,7 +37,7 @@ export default function LandingPage() {
               href="/login"
               className="bg-gray-900 text-white text-sm font-semibold px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors"
             >
-              Login
+              Start Prep Now
             </Link>
           </div>
         </div>

@@ -34,6 +34,7 @@ export default function Step4() {
           sessionStorage.setItem("roadmap_companies", JSON.stringify(roadmapEntries));
         }
       }
+      sessionStorage.setItem("has_onboarded", "true");
     } catch { /* sessionStorage might not be available */ }
     router.push("/dashboard");
   };

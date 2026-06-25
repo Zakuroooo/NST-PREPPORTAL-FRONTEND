@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   Flame, CheckSquare, Square, ExternalLink,
@@ -24,6 +25,7 @@ function calcPrepScore(stats: typeof userPrepStats): number {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [checked, setChecked] = useState<Record<number, boolean>>({
     // Pre-mark questions already done in mock data
     1: true, 10: true, 11: true,
@@ -33,6 +35,15 @@ export default function DashboardPage() {
   const [tasks, setTasks] = useState<any[]>([]);
 
   useEffect(() => {
+    // Check onboarding status first
+    try {
+      const hasOnboarded = sessionStorage.getItem("has_onboarded");
+      if (!hasOnboarded) {
+        router.push("/onboarding/step1");
+        return;
+      }
+    } catch { /* ignore */ }
+
     const roadmaps = getUserRoadmapCompanies();
     const mappedCompanies = roadmaps.map(r => ({
       initial: r.initial,
