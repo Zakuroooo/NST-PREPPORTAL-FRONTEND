@@ -5,8 +5,8 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Zap, Plus, X, CheckCircle, Clock, XCircle, Check,
-  ChevronRight, ChevronDown, ChevronUp, Bookmark, ThumbsUp, Share2,
-  History, Code, Sparkles, Filter, ArrowUpDown, Star
+  ChevronRight, ChevronDown, ChevronUp, ThumbsUp,
+  History, Code, Sparkles, Filter, ArrowUpDown, Star, Layers
 } from "lucide-react";
 import { useNavbar } from "@/lib/navbar-context";
 
@@ -238,6 +238,9 @@ function SubmitContent() {
 
   // Submit Form States
   const [formCompany, setFormCompany] = useState("Google");
+  const [formCompanyQuery, setFormCompanyQuery] = useState("Google");
+  const [formCompanySuggestions, setFormCompanySuggestions] = useState<string[]>([]);
+  const [formCompanyOpen, setFormCompanyOpen] = useState(false);
   const [formRole, setFormRole] = useState("SDE-1");
   const [formDate, setFormDate] = useState("");
   const [formOutcome, setFormOutcome] = useState("offer");
@@ -248,7 +251,10 @@ function SubmitContent() {
   const [formProblemsCount, setFormProblemsCount] = useState(2);
   const [formTags, setFormTags] = useState<string[]>(["Arrays", "Dynamic Programming"]);
   const [formTagInput, setFormTagInput] = useState("");
-  const [formRoundType, setFormRoundType] = useState("DSA Coding");
+  // Per-round detail inputs
+  const [formRoundDetails, setFormRoundDetails] = useState<{type: string; topics: string; description: string; cleared: boolean}[]>(
+    Array.from({ length: 3 }, (_, i) => ({ type: "DSA Coding", topics: "", description: "", cleared: true }))
+  );
 
   // Register the modal-open callback in the Navbar via context
   const openModal = useCallback(() => {
@@ -305,31 +311,32 @@ function SubmitContent() {
     );
   };
 
-  const handleBookmark = (id: number) => {
-    setExperiences((prev) =>
-      prev.map((exp) => {
-        if (exp.id === id) {
-          return {
-            ...exp,
-            hasBookmarked: !exp.hasBookmarked,
-          };
-        }
-        return exp;
-      })
-    );
+  const handleCompanyQueryChange = (q: string) => {
+    setFormCompanyQuery(q);
+    setFormCompany(q); // allow free-text company name too
+    if (q.trim().length > 0) {
+      const lower = q.toLowerCase();
+      const matches = companies.filter((c) => c.toLowerCase().includes(lower)).slice(0, 6);
+      setFormCompanySuggestions(matches);
+      setFormCompanyOpen(matches.length > 0);
+    } else {
+      setFormCompanySuggestions([]);
+      setFormCompanyOpen(false);
+    }
   };
 
-  const handleShare = (id: number, company: string) => {
-    const shareUrl = `${window.location.origin}/submit?id=${id}`;
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      setToastMessage(`Link copied for ${company} experience!`);
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 2500);
-    });
+  const selectCompanySuggestion = (name: string) => {
+    setFormCompany(name);
+    setFormCompanyQuery(name);
+    setFormCompanyOpen(false);
+    setFormCompanySuggestions([]);
   };
 
   const clearForm = () => {
     setFormCompany("Google");
+    setFormCompanyQuery("Google");
+    setFormCompanyOpen(false);
+    setFormCompanySuggestions([]);
     setFormRole("SDE-1");
     setFormDate("");
     setFormOutcome("offer");
@@ -340,7 +347,7 @@ function SubmitContent() {
     setFormProblemsCount(2);
     setFormTags(["Arrays", "Dynamic Programming"]);
     setFormTagInput("");
-    setFormRoundType("DSA Coding");
+    setFormRoundDetails(Array.from({ length: 3 }, () => ({ type: "DSA Coding", topics: "", description: "", cleared: true })));
   };
 
   const closeModal = () => {
@@ -373,15 +380,13 @@ function SubmitContent() {
       upvotes: 0,
       hasUpvoted: false,
       hasBookmarked: false,
-      rounds: [
-        {
-          roundNumber: 1,
-          type: formRoundType,
-          topics: formTags,
-          description: formExperienceText + (formTipsText ? `\n\nTips: ${formTipsText}` : ""),
-          cleared: formOutcome === "offer"
-        }
-      ]
+      rounds: formRoundDetails.slice(0, formRoundsCount).map((r, i) => ({
+        roundNumber: i + 1,
+        type: r.type,
+        topics: r.topics.split(",").map((t) => t.trim()).filter(Boolean),
+        description: r.description || formExperienceText,
+        cleared: r.cleared,
+      })),
     };
 
     setExperiences([newExp, ...experiences]);
@@ -585,7 +590,7 @@ function SubmitContent() {
                     </div>
 
                     <div className="flex items-center gap-2 self-end sm:self-auto">
-                      {/* Upvote Button */}
+                      {/* Like/Upvote Button — only action kept per product spec */}
                       <button
                         onClick={() => handleUpvote(exp.id)}
                         className={`flex items-center gap-1 px-3 py-1.5 rounded-full border text-xs font-semibold transition-all ${
@@ -596,26 +601,6 @@ function SubmitContent() {
                       >
                         <ThumbsUp className={`w-3.5 h-3.5 ${exp.hasUpvoted ? "fill-blue-600 animate-pulse" : ""}`} />
                         {exp.upvotes}
-                      </button>
-
-                      {/* Bookmark Button */}
-                      <button
-                        onClick={() => handleBookmark(exp.id)}
-                        className={`p-2 rounded-full border transition-all ${
-                          exp.hasBookmarked
-                            ? "bg-blue-50 text-blue-600 border-blue-200"
-                            : "border-gray-200 text-gray-500 hover:bg-gray-50"
-                        }`}
-                      >
-                        <Bookmark className={`w-3.5 h-3.5 ${exp.hasBookmarked ? "fill-blue-600" : ""}`} />
-                      </button>
-
-                      {/* Share Button */}
-                      <button
-                        onClick={() => handleShare(exp.id, exp.company)}
-                        className="p-2 rounded-full border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors"
-                      >
-                        <Share2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
@@ -767,15 +752,30 @@ function SubmitContent() {
                   <form onSubmit={handleSubmit} className="space-y-5">
                     {/* Row 1 */}
                     <div className="grid grid-cols-2 gap-4">
-                      <div>
+                      <div className="relative">
                         <label className="text-sm font-medium text-gray-700 mb-1.5 block">Company</label>
-                        <select
-                          value={formCompany}
-                          onChange={(e) => setFormCompany(e.target.value)}
+                        <input
+                          type="text"
+                          value={formCompanyQuery}
+                          onChange={(e) => handleCompanyQueryChange(e.target.value)}
+                          onBlur={() => setTimeout(() => setFormCompanyOpen(false), 150)}
+                          onFocus={() => formCompanyQuery && setFormCompanyOpen(formCompanySuggestions.length > 0)}
+                          placeholder="Type company name…"
                           className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          {companies.map((c) => <option key={c} value={c}>{c}</option>)}
-                        </select>
+                        />
+                        {formCompanyOpen && formCompanySuggestions.length > 0 && (
+                          <ul className="absolute z-50 top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                            {formCompanySuggestions.map((s) => (
+                              <li
+                                key={s}
+                                onMouseDown={() => selectCompanySuggestion(s)}
+                                className="px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 cursor-pointer"
+                              >
+                                {s}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
                       </div>
                       <div>
                         <label className="text-sm font-medium text-gray-700 mb-1.5 block">Role / Level</label>
@@ -849,9 +849,18 @@ function SubmitContent() {
                         <input
                           type="number"
                           min={1}
-                          max={10}
+                          max={8}
                           value={formRoundsCount}
-                          onChange={(e) => setFormRoundsCount(Number(e.target.value))}
+                          onChange={(e) => {
+                            const n = Math.min(8, Math.max(1, Number(e.target.value)));
+                            setFormRoundsCount(n);
+                            // Expand formRoundDetails if needed
+                            setFormRoundDetails((prev) => {
+                              const copy = [...prev];
+                              while (copy.length < n) copy.push({ type: "DSA Coding", topics: "", description: "", cleared: true });
+                              return copy;
+                            });
+                          }}
                           className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
                       </div>
@@ -868,42 +877,75 @@ function SubmitContent() {
                       </div>
                     </div>
 
-                    {/* Round detail */}
-                    <div className="border border-gray-200 rounded-xl p-4 space-y-3 bg-gray-50/50">
+                    {/* Per-Round Breakdown */}
+                    <div className="space-y-3">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-gray-500">PRIMARY ROUND</span>
-                        <select
-                          value={formRoundType}
-                          onChange={(e) => setFormRoundType(e.target.value)}
-                          className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="Online Assessment">Online Assessment</option>
-                          <option value="DSA Coding">DSA Coding</option>
-                          <option value="System Design">System Design</option>
-                          <option value="HR">HR</option>
-                          <option value="Managerial">Managerial</option>
-                        </select>
+                        <Layers className="w-4 h-4 text-blue-600" />
+                        <span className="text-sm font-semibold text-gray-700">Round-wise Experience</span>
                       </div>
-                      <div>
-                        <label className="text-xs text-gray-500 mb-1.5 block">Topics Asked</label>
-                        <div className="flex flex-wrap gap-2 border border-gray-200 bg-white rounded-lg p-2 min-h-[42px]">
-                          {formTags.map((t) => (
-                            <span key={t} className="flex items-center gap-1 bg-blue-50 text-blue-700 text-xs rounded px-2 py-1">
-                              {t}
-                              <button type="button" onClick={() => setFormTags(formTags.filter((x) => x !== t))}>
-                                <X className="w-3 h-3 text-blue-500 hover:text-blue-700" />
+                      {Array.from({ length: formRoundsCount }, (_, i) => (
+                        <div key={i} className="border border-gray-200 rounded-xl p-4 space-y-3 bg-gray-50/50">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">Round {i + 1}</span>
+                            <div className="flex items-center gap-2">
+                              <label className="text-xs text-gray-500">Cleared?</label>
+                              <button
+                                type="button"
+                                onClick={() => setFormRoundDetails((prev) => {
+                                  const copy = [...prev];
+                                  copy[i] = { ...copy[i], cleared: !copy[i].cleared };
+                                  return copy;
+                                })}
+                                className={`text-xs px-2 py-0.5 rounded font-semibold border ${
+                                  formRoundDetails[i]?.cleared
+                                    ? "bg-green-50 text-green-700 border-green-200"
+                                    : "bg-red-50 text-red-600 border-red-200"
+                                }`}
+                              >
+                                {formRoundDetails[i]?.cleared ? "Yes" : "No"}
                               </button>
-                            </span>
-                          ))}
+                            </div>
+                          </div>
+                          <select
+                            value={formRoundDetails[i]?.type ?? "DSA Coding"}
+                            onChange={(e) => setFormRoundDetails((prev) => {
+                              const copy = [...prev];
+                              copy[i] = { ...copy[i], type: e.target.value };
+                              return copy;
+                            })}
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="Online Assessment">Online Assessment</option>
+                            <option value="DSA Coding">DSA Coding</option>
+                            <option value="System Design">System Design</option>
+                            <option value="LLD">Low Level Design</option>
+                            <option value="HR">HR / Behavioral</option>
+                            <option value="Managerial">Managerial</option>
+                          </select>
                           <input
-                            value={formTagInput}
-                            onChange={(e) => setFormTagInput(e.target.value)}
-                            onKeyDown={addTag}
-                            placeholder="Type topic + Enter"
-                            className="flex-1 min-w-[120px] text-xs outline-none bg-transparent"
+                            type="text"
+                            placeholder="Topics (comma separated, e.g. Arrays, DP)"
+                            value={formRoundDetails[i]?.topics ?? ""}
+                            onChange={(e) => setFormRoundDetails((prev) => {
+                              const copy = [...prev];
+                              copy[i] = { ...copy[i], topics: e.target.value };
+                              return copy;
+                            })}
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                          <textarea
+                            rows={2}
+                            placeholder={`Describe Round ${i + 1} experience…`}
+                            value={formRoundDetails[i]?.description ?? ""}
+                            onChange={(e) => setFormRoundDetails((prev) => {
+                              const copy = [...prev];
+                              copy[i] = { ...copy[i], description: e.target.value };
+                              return copy;
+                            })}
+                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-xs bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                           />
                         </div>
-                      </div>
+                      ))}
                     </div>
 
                     {/* Experience Description */}

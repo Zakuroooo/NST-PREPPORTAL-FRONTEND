@@ -96,7 +96,7 @@ const EXPLORE_SUGGESTIONS = [
 
 
 
-// ─── Active Roadmap Hero Card ────────────────────────────────────────────────
+// ─── Compact Active Roadmap Card ────────────────────────────────────────────
 function ActiveRoadmapCard({
   company,
   isSelected,
@@ -109,164 +109,73 @@ function ActiveRoadmapCard({
   onRemove?: (slug: string) => void;
 }) {
   const logoUrl = getLogoUrl(company.slug);
-  const totalXP = company.weeks.reduce(
-    (sum, w) => sum + w.questions.reduce((s, q) => s + q.xp, 0),
-    0
-  );
-  const earnedXP = company.weeks.reduce(
-    (sum, w) =>
-      sum + w.questions.filter((q) => q.done).reduce((s, q) => s + q.xp, 0),
-    0
-  );
+  const totalQ = company.weeks.reduce((s, w) => s + w.questions.length, 0);
+  const doneQ  = company.weeks.reduce((s, w) => s + w.questions.filter(q => q.done).length, 0);
+  const pct = totalQ > 0 ? Math.round((doneQ / totalQ) * 100) : 0;
   const daysElapsed = company.currentWeek * 7;
-  const totalDays = company.totalWeeks * 7;
+  const totalDays   = company.totalWeeks  * 7;
 
   return (
     <div
-      className={`min-w-[300px] bg-white border rounded-lg flex flex-col flex-shrink-0 cursor-pointer transition-all duration-200 ${
-        isSelected
-          ? "border-blue-500 shadow-md ring-2 ring-blue-200"
-          : "border-gray-200 shadow-sm hover:shadow-md hover:border-blue-300"
-      }`}
       onClick={onClick}
+      className={`flex items-center gap-4 px-4 py-3 bg-white border rounded-xl cursor-pointer transition-all duration-150 shrink-0 ${
+        isSelected
+          ? "border-blue-500 ring-2 ring-blue-100 shadow-sm"
+          : "border-gray-200 hover:border-blue-300 hover:shadow-sm"
+      }`}
+      style={{ minWidth: 260 }}
     >
-      {/* Card header ribbon */}
-      <div className="bg-blue-600 px-5 py-2.5 rounded-t-lg">
-        <p className="text-white text-[10px] font-bold uppercase tracking-widest opacity-90">
-          Active Roadmap
-        </p>
+      {/* Logo */}
+      <div className="w-9 h-9 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-center shrink-0">
+        <CompanyLogo logoUrl={logoUrl} name={company.name} initial={company.initial} fallbackClass="text-blue-600" />
       </div>
 
-      <div className="p-5 flex-1 flex flex-col">
-        {/* Company logo + title */}
-        <div className="flex items-start gap-3 mb-5">
-          <div className="w-11 h-11 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 shrink-0">
-            <CompanyLogo
-              logoUrl={logoUrl}
-              name={company.name}
-              initial={company.initial}
-              fallbackClass="text-blue-600"
-            />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between">
-              <h4 className="font-bold text-sm text-gray-900 leading-tight">
-                {company.name} {company.role}
-              </h4>
-              <button
-                className="text-gray-400 hover:text-red-500 transition-colors ml-2 shrink-0 cursor-pointer"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRemove?.(company.slug);
-                }}
-                aria-label="Remove roadmap"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-            <p className="text-[10px] text-gray-500 flex items-center gap-1 mt-1">
-              <Trophy className="w-3 h-3" /> Contest Mode
-            </p>
-          </div>
-        </div>
-
-        {/* XP badges */}
-        <div className="mb-5">
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-[10px] font-bold border border-blue-100">
-              2X XP
-            </span>
-            <span className="text-blue-600 text-xs font-bold flex items-center gap-0.5">
-              <Zap className="w-3.5 h-3.5 fill-blue-600" />
-              {earnedXP}/{totalXP}
-            </span>
-          </div>
-          <p className="text-gray-400 text-[10px]">
-            {company.totalWeeks}-week plan · Week {company.currentWeek} of {company.totalWeeks}
-          </p>
-        </div>
-
-        {/* Footer */}
-        <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
-          <div className="flex items-baseline gap-1">
-            <span className="text-lg font-bold text-blue-600">{daysElapsed}</span>
-            <span className="text-[10px] text-gray-500">/ {totalDays} days</span>
-          </div>
+      {/* Info */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-sm font-bold text-gray-900 truncate">{company.name}</span>
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onClick();
-              document.getElementById("roadmap-curriculum")?.scrollIntoView({ behavior: 'smooth' });
-            }}
-            className="px-5 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-lg hover:bg-gray-800 transition-all shadow-sm"
+            onClick={(e) => { e.stopPropagation(); onRemove?.(company.slug); }}
+            className="text-gray-300 hover:text-red-500 ml-2 shrink-0"
+            aria-label="Remove"
           >
-            Track
+            <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
+        {/* Progress bar */}
+        <div className="flex items-center gap-2">
+          <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div className="h-full bg-blue-500 rounded-full" style={{ width: `${pct}%` }} />
+          </div>
+          <span className="text-[10px] font-semibold text-gray-500 shrink-0">{daysElapsed}/{totalDays}d</span>
+        </div>
+        <p className="text-[10px] text-gray-400 mt-0.5">Wk {company.currentWeek}/{company.totalWeeks} · {pct}% done</p>
       </div>
     </div>
   );
 }
 
-// ─── Explore More Card (grid view) ───────────────────────────────────────────
+// ─── Compact Explore Roadmap Card ────────────────────────────────────────────
 function ExploreRoadmapCard({ company }: { company: typeof EXPLORE_SUGGESTIONS[0] }) {
   const logoUrl = getLogoUrl(company.slug);
 
   return (
-    <div className="min-w-[300px] bg-white border border-gray-200 rounded-lg flex flex-col flex-shrink-0 cursor-pointer shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-200 h-full">
-      {/* Card header ribbon */}
-      <div className="bg-gray-100 px-5 py-2.5 rounded-t-lg border-b border-gray-200">
-        <p className="text-gray-600 text-[10px] font-bold uppercase tracking-widest opacity-90">
-          Suggested Roadmap
-        </p>
+    <div className="flex items-center gap-4 px-4 py-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md hover:border-blue-300 transition-all shrink-0" style={{ minWidth: 240 }}>
+      <div className="w-9 h-9 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-center shrink-0">
+        <CompanyLogo logoUrl={logoUrl} name={company.name} initial={company.initial} fallbackClass="text-gray-700" />
       </div>
-
-      <div className="p-5 flex-1 flex flex-col">
-        <div className="flex items-start justify-between mb-5">
-          <div className="flex items-start gap-3">
-            <div className="w-11 h-11 bg-gray-50 rounded-lg flex items-center justify-center border border-gray-200 shrink-0">
-              <CompanyLogo
-                logoUrl={logoUrl}
-                name={company.name}
-                initial={company.initial}
-                fallbackClass="text-gray-700"
-              />
-            </div>
-            <div>
-              <h4 className="font-bold text-sm text-gray-900 leading-tight">
-                {company.name} {company.role}
-              </h4>
-              <p className="text-[10px] text-gray-500 flex items-center gap-1 mt-1">
-                <Timer className="w-3 h-3" /> {company.weeks} Weeks Plan
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* XP */}
-        <div className="mb-5">
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-[10px] font-bold border border-blue-100 shrink-0">
-              2X XP
-            </span>
-            <span className="text-blue-600 text-xs font-bold flex items-center gap-0.5">
-              <Zap className="w-3.5 h-3.5 fill-blue-600" />
-              Total {company.totalXP} XP
-            </span>
-          </div>
-        </div>
-
-        <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
-          <p className="text-gray-400 text-[10px]">Preview curriculum &amp; challenges</p>
-          <Link
-            href={`/companies/${company.slug}/practice`}
-            className="px-5 py-1.5 bg-gray-900 text-white text-xs font-bold rounded-lg hover:bg-gray-800 transition-all shadow-sm"
-            onClick={(e) => e.stopPropagation()}
-          >
-            Track
-          </Link>
-        </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-bold text-gray-900 truncate">{company.name}</p>
+        <p className="text-[10px] text-gray-500">{company.role} · {company.weeks}w plan</p>
+        <p className="text-[10px] text-blue-600 font-semibold mt-0.5">{company.totalXP} XP available</p>
       </div>
+      <Link
+        href={`/companies/${company.slug}/practice`}
+        onClick={(e) => e.stopPropagation()}
+        className="px-3 py-1.5 bg-blue-600 text-white text-[11px] font-bold rounded-lg hover:bg-blue-700 transition-all shrink-0"
+      >
+        Explore
+      </Link>
     </div>
   );
 }

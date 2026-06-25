@@ -2,23 +2,21 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
- House, Map, Building2, Code2, TrendingUp, Trophy, Send,
+ House, Building2, TrendingUp, Trophy, Send,
  MessageCircle, CalendarDays,
 } from "lucide-react";
 
 const navItems = [
- { icon: House,     label: "Home",        href: "/dashboard" },
- { icon: Map,      label: "My Roadmap",     href: "/roadmap" },
- { icon: Building2,   label: "Companies",      href: "/companies" },
- { icon: Code2,     label: "Practice",      href: "/practice" },
- { icon: TrendingUp,   label: "My Progress",     href: "/progress" },
- { icon: Trophy,     label: "Leaderboard",     href: "/leaderboard" },
- { icon: Send,      label: "Interview Experience",href: "/submit" },
+ { icon: House,     label: "Home",              href: "/dashboard" },
+ { icon: Building2, label: "Companies",         href: "/companies" },
+ { icon: TrendingUp,label: "My Progress",       href: "/progress" },
+ { icon: Trophy,    label: "Leaderboard",       href: "/leaderboard" },
+ { icon: Send,      label: "Interview Experience", href: "/submit" },
 ];
 
 const connectItems = [
- { icon: MessageCircle, label: "Ask a Doubt",  href: "/doubts" },
- { icon: CalendarDays, label: "Book a Session", href: "/sessions" },
+ { icon: MessageCircle, label: "Ask a Doubt",   href: "/doubts" },
+ { icon: CalendarDays,  label: "Book a Session", href: "/sessions" },
 ];
 
 export default function Sidebar() {
