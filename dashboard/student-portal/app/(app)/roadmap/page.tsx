@@ -366,7 +366,7 @@ function RoadmapCurriculumView({ company }: { company: UserRoadmapCompany }) {
           
           <div className="flex gap-2 shrink-0">
             <Link
-              href={`/practice?company=${company.slug}`}
+              href={`/companies/${company.slug}/practice`}
               className="flex items-center justify-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-5 py-2.5 rounded-lg text-sm font-semibold transition-all shadow-sm"
             >
               <Play className="w-4 h-4 fill-white" /> Practice

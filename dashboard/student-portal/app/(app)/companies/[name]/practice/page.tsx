@@ -26,14 +26,19 @@ const roundColors: Record<string, string> = {
 
 export default function CompanyPracticePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ name: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const { name: slug } = use(params);
+  const resolvedSearchParams = use(searchParams);
   const intel = getCompanyIntel(slug);
 
   const [search, setSearch] = useState("");
-  const [topic, setTopic] = useState("");
+  const [topic, setTopic] = useState(
+    typeof resolvedSearchParams.topic === "string" ? resolvedSearchParams.topic : ""
+  );
   const [difficulty, setDifficulty] = useState<Difficulty | "">("");
   const [roundType, setRoundType] = useState<RoundType | "">("");
 

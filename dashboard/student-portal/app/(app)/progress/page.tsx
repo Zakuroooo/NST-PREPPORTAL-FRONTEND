@@ -19,9 +19,9 @@ const topics = [
 ];
 
 const weakAreas = [
-  { topic: "Dynamic Programming", pct: 20, companies: "Flipkart", companyPct: 72, color: "text-indigo-600", bgColor: "bg-indigo-50 border-indigo-200" },
-  { topic: "Graphs",              pct: 13, companies: "Google",   companyPct: 71, color: "text-violet-600", bgColor: "bg-violet-50 border-violet-200" },
-  { topic: "System Design",       pct: 10, companies: "Amazon",   companyPct: 65, color: "text-cyan-600",   bgColor: "bg-cyan-50 border-cyan-200"     },
+  { topic: "Dynamic Programming", pct: 10, companies: "Google",   companyPct: 72, color: "text-indigo-600", bgColor: "bg-indigo-50 border-indigo-200" },
+  { topic: "Graphs",              pct: 13, companies: "Amazon",   companyPct: 70, color: "text-violet-600", bgColor: "bg-violet-50 border-violet-200" },
+  { topic: "System Design",       pct: 10, companies: "Flipkart", companyPct: 65, color: "text-cyan-600",   bgColor: "bg-cyan-50 border-cyan-200"     },
 ];
 
 // Build a proper GitHub-style 52-week heatmap
@@ -123,9 +123,8 @@ export default function ProgressPage() {
               </p>
               <button
                 onClick={() => {
-                  const companies = getUserRoadmapCompanies();
-                  const targetSlug = companies.length > 0 ? companies[0].slug : "google";
-                  router.push(`/practice?company=${targetSlug}&topic=${encodeURIComponent(w.topic)}`);
+                  const targetSlug = w.companies.toLowerCase();
+                  router.push(`/companies/${targetSlug}/practice?topic=${encodeURIComponent(w.topic)}`);
                 }}
                 className={`text-xs font-semibold px-3 py-2 rounded-lg border ${w.color} border-current hover:bg-white/50 transition-colors w-full`}
               >
