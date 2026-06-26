@@ -33,12 +33,23 @@ export default function LeaderboardPage() {
       </div>
 
       {/* My Standing — always visible at top */}
-      <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-6 flex items-center gap-4">
-        <div className="text-indigo-700 text-xs font-bold uppercase tracking-wide shrink-0">Your Rank</div>
-        <div className="w-px h-6 bg-indigo-200 shrink-0" />
-        <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
-          {me.initials}
+      <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 mb-6 flex flex-col sm:flex-row sm:items-center gap-4">
+        
+        {/* Top row on mobile / Left section on desktop */}
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="text-indigo-700 text-xs font-bold uppercase tracking-wide shrink-0">Your Rank</div>
+          <div className="w-px h-6 bg-indigo-200 shrink-0 hidden sm:block" />
+          <div className="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-bold shrink-0">
+            {me.initials}
+          </div>
+          {/* Rank shows here on mobile so it's top right */}
+          <div className="flex-1 sm:hidden flex flex-col items-end">
+            <div className="text-2xl font-bold text-indigo-700 leading-none">#{me.rank}</div>
+            <div className="text-[10px] text-gray-500 mt-1">{me.change}</div>
+          </div>
         </div>
+
+        {/* Center section */}
         <div className="flex-1 min-w-0">
           <div className="font-semibold text-gray-900 text-sm">{me.name} <span className="text-indigo-600 font-bold text-xs ml-1">(You)</span></div>
           <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
@@ -46,11 +57,14 @@ export default function LeaderboardPage() {
             {me.xp.toLocaleString()} XP &nbsp;·&nbsp; {me.time}
           </div>
         </div>
-        <div className="text-right shrink-0">
-          <div className="text-2xl font-bold text-indigo-700">#{me.rank}</div>
-          <div className="text-xs text-gray-500">{me.change}</div>
+
+        {/* Right section on desktop */}
+        <div className="hidden sm:block text-right shrink-0">
+          <div className="text-2xl font-bold text-indigo-700 leading-none">#{me.rank}</div>
+          <div className="text-xs text-gray-500 mt-1">{me.change}</div>
         </div>
-        <Link href="/practice" className="bg-indigo-600 text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shrink-0">
+
+        <Link href="/practice" className="w-full sm:w-auto bg-indigo-600 text-white text-center text-sm font-semibold px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors shrink-0">
           Improve Rank
         </Link>
       </div>
