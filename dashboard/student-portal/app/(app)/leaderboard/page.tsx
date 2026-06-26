@@ -121,12 +121,13 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Full Table */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        <div className="grid grid-cols-[80px_100px_1fr_150px_150px] gap-4 px-5 py-3 bg-gray-50 border-b border-gray-200">
-          {["RANK", "CHANGE", "NAME", "XP THIS MONTH", "LATEST SUBMISSION"].map((h) => (
-            <div key={h} className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</div>
-          ))}
-        </div>
+      <div className="bg-white border border-gray-200 rounded-xl overflow-x-auto">
+        <div className="min-w-[700px]">
+          <div className="grid grid-cols-[80px_100px_1fr_150px_150px] gap-4 px-5 py-3 bg-gray-50 border-b border-gray-200">
+            {["RANK", "CHANGE", "NAME", "XP THIS MONTH", "LATEST SUBMISSION"].map((h) => (
+              <div key={h} className="text-xs font-semibold text-gray-500 uppercase tracking-wider">{h}</div>
+            ))}
+          </div>
         {rest.map((u) => (
           <div
             key={u.rank}
@@ -151,6 +152,7 @@ export default function LeaderboardPage() {
             <div className="text-sm text-gray-500">{u.time}</div>
           </div>
         ))}
+        </div>
         <div className="flex justify-center py-4 border-t border-gray-100">
           <button className="border border-gray-200 text-gray-700 text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-50">
             View Top 100 <ChevronDown className="w-4 h-4" />

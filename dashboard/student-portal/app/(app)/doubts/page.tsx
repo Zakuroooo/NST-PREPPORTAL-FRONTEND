@@ -363,7 +363,7 @@ export default function DoubtsPage() {
         </div>
 
         {/* Stats row */}
-        <div className="grid grid-cols-3 gap-3 mb-5">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
           {[
             { label: "Total Doubts",   value: counts.all,      color: "text-gray-900" },
             { label: "Awaiting Reply", value: counts.pending,  color: "text-blue-600" },

@@ -151,8 +151,8 @@ export default function CompanyPage({ params }: { params: Promise<{ name: string
       </nav>
 
       {/* Hero + Hiring Pulse */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="col-span-2 bg-white border border-gray-200 rounded-xl p-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        <div className="lg:col-span-2 bg-white border border-gray-200 rounded-xl p-6">
           <div className="flex items-start gap-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -220,7 +220,7 @@ export default function CompanyPage({ params }: { params: Promise<{ name: string
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         {[
           { icon: BarChart2, color: "text-blue-600",   val: intel.successRate,    sub: "SUCCESS RATE",     note: "↑ 2.1%" },
           { icon: Target,   color: "text-amber-500",  val: intel.avgSalary,      sub: "AVG. SALARY (L3)", note: "CTC" },

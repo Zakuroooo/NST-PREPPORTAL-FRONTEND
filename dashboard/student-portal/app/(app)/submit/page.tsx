@@ -751,7 +751,7 @@ function SubmitContent() {
 
                   <form onSubmit={handleSubmit} className="space-y-5">
                     {/* Row 1 */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="relative">
                         <label className="text-sm font-medium text-gray-700 mb-1.5 block">Company</label>
                         <input
@@ -794,7 +794,7 @@ function SubmitContent() {
                     </div>
 
                     {/* Row 2 */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="text-sm font-medium text-gray-700 mb-1.5 block">Interview Date</label>
                         <input
@@ -843,7 +843,7 @@ function SubmitContent() {
                     </div>
 
                     {/* Rounds Configuration */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="text-sm font-medium text-gray-700 mb-1.5 block">Rounds Conducted</label>
                         <input
