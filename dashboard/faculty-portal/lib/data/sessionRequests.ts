@@ -159,5 +159,31 @@ export const mockSessionRequests: SessionRequest[] = [
     endTime: "5:00 PM",
     note: "Thesis Review",
     status: "accepted"
+  },
+  {
+    id: "req-12",
+    studentName: "Priya R.",
+    studentInitials: "PR",
+    branch: "Computer Science",
+    year: "Year 3",
+    topicTag: "DSA - Graphs",
+    preferredDate: "Jun 24, 2026",
+    preferredTime: "10:00 AM",
+    endTime: "11:00 AM",
+    note: "Pre-placement mock session",
+    status: "accepted"
+  },
+  {
+    id: "req-13",
+    studentName: "Aditya M.",
+    studentInitials: "AM",
+    branch: "Software Eng",
+    year: "Year 4",
+    topicTag: "System Design",
+    preferredDate: "Jun 27, 2026",
+    preferredTime: "02:00 PM",
+    endTime: "03:00 PM",
+    note: "",
+    status: "accepted"
   }
 ];

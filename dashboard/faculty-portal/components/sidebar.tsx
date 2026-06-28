@@ -2,14 +2,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutGrid, Inbox, Calendar, BarChart, User } from "lucide-react";
+import {
+  Building2,
+  CalendarDays,
+  House,
+  Map,
+  MessageCircle,
+  Send,
+  TrendingUp,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: LayoutGrid },
-  { name: "Session Requests", href: "/requests", icon: Inbox },
-  { name: "Calendar", href: "/calendar", icon: Calendar },
-  { name: "Relevance Matrix", href: "/relevance-matrix", icon: BarChart },
+  { name: "Dashboard", href: "/", icon: House },
+  { name: "Session Requests", href: "/requests", icon: CalendarDays },
+  { name: "Doubts & Questions", href: "/doubts", icon: MessageCircle },
+  { name: "Curriculum Gap Matrix", href: "/curriculum", icon: Map },
+  { name: "Industry Trends", href: "/trends", icon: TrendingUp },
+  { name: "Company Rankings", href: "/rankings", icon: Building2 },
+  { name: "Export Reports", href: "/reports", icon: Send },
 ];
 
 export function SidebarContent() {
@@ -17,17 +28,23 @@ export function SidebarContent() {
 
   return (
     <div className="flex h-full w-full flex-col bg-white">
-      <div className="p-6">
-        <h1 className="text-xl font-bold text-gray-900">Faculty Portal</h1>
+      <div className="flex items-center gap-3 px-4 py-5">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">
+          P
+        </div>
+        <div>
+          <h1 className="text-base font-bold leading-tight text-gray-900">PlacePrep</h1>
+          <p className="text-xs font-medium text-gray-500">Faculty Portal</p>
+        </div>
       </div>
 
-      <div className="px-6 mb-6 flex items-center gap-3">
-        <div className="h-10 w-10 shrink-0 rounded-full bg-indigo-100 flex items-center justify-center text-[#534AB7] font-semibold">
-          AT
+      <div className="mx-3 mb-4 flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+          PS
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-medium text-gray-900 truncate">Dr. Aris Thorne</p>
-          <p className="text-xs text-gray-500 truncate">Academic Admin</p>
+          <p className="truncate text-sm font-medium text-gray-900">Prof. Sharma</p>
+          <p className="truncate text-xs text-gray-500">Computer Science Dept.</p>
         </div>
       </div>
 
@@ -39,16 +56,16 @@ export function SidebarContent() {
               key={item.name}
               href={item.href}
               className={cn(
-                "group flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md border-l-4",
+                "group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-[#534AB7]/10 text-[#534AB7] border-[#534AB7]"
-                  : "text-gray-700 border-transparent hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
               )}
             >
               <item.icon
                 className={cn(
-                  "flex-shrink-0 h-5 w-5",
-                  isActive ? "text-[#534AB7]" : "text-gray-400 group-hover:text-gray-500"
+                  "h-5 w-5 flex-shrink-0",
+                  isActive ? "text-blue-600" : "text-gray-400 group-hover:text-gray-500"
                 )}
               />
               {item.name}
@@ -57,14 +74,8 @@ export function SidebarContent() {
         })}
       </nav>
 
-      <div className="border-t p-3">
-        <Link
-          href="/profile"
-          className="group flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 rounded-md border-l-4 border-transparent hover:bg-gray-50 hover:text-gray-900"
-        >
-          <User className="flex-shrink-0 h-5 w-5 text-gray-400 group-hover:text-gray-500" />
-          Profile
-        </Link>
+      <div className="border-t border-gray-200 p-3">
+        <p className="px-3 py-2 text-xs font-medium text-gray-400">NST Interview Intelligence</p>
       </div>
     </div>
   );
@@ -72,7 +83,7 @@ export function SidebarContent() {
 
 export function Sidebar() {
   return (
-    <div className="hidden md:flex md:w-60 md:flex-col md:fixed md:inset-y-0 border-r border-gray-200">
+    <div className="hidden border-r border-gray-200 md:fixed md:inset-y-0 md:flex md:w-[var(--sidebar-width)] md:flex-col">
       <SidebarContent />
     </div>
   );
