@@ -8,7 +8,7 @@ import {
   Inbox,
   MessageCircle,
 } from "lucide-react";
-import { mockSessionRequests } from "@/lib/data/sessionRequests";
+import { mockFacultySessionRequests } from "@/lib/data/sessionRequests";
 import { CATEGORIES, DEFAULT_MATRIX, TOPICS } from "@/lib/data/relevanceMatrix";
 import { cn } from "@/lib/utils";
 
@@ -27,12 +27,12 @@ function getWeekBounds(date: Date): { start: Date; end: Date } {
   return { start, end };
 }
 
-const pendingRequests = mockSessionRequests.filter((r) => r.status === "pending");
-const acceptedSessions = mockSessionRequests.filter((r) => r.status === "accepted");
+const pendingRequests = mockFacultySessionRequests.filter((r) => r.status === "pending");
+const confirmedSessions = mockFacultySessionRequests.filter((r) => r.status === "confirmed");
 
 const { start: weekStart, end: weekEnd } = getWeekBounds(TODAY);
-const sessionsThisWeek = acceptedSessions.filter((s) => {
-  const d = new Date(s.preferredDate);
+const sessionsThisWeek = confirmedSessions.filter((s) => {
+  const d = new Date(`${s.date}T00:00:00`);
   return d >= weekStart && d <= weekEnd;
 });
 
@@ -138,22 +138,22 @@ export default function DashboardPage() {
             </Link>
           </div>
           <div className="space-y-3 p-6">
-            {acceptedSessions.slice(0, 3).map((session) => (
+            {confirmedSessions.slice(0, 3).map((session) => (
               <div
                 key={session.id}
                 className="flex items-center justify-between rounded-lg border border-gray-100 p-3.5 transition-colors hover:border-gray-200 hover:bg-gray-50/50"
               >
                 <div>
                   <p className="mb-1 text-sm font-bold leading-none text-gray-900">{session.studentName}</p>
-                  <p className="text-xs text-gray-500">{session.topicTag}</p>
+                  <p className="text-xs text-gray-500">{session.topic}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs font-semibold text-blue-600">{session.preferredTime}</p>
-                  <p className="text-xs text-gray-400">{session.preferredDate}</p>
+                  <p className="text-xs font-semibold text-blue-600">{session.time}</p>
+                  <p className="text-xs text-gray-400">{session.date}</p>
                 </div>
               </div>
             ))}
-            {acceptedSessions.length === 0 && (
+            {confirmedSessions.length === 0 && (
               <p className="py-4 text-center text-sm italic text-gray-400">No upcoming sessions.</p>
             )}
           </div>
@@ -184,9 +184,9 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
                   <Badge className="border border-blue-200 bg-blue-50 text-[10px] font-semibold text-blue-700">
-                    {req.topicTag}
+                    {req.topic}
                   </Badge>
-                  <p className="text-[10px] text-gray-400">{req.preferredDate}</p>
+                  <p className="text-[10px] text-gray-400">{req.date}</p>
                 </div>
               </div>
             ))}
