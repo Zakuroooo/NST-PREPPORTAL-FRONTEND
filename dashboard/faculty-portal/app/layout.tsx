@@ -3,7 +3,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/sidebar";
 import { Topbar } from "@/components/topbar";
-import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,7 +21,7 @@ export default function RootLayout({
       <body className={`${inter.className} bg-gray-50 h-full`}>
         <div className="h-full">
           <Sidebar />
-          <div className="md:pl-60 flex flex-col min-h-screen">
+          <div className="md:pl-[var(--sidebar-width)] flex flex-col min-h-screen">
             <Topbar />
             <main className="flex-1">
               <div className="py-6 px-4 sm:px-6 lg:px-8">
@@ -31,7 +30,6 @@ export default function RootLayout({
             </main>
           </div>
         </div>
-        <Toaster position="top-right" />
       </body>
     </html>
   );

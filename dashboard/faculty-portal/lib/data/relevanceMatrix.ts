@@ -25,8 +25,8 @@ export const TOPICS: MatrixTopic[] = [
 ];
 
 export const CATEGORIES: MatrixCategory[] = [
-  { id: "dsa",        label: "DSA",           shortLabel: "DSA",    color: "bg-indigo-100 text-indigo-800"  },
-  { id: "sysdesign",  label: "System Design", shortLabel: "SysD",   color: "bg-violet-100 text-violet-800"  },
+  { id: "dsa",        label: "DSA",           shortLabel: "DSA",    color: "bg-blue-100 text-blue-800"      },
+  { id: "sysdesign",  label: "System Design", shortLabel: "SysD",   color: "bg-sky-100 text-sky-800"       },
   { id: "sql",        label: "SQL",           shortLabel: "SQL",    color: "bg-blue-100 text-blue-800"      },
   { id: "os",         label: "OS",            shortLabel: "OS",     color: "bg-cyan-100 text-cyan-800"      },
   { id: "networking", label: "Networking",    shortLabel: "Net",    color: "bg-teal-100 text-teal-800"      },
