@@ -1,14 +1,17 @@
 export default function OverviewPage() {
   return (
     <>
-      <div className="mb-8 flex justify-between items-end">
-        <div>
-          <h1 className="font-headline-lg text-headline-lg text-on-surface mb-2">Good morning, Admin.</h1>
-          <p className="font-body-lg text-body-lg text-on-surface-variant">Here is the overview of the placement platform today.</p>
+
+
+      <div className="p-container-padding flex-1 min-h-[calc(100vh-64px)] bg-surface-container-low flex flex-col gap-8">
+        <div className="flex justify-between items-end">
+          <div>
+            <h1 className="font-headline-lg text-headline-lg text-on-surface mb-2">Good morning, Admin.</h1>
+            <p className="font-body-lg text-body-lg text-on-surface-variant">Here is the overview of the placement platform today.</p>
+          </div>
         </div>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-gutter mb-8">
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
           <div className="flex justify-between items-start mb-4">
             <span className="font-label-caps text-label-caps text-on-surface-variant uppercase">Students on Roadmap</span>
@@ -72,7 +75,7 @@ export default function OverviewPage() {
         </div>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-gutter mb-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <div className="lg:col-span-2 bg-surface-container-lowest border border-outline-variant rounded-xl p-container-padding shadow-sm flex flex-col">
           <div className="flex justify-between items-center mb-6 pb-4 border-b border-outline-variant/50">
             <h3 className="font-headline-md text-headline-md text-on-surface">Sessions per week</h3>
@@ -263,6 +266,7 @@ export default function OverviewPage() {
             Launch Monitor Console
           </button>
         </div>
+      </div>
       </div>
     </>
   );

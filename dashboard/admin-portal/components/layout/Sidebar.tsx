@@ -55,14 +55,16 @@ export default function Sidebar() {
       </div>
       
       <div className="mt-auto px-6 space-y-1 border-t border-outline-variant/30 pt-4">
-        <Link href="#" className="flex items-center gap-3 py-2 text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors duration-200 ease-in-out font-label-sm text-label-sm uppercase">
-          <span className="material-symbols-outlined text-[20px]">settings</span>
-          Settings
-        </Link>
-        <Link href="#" className="flex items-center gap-3 py-2 text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors duration-200 ease-in-out font-label-sm text-label-sm uppercase">
+        <button 
+          onClick={() => {
+            document.cookie = "admin_authed=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.location.href = '/login';
+          }} 
+          className="w-full flex items-center gap-3 py-2 text-on-surface-variant hover:bg-surface-container-low hover:text-primary transition-colors duration-200 ease-in-out font-label-sm text-label-sm uppercase cursor-pointer"
+        >
           <span className="material-symbols-outlined text-[20px]">logout</span>
           Logout
-        </Link>
+        </button>
       </div>
     </nav>
   );
