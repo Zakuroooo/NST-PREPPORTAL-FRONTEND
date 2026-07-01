@@ -10,12 +10,14 @@ import {
   MessageCircle,
   Send,
   TrendingUp,
+  Trophy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: House },
   { name: "Session Requests", href: "/requests", icon: CalendarDays },
+  { name: "Leaderboard", href: "/leaderboard", icon: Trophy },
   { name: "Doubts & Questions", href: "/doubts", icon: MessageCircle },
   { name: "Curriculum Gap Matrix", href: "/curriculum", icon: Map },
   { name: "Industry Trends", href: "/trends", icon: TrendingUp },

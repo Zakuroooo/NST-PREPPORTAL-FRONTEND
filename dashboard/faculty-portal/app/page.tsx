@@ -8,12 +8,15 @@ import {
   AlertTriangle, 
   Clock, CheckCircle2, 
   ArrowRight,
-  Server, Cloud, Database, Radar
+  Server, Cloud, Database, Radar, Trophy, HelpCircle
 } from "lucide-react";
 import { mockCurriculumCoverage } from "@/lib/data/curriculumCoverage";
 import { mockTrendAlerts } from "@/lib/data/trendAlerts";
+import { useFaculty } from "@/lib/context/FacultyContext";
+import { getFacultyTier, TIER_STYLES, LEADERBOARD_CONFIG } from "@/lib/data/facultyMembers";
 
 export default function DashboardPage() {
+  const { facultyMembers, currentFaculty } = useFaculty();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -59,6 +62,14 @@ export default function DashboardPage() {
   const cloudComp = getCoverageData("Cloud Computing");
   const dsa = getCoverageData("Data Structures & Algo");
 
+  const sortedFaculty = [...facultyMembers].sort((a, b) => b.doubtsSolvedThisMonth - a.doubtsSolvedThisMonth).map((f, i) => ({
+    ...f,
+    rank: i + 1,
+    tier: getFacultyTier(f.doubtsSolvedThisMonth)
+  }));
+  const top3 = sortedFaculty.slice(0, 3);
+  const myRankInfo = sortedFaculty.find(f => f.id === currentFaculty?.id);
+
   return (
     <div className="max-w-7xl mx-auto pb-20">
       {/* Page Header */}
@@ -94,7 +105,7 @@ export default function DashboardPage() {
       {/* Top Row: 3 KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {/* Subjects Analyzed */}
-        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm relative overflow-hidden group hover:border-blue-600 transition-colors">
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative overflow-hidden group hover:border-blue-600 transition-colors">
           <div className="flex justify-between items-start mb-4">
             <div className="p-2 rounded-lg bg-gray-50 text-gray-700 flex items-center justify-center">
               <FileText className="w-5 h-5" />
@@ -110,7 +121,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Critical Gaps Found */}
-        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm relative overflow-hidden group hover:border-red-500 transition-colors">
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative overflow-hidden group hover:border-red-500 transition-colors">
           <div className="flex justify-between items-start mb-4">
             <div className="p-2 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
               <AlertTriangle className="w-5 h-5" />
@@ -126,7 +137,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Last Data Sync */}
-        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm relative overflow-hidden">
+        <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm relative overflow-hidden">
           <div className="flex justify-between items-start mb-4">
             <div className="p-2 rounded-lg bg-gray-50 text-gray-700 flex items-center justify-center">
               <Clock className="w-5 h-5" />
@@ -147,15 +158,15 @@ export default function DashboardPage() {
         
         {/* Left Panel: Gap Matrix Preview */}
         <div className="lg:col-span-2 flex flex-col h-full">
-          <div className="bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col overflow-hidden h-full">
-            <div className="p-5 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm flex flex-col overflow-hidden h-full hover:shadow-md transition-shadow group">
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center bg-gray-50">
               <h2 className="font-bold text-gray-900">Curriculum Gap Matrix Preview</h2>
               <Link href="/curriculum" className="text-blue-600 font-medium text-sm hover:underline flex items-center gap-1">
                 View Full Matrix <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
             
-            <div className="p-5 overflow-x-auto">
+            <div className="p-6 overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[500px]">
                 <thead>
                   <tr className="border-b border-gray-200 text-xs uppercase tracking-wider font-bold text-gray-500">
@@ -277,15 +288,15 @@ export default function DashboardPage() {
 
         {/* Right Panel: Trend Alerts Feed */}
         <div className="lg:col-span-1">
-          <div className="bg-white border border-gray-200 rounded-xl shadow-sm h-full flex flex-col">
-            <div className="p-5 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm h-full flex flex-col hover:shadow-md transition-shadow group">
+            <div className="p-6 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
               <h2 className="font-bold text-gray-900 flex items-center gap-2">
                 <Radar className="w-5 h-5 text-blue-600" />
                 Recent Trend Alerts
               </h2>
             </div>
             
-            <div className="p-5 flex-grow overflow-y-auto">
+            <div className="p-6 flex-grow overflow-y-auto">
               <div className="space-y-6 ml-3 border-l-2 border-gray-100">
                 {mockTrendAlerts.map((alert, index) => (
                   <div key={alert.id} className="relative pl-5">
@@ -321,6 +332,67 @@ export default function DashboardPage() {
           </div>
         </div>
 
+      </div>
+
+      {/* Bottom Panels */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        {/* Leaderboard Preview Widget */}
+        <div className="lg:col-span-1 lg:col-start-1">
+          <div className="bg-white border border-gray-200 rounded-xl shadow-sm h-full flex flex-col hover:shadow-md transition-shadow group">
+            <div className="p-6 border-b border-gray-200">
+              <h2 className="font-bold text-gray-900 flex items-center gap-2 mb-1">
+                <Trophy className="w-5 h-5 text-amber-500" />
+                Faculty Leaderboard — {LEADERBOARD_CONFIG.currentLeaderboardMonth}
+              </h2>
+              <p className="text-sm text-gray-500">Top faculty by doubts resolved this month</p>
+            </div>
+            <div className="flex flex-col flex-grow">
+              {top3.map((f) => {
+                const isYou = f.id === currentFaculty?.id;
+                return (
+                  <div key={f.id} className={`flex items-center justify-between p-6 border-b border-gray-100 ${isYou ? "bg-amber-50" : ""}`}>
+                    <div className="flex items-center gap-4">
+                      <span className="w-4 text-center text-sm font-bold text-gray-400">#{f.rank}</span>
+                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-sm font-bold text-blue-700">
+                        {f.initials}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-gray-900">{f.name}</span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded font-bold w-fit mt-1 ${TIER_STYLES[f.tier]}`}>{f.tier}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-gray-900 font-bold text-lg">
+                      {f.doubtsSolvedThisMonth}
+                    </div>
+                  </div>
+                );
+              })}
+              {/* Append current faculty if not in top 3 */}
+              {myRankInfo && !top3.some(f => f.id === myRankInfo.id) && (
+                <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-amber-50">
+                  <div className="flex items-center gap-4">
+                    <span className="w-4 text-center text-sm font-bold text-gray-400">#{myRankInfo.rank}</span>
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-sm font-bold text-blue-700">
+                      {myRankInfo.initials}
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold text-gray-900">{myRankInfo.name}</span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded font-bold w-fit mt-1 ${TIER_STYLES[myRankInfo.tier]}`}>{myRankInfo.tier}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-gray-900 font-bold text-lg">
+                    {myRankInfo.doubtsSolvedThisMonth}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="p-4 bg-white mt-auto rounded-b-xl border-t border-gray-100">
+              <Link href="/leaderboard" className="block w-full text-gray-500 font-medium text-sm hover:text-gray-900 transition-colors text-center">
+                View Full Leaderboard <ArrowRight className="w-4 h-4 inline-block ml-1 align-text-bottom" />
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
       </>
       )}
