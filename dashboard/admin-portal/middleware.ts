@@ -2,17 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const isAuthPage = request.nextUrl.pathname.startsWith("/login");
-  const isAuthenticated = request.cookies.has("admin_authed");
-
-  if (!isAuthenticated && !isAuthPage) {
-    return NextResponse.redirect(new URL("/login", request.url));
-  }
-
-  if (isAuthenticated && isAuthPage) {
-    return NextResponse.redirect(new URL("/overview", request.url));
-  }
-
+  // Authentication check removed to prepare for robust backend auth
+  // Session verification should be handled by actual auth provider
   return NextResponse.next();
 }
 

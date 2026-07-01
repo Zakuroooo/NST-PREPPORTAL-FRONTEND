@@ -1,7 +1,5 @@
+import Navbar from "@/components/layout/Navbar";
 import Sidebar from "@/components/layout/Sidebar";
-import Topbar from "@/components/layout/Topbar";
-import DesktopHeader from "@/components/layout/DesktopHeader";
-import { NotificationProvider } from "@/components/context/NotificationContext";
 
 export default function AppLayout({
   children,
@@ -9,15 +7,12 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <NotificationProvider>
-      <div className="bg-background text-on-background font-body-md min-h-screen flex">
-        <Sidebar />
-        <Topbar />
-        <main className="flex-1 flex flex-col md:ml-[260px] pt-16 md:pt-0 min-h-screen">
-          <DesktopHeader />
-          {children}
-        </main>
-      </div>
-    </NotificationProvider>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <Sidebar />
+      <main className="min-h-screen bg-gray-50 lg:ml-[var(--sidebar-width)] pt-14 transition-all duration-200">
+        <div className="px-4 lg:px-6 py-6">{children}</div>
+      </main>
+    </div>
   );
 }
