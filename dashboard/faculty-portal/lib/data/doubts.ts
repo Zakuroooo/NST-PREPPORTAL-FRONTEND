@@ -1,25 +1,4 @@
-export type DoubtStatus = "pending" | "answered" | "resolved";
-export type DoubtTag = "DSA" | "System Design" | "LLD" | "HR" | "General";
-
-export interface DoubtReply {
-  id: string;
-  author: "faculty" | "student";
-  authorName: string;
-  body: string;
-  sentAt: string;
-}
-
-export interface FacultyDoubt {
-  id: string;
-  studentName: string;
-  studentInitials: string;
-  subject: string;
-  body: string;
-  tag: DoubtTag;
-  status: DoubtStatus;
-  createdAt: string;
-  replies: DoubtReply[];
-}
+import { FacultyDoubt } from "./types";
 
 export const mockFacultyDoubts: FacultyDoubt[] = [
   {
