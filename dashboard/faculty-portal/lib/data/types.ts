@@ -22,7 +22,8 @@ export interface SubjectCoverage {
 }
 
 export type DoubtStatus = "pending" | "answered" | "resolved";
-export type DoubtTag = "DSA" | "System Design" | "LLD" | "HR" | "General";
+// Note: This DoubtTag type should stay in sync with dashboard/student-portal's DoubtTag type if/when a backend connects them.
+export type DoubtTag = "DSA" | "System Design" | "LLD" | "HR" | "General" | "Web Development" | "Aptitude";
 
 export interface DoubtReply {
   id: string;
