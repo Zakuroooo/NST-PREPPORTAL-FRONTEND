@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { FacultyMember, mockFacultyMembers, CURRENT_FACULTY_ID } from "@/lib/data/facultyMembers";
+import { FacultyMember, mockFacultyMembers, CURRENT_FACULTY_ID } from "@/lib/facultyMembers";
 
 interface FacultyContextType {
   facultyMembers: FacultyMember[];

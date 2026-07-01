@@ -80,7 +80,7 @@ export function computeOverall(coverage: SubjectCoverage["coverage"]): number {
   return Math.round(sum / 4);
 }
 export type DoubtStatus = "pending" | "answered" | "resolved";
-export type DoubtTag = "DSA" | "System Design" | "LLD" | "HR" | "General";
+export type DoubtTag = "DSA" | "System Design" | "LLD" | "HR" | "General" | "Web Development" | "Aptitude";
 
 export interface DoubtReply {
   id: string;

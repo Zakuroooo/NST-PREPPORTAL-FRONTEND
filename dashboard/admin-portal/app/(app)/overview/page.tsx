@@ -303,9 +303,9 @@ export default function OverviewPage() {
       </div>
     </div>
 
-    {/* Monitor Console Modal */}
     {consoleOpen && (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-6">
+        {/* Monitor Console Modal */}
         <div className="bg-gray-950 rounded-2xl w-full max-w-lg shadow-2xl border border-gray-800 overflow-hidden">
           {/* Modal header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-800">
