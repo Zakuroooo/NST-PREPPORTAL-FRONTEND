@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { FacultyProvider } from "@/lib/context/FacultyContext";
 
 export const metadata: Metadata = {
   title: "PlacePrep - Faculty Portal",
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased bg-gray-50 text-gray-900 h-full" suppressHydrationWarning>
-        {children}
+        <FacultyProvider>
+          {children}
+        </FacultyProvider>
       </body>
     </html>
   );

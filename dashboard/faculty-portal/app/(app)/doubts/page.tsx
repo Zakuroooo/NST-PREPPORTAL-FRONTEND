@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { mockFacultyDoubts } from "@/lib/mock-data";
 import { FacultyDoubt, DoubtStatus, DoubtTag, DoubtReply } from "@/lib/mock-data";
+import { useFaculty } from "@/lib/context/FacultyContext";
 
 // ── Status config — blue/white only ──────────────────
 const STATUS_MAP: Record<DoubtStatus, { label: string; dot: string; badge: string }> = {
@@ -21,6 +22,8 @@ const TAG_MAP: Record<DoubtTag, string> = {
   "LLD":           "bg-slate-100 text-slate-700",
   "HR":            "bg-gray-100 text-gray-700",
   "General":       "bg-gray-50 text-gray-600",
+  "Web Development": "bg-cyan-100 text-cyan-800",
+  "Aptitude":      "bg-orange-100 text-orange-800",
 };
 
 function timeAgo(iso: string) {
@@ -48,7 +51,7 @@ function TagPill({ tag }: { tag: DoubtTag }) {
   );
 }
 
-function DoubtCard({ doubt, onReply, onResolve }: { doubt: FacultyDoubt; onReply: (id: string, text: string) => void; onResolve: (id: string) => void }) {
+function DoubtCard({ doubt, isMySubject, onReply, onResolve }: { doubt: FacultyDoubt; isMySubject: boolean; onReply: (id: string, text: string) => void; onResolve: (id: string) => void }) {
   const [open, setOpen] = useState(doubt.status === "answered");
   const [replyText, setReplyText] = useState("");
 
@@ -73,6 +76,11 @@ function DoubtCard({ doubt, onReply, onResolve }: { doubt: FacultyDoubt; onReply
         <div className="flex-1 min-w-0 space-y-1.5">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <TagPill tag={doubt.tag} />
+            {isMySubject && (
+              <span className="inline-flex items-center text-[10px] font-bold bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
+                Matches your expertise
+              </span>
+            )}
             <StatusBadge status={doubt.status} />
             <span className="text-[11px] text-gray-400 flex items-center gap-1 ml-auto sm:ml-0">
               <Clock className="w-3 h-3" /> {timeAgo(doubt.createdAt)}
@@ -169,8 +177,10 @@ function DoubtCard({ doubt, onReply, onResolve }: { doubt: FacultyDoubt; onReply
 }
 
 export default function DoubtsPage() {
+  const { currentFaculty, updateFacultySolvedCount } = useFaculty();
   const [doubts, setDoubts] = useState<FacultyDoubt[]>(mockFacultyDoubts);
   const [filter, setFilter] = useState<"All" | DoubtStatus>("All");
+  const [subjectFilter, setSubjectFilter] = useState<"My Subjects" | "All Doubts">("My Subjects");
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -179,6 +189,16 @@ export default function DoubtsPage() {
   }, []);
 
   const handleReply = (id: string, text: string) => {
+    // Check if this is a first answer (pending -> answered) BEFORE updating doubts state.
+    // This must be called here in the event handler body, NOT inside the setDoubts updater,
+    // because the updater runs during React's render phase and calling setState on another
+    // component (FacultyProvider) from there triggers "Cannot update a component while
+    // rendering a different component".
+    const doubt = doubts.find(d => d.id === id);
+    if (doubt?.status === "pending" && currentFaculty) {
+      updateFacultySolvedCount(currentFaculty.id);
+    }
+
     setDoubts(prev => prev.map(d => {
       if (d.id === id) {
         return {
@@ -189,7 +209,7 @@ export default function DoubtsPage() {
             {
               id: `r${Date.now()}`,
               author: "faculty",
-              authorName: "Prof. Sharma",
+              authorName: currentFaculty?.name || "Prof. Sharma",
               body: text,
               sentAt: new Date().toISOString()
             }
@@ -204,13 +224,17 @@ export default function DoubtsPage() {
     setDoubts((prev) => prev.map((d) => d.id === id ? { ...d, status: "resolved" } : d));
   };
 
-  const filtered = filter === "All" ? doubts : doubts.filter((d) => d.status === filter);
+  const subjectDoubts = subjectFilter === "My Subjects" && currentFaculty
+    ? doubts.filter(d => currentFaculty.subjects.includes(d.tag))
+    : doubts;
+
+  const filtered = filter === "All" ? subjectDoubts : subjectDoubts.filter((d) => d.status === filter);
   
   const counts = {
-    All: doubts.length,
-    pending: doubts.filter((d) => d.status === "pending").length,
-    answered: doubts.filter((d) => d.status === "answered").length,
-    resolved: doubts.filter((d) => d.status === "resolved").length,
+    All: subjectDoubts.length,
+    pending: subjectDoubts.filter((d) => d.status === "pending").length,
+    answered: subjectDoubts.filter((d) => d.status === "answered").length,
+    resolved: subjectDoubts.filter((d) => d.status === "resolved").length,
   };
 
   return (
@@ -245,7 +269,7 @@ export default function DoubtsPage() {
       </div>
 
       {/* Filter tabs */}
-      <div className="flex items-center gap-0 border border-gray-200 rounded overflow-hidden mb-6 w-fit bg-white shadow-sm">
+      <div className="flex items-center gap-0 border border-gray-200 rounded overflow-hidden mb-4 w-fit bg-white shadow-sm">
         {(["All", "pending", "answered", "resolved"] as const).map((f) => {
           const isActive = filter === f;
           return (
@@ -269,6 +293,26 @@ export default function DoubtsPage() {
         })}
       </div>
 
+      {/* Subject Filter tabs */}
+      <div className="flex items-center gap-0 border border-gray-200 rounded overflow-hidden mb-6 w-fit bg-white shadow-sm">
+        {(["All Doubts", "My Subjects"] as const).map((f) => {
+          const isActive = subjectFilter === f;
+          return (
+            <button
+              key={f}
+              onClick={() => setSubjectFilter(f)}
+              className={`flex items-center gap-1.5 px-4 py-2 text-xs font-bold transition-colors ${
+                isActive
+                  ? "bg-gray-800 text-white"
+                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+              }`}
+            >
+              {f}
+            </button>
+          )
+        })}
+      </div>
+
       {/* List */}
       <div className="space-y-4">
         {filtered.length === 0 ? (
@@ -281,6 +325,7 @@ export default function DoubtsPage() {
             <DoubtCard 
               key={d.id} 
               doubt={d} 
+              isMySubject={currentFaculty ? currentFaculty.subjects.includes(d.tag) : false}
               onReply={handleReply}
               onResolve={handleResolve} 
             />
