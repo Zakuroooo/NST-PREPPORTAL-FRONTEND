@@ -9,7 +9,7 @@ import {
   Clock, CheckCircle2, 
   ArrowRight,
   Server, Cloud, Database, Radar,
-  BookOpen, MessageSquare, Activity
+  BookOpen, MessageSquare, Activity, Target, X, Send, Calendar, LayoutDashboard
 } from "lucide-react";
 import { computeOverall, mockCurriculumCoverage } from "@/lib/mock-data";
 import { mockTrendAlerts } from "@/lib/mock-data";
@@ -23,9 +23,18 @@ export default function DashboardPage() {
 
   // Interactive dashboard states
   const [currentSemester, setCurrentSemester] = useState("Fall 2024");
+  const [selectedCohort, setSelectedCohort] = useState("All Cohorts");
   const [semesterDropdownOpen, setSemesterDropdownOpen] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [showSyncToast, setShowSyncToast] = useState(false);
+
+  // Practice Set Pusher Modal state
+  const [practiceModalOpen, setPracticeModalOpen] = useState(false);
+  const [practiceTopic, setPracticeTopic] = useState("System Design");
+  const [practiceTargetCohort, setPracticeTargetCohort] = useState("Batch 2023-2027 (CS)");
+  const [practiceDueDate, setPracticeDueDate] = useState("2026-07-31");
+  const [practiceProblemCount, setPracticeProblemCount] = useState(10);
+  const [practiceToast, setPracticeToast] = useState<string | null>(null);
 
   useEffect(() => {
     const t = setTimeout(() => setIsLoading(false), 500);
@@ -229,22 +238,34 @@ export default function DashboardPage() {
   return (
     <div className="max-w-7xl mx-auto pb-20">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Curriculum Intelligence Dashboard</h1>
           <p className="text-sm text-gray-500">Real-time alignment between academic programs and industry hiring requirements.</p>
         </div>
-        <div className="flex gap-3 relative">
+        <div className="flex flex-wrap items-center gap-2 relative">
+          {/* Cohort Selector */}
+          <select
+            value={selectedCohort}
+            onChange={(e) => setSelectedCohort(e.target.value)}
+            className="bg-white border border-gray-300 text-gray-700 font-semibold text-xs py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors shadow-sm outline-none cursor-pointer"
+          >
+            <option value="All Cohorts">All Batches / Cohorts</option>
+            <option value="Batch 2023-2027">Batch 2023-2027 (CS)</option>
+            <option value="Batch 2024-2028">Batch 2024-2028 (CS-AI)</option>
+            <option value="Batch 2025-2029">Batch 2025-2029 (CS-DS)</option>
+          </select>
+
           {/* Semester Selector Dropdown */}
           <div className="relative">
             <button 
               onClick={() => setSemesterDropdownOpen(!semesterDropdownOpen)}
-              className="bg-white border border-gray-300 text-gray-700 font-medium text-sm py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm cursor-pointer"
+              className="bg-white border border-gray-300 text-gray-700 font-medium text-xs py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 shadow-sm cursor-pointer"
             >
-              {currentSemester} <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${semesterDropdownOpen ? 'rotate-180' : ''}`} />
+              {currentSemester} <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${semesterDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
             {semesterDropdownOpen && (
-              <div className="absolute right-0 mt-1.5 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-100">
+              <div className="absolute right-0 mt-1.5 w-36 bg-white border border-gray-200 rounded-lg shadow-lg z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-100">
                 {["Fall 2024", "Spring 2024", "Fall 2023"].map((sem) => (
                   <button
                     key={sem}
@@ -252,7 +273,7 @@ export default function DashboardPage() {
                       setCurrentSemester(sem);
                       setSemesterDropdownOpen(false);
                     }}
-                    className={`w-full text-left px-4 py-2 text-xs font-semibold hover:bg-gray-50 transition-colors ${currentSemester === sem ? 'text-blue-600 bg-blue-50/50' : 'text-gray-700'}`}
+                    className={`w-full text-left px-3 py-2 text-xs font-semibold hover:bg-gray-50 transition-colors ${currentSemester === sem ? 'text-blue-600 bg-blue-50/50' : 'text-gray-700'}`}
                   >
                     {sem}
                   </button>
@@ -260,6 +281,13 @@ export default function DashboardPage() {
               </div>
             )}
           </div>
+
+          <button 
+            onClick={() => setPracticeModalOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors shadow-sm cursor-pointer"
+          >
+            <Target className="w-3.5 h-3.5" /> Push Practice Set
+          </button>
 
           <button 
             onClick={handleSyncData}
@@ -695,7 +723,116 @@ export default function DashboardPage() {
         </div>
 
       </div>
-      </>
+      </>)}
+
+      {/* Push Practice Assignment Modal */}
+      {practiceModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+          <div className="bg-white border border-gray-200 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-blue-100 text-blue-700 rounded-lg">
+                  <Target className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900">Push Practice Assignment</h3>
+                  <p className="text-[11px] text-gray-500">Target curriculum gaps for your students</p>
+                </div>
+              </div>
+              <button onClick={() => setPracticeModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setPracticeToast(`Practice Set (${practiceProblemCount} problems) pushed to ${practiceTargetCohort} for ${practiceTopic}!`);
+                setPracticeModalOpen(false);
+                setTimeout(() => setPracticeToast(null), 3500);
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Curriculum Topic / Subject</label>
+                <select
+                  value={practiceTopic}
+                  onChange={(e) => setPracticeTopic(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs font-medium text-gray-800 outline-none"
+                >
+                  <option value="System Design">System Design & High Availability</option>
+                  <option value="Cloud Computing">Cloud Infra & AWS/Kubernetes</option>
+                  <option value="Data Structures & Algo">Data Structures & Algo (Graph/DP)</option>
+                  <option value="DBMS">DBMS & SQL Query Optimization</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Target Cohort / Batch</label>
+                <select
+                  value={practiceTargetCohort}
+                  onChange={(e) => setPracticeTargetCohort(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs font-medium text-gray-800 outline-none"
+                >
+                  <option value="Batch 2023-2027 (CS)">Batch 2023-2027 (CS)</option>
+                  <option value="Batch 2024-2028 (CS-AI)">Batch 2024-2028 (CS-AI)</option>
+                  <option value="Batch 2025-2029 (CS-DS)">Batch 2025-2029 (CS-DS)</option>
+                  <option value="All NST Students">All NST Students</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Problem Count</label>
+                  <select
+                    value={practiceProblemCount}
+                    onChange={(e) => setPracticeProblemCount(Number(e.target.value))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs font-medium text-gray-800 outline-none"
+                  >
+                    <option value={5}>5 Targeted Problems</option>
+                    <option value={10}>10 Targeted Problems</option>
+                    <option value={15}>15 Targeted Problems</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">Submission Deadline</label>
+                  <input
+                    type="date"
+                    required
+                    value={practiceDueDate}
+                    onChange={(e) => setPracticeDueDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs font-medium text-gray-800 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setPracticeModalOpen(false)}
+                  className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  Push Practice Set
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Practice Toast */}
+      {practiceToast && (
+        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 bg-gray-900 text-white px-4 py-3 rounded-xl shadow-2xl text-xs font-semibold border border-gray-700 animate-in slide-in-from-bottom duration-200">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          {practiceToast}
+        </div>
       )}
     </div>
   );

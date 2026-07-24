@@ -342,18 +342,15 @@ export default function DoubtsPage() {
   return (
     <div className="max-w-7xl mx-auto pb-20">
       {/* ── Page Header ── */}
-      <div className="mb-7">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="p-2 bg-blue-50 rounded-lg">
-            <MessageCircle className="w-5 h-5 text-blue-600" />
-          </div>
-          <h1 className="text-2xl font-black text-gray-900">Doubts &amp; Questions</h1>
+      <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">Doubts &amp; Questions</h1>
+          <p className="text-sm text-gray-500">
+            Answer student questions across all topics {counts.pending > 0 && (
+              <span className="font-semibold text-amber-600">• {counts.pending} waiting for your reply</span>
+            )}
+          </p>
         </div>
-        <p className="text-sm text-gray-500 ml-[52px]">
-          Answer student questions across all topics · {counts.pending > 0 && (
-            <span className="font-semibold text-amber-600">{counts.pending} waiting for your reply</span>
-          )}
-        </p>
       </div>
 
       {isLoading ? (

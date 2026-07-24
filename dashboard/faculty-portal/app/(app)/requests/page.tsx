@@ -77,6 +77,13 @@ export default function RequestsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
+  // Feedback modal state
+  const [feedbackModalReq, setFeedbackModalReq] = useState<FacultySessionRequest | null>(null);
+  const [ratingVal, setRatingVal] = useState(5);
+  const [strengthsInput, setStrengthsInput] = useState("");
+  const [improvementsInput, setImprovementsInput] = useState("");
+  const [feedbackToast, setFeedbackToast] = useState<string | null>(null);
+
   useEffect(() => {
     const t = setTimeout(() => setIsLoading(false), 450);
     return () => clearTimeout(t);
@@ -183,15 +190,10 @@ export default function RequestsPage() {
   return (
     <div className="max-w-7xl mx-auto pb-20">
       {/* ── Page Header ── */}
-      <div className="mb-7 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <div className="flex items-center gap-3 mb-1">
-            <div className="p-2 bg-blue-600 text-white rounded-xl shadow-md shadow-blue-500/25">
-              <CalendarRange className="w-5 h-5" />
-            </div>
-            <h1 className="text-2xl font-black text-gray-900">Session Requests</h1>
-          </div>
-          <p className="text-sm text-gray-500 ml-12">
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">Session Requests</h1>
+          <p className="text-sm text-gray-500">
             Manage and schedule 1:1 mentorship sessions requested by students
           </p>
         </div>
@@ -454,14 +456,31 @@ export default function RequestsPage() {
                           )}
 
                           {req.status === "confirmed" && req.meetLink && (
-                            <a
-                              href={req.meetLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex items-center gap-1.5 bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-md shadow-blue-500/20 cursor-pointer"
+                            <div className="flex flex-wrap gap-2 items-center">
+                              <a
+                                href={req.meetLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1.5 bg-blue-600 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors shadow-md shadow-blue-500/20 cursor-pointer"
+                              >
+                                <Video className="w-3.5 h-3.5" /> Join Meet
+                              </a>
+                              <button
+                                onClick={() => setFeedbackModalReq(req)}
+                                className="flex items-center gap-1 bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs font-bold px-3 py-2 rounded-lg transition-colors cursor-pointer border border-gray-200"
+                              >
+                                📝 Log Feedback
+                              </button>
+                            </div>
+                          )}
+
+                          {req.status === "completed" && (
+                            <button
+                              onClick={() => setFeedbackModalReq(req)}
+                              className="flex items-center gap-1 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 text-xs font-bold px-3.5 py-2 rounded-lg transition-colors cursor-pointer border border-emerald-200"
                             >
-                              <Video className="w-3.5 h-3.5" /> Join Meet
-                            </a>
+                              📝 Edit Session Notes
+                            </button>
                           )}
                         </div>
                       </div>
@@ -485,6 +504,107 @@ export default function RequestsPage() {
             </div>
           )}
         </>
+      )}
+      {/* Mentorship Session Feedback Modal */}
+      {feedbackModalReq && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+          <div className="bg-white border border-gray-200 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-blue-100 text-blue-700 rounded-lg">
+                  <Sparkles className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900">Mentorship Session Feedback</h3>
+                  <p className="text-[11px] text-gray-500">{feedbackModalReq.studentName} • {feedbackModalReq.topic}</p>
+                </div>
+              </div>
+              <button onClick={() => setFeedbackModalReq(null)} className="text-gray-400 hover:text-gray-600">
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setRequests((prev) =>
+                  prev.map((r) =>
+                    r.id === feedbackModalReq.id ? { ...r, status: "completed" } : r
+                  )
+                );
+                setFeedbackToast(`Mentorship feedback saved for ${feedbackModalReq.studentName}!`);
+                setFeedbackModalReq(null);
+                setStrengthsInput("");
+                setImprovementsInput("");
+                setTimeout(() => setFeedbackToast(null), 3500);
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Student Readiness Rating</label>
+                <div className="flex items-center gap-2">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setRatingVal(star)}
+                      className={`text-xl transition-transform ${star <= ratingVal ? "scale-110" : "opacity-30"}`}
+                    >
+                      ⭐
+                    </button>
+                  ))}
+                  <span className="text-xs font-bold text-gray-700 ml-2">{ratingVal} / 5 Stars</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Key Strengths Identified</label>
+                <input
+                  type="text"
+                  placeholder="e.g., Exceptional understanding of graph traversal & edge cases"
+                  value={strengthsInput}
+                  onChange={(e) => setStrengthsInput(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs text-gray-900 outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Areas for Improvement / Next Steps</label>
+                <textarea
+                  rows={3}
+                  placeholder="e.g., Needs to practice System Design estimation math and rate limiting algorithms..."
+                  value={improvementsInput}
+                  onChange={(e) => setImprovementsInput(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs text-gray-900 outline-none resize-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setFeedbackModalReq(null)}
+                  className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+                >
+                  Save Notes & Mark Complete
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Feedback Toast */}
+      {feedbackToast && (
+        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 bg-gray-900 text-white px-4 py-3 rounded-xl shadow-2xl text-xs font-semibold border border-gray-700 animate-in slide-in-from-bottom duration-200">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          {feedbackToast}
+        </div>
       )}
     </div>
   );

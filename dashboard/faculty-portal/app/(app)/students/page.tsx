@@ -264,7 +264,11 @@ export default function StudentMatrixPage() {
   const [sortField, setSortField] = useState<"rank" | "xp" | "alignment" | "solved">("rank");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [selectedStudent, setSelectedStudent] = useState<StudentProgress | null>(null);
-  const [mentorshipScope, setMentorshipScope] = useState<"all" | "mentees">("all");
+  const [mentorshipScope, setMentorshipScope] = useState<"all" | "mentees" | "at_risk">("all");
+  const [nudgeStudent, setNudgeStudent] = useState<StudentProgress | null>(null);
+  const [nudgePreset, setNudgePreset] = useState("Schedule 1:1 Review Session");
+  const [nudgeCustomText, setNudgeCustomText] = useState("");
+  const [nudgeToast, setNudgeToast] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [isLoading, setIsLoading] = useState(true);
@@ -288,9 +292,14 @@ export default function StudentMatrixPage() {
     }
   };
 
+  const isAtRiskStudent = (s: StudentProgress) =>
+    s.alignment < 75 || s.solved < 150 || s.lastActive.includes("day") || s.lastActive.includes("week");
+
   const scopedStudents = mentorshipScope === "all" 
     ? students 
-    : students.filter((s) => s.mentoredByMe);
+    : mentorshipScope === "mentees"
+    ? students.filter((s) => s.mentoredByMe)
+    : students.filter((s) => isAtRiskStudent(s));
 
   // Filter & Sort logic
   const filteredStudents = scopedStudents
@@ -344,6 +353,12 @@ export default function StudentMatrixPage() {
             className={`px-4 py-2 text-xs font-bold transition-colors cursor-pointer ${mentorshipScope === "mentees" ? "bg-blue-600 text-white" : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"}`}
           >
             My Mentees
+          </button>
+          <button
+            onClick={() => setMentorshipScope("at_risk")}
+            className={`px-4 py-2 text-xs font-bold transition-colors cursor-pointer flex items-center gap-1.5 ${mentorshipScope === "at_risk" ? "bg-red-600 text-white" : "text-red-700 hover:bg-red-50"}`}
+          >
+            🚨 At-Risk ({students.filter(isAtRiskStudent).length})
           </button>
         </div>
       </div>
@@ -400,7 +415,7 @@ export default function StudentMatrixPage() {
               <div className="bg-white border border-gray-200 rounded-xl p-6 shadow-sm mb-6 flex flex-col items-center">
                 <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-6 flex items-center gap-1.5">
                   <Trophy className="w-4 h-4 text-indigo-650" />
-                  Top Standing Leaders
+                  Top Standing Students
                 </h3>
                 <div className="flex items-end justify-center gap-4 sm:gap-12 w-full max-w-xl py-4">
                   {/* 2nd Place */}
@@ -604,12 +619,21 @@ export default function StudentMatrixPage() {
                           </div>
                         </td>
                         <td className="py-4 px-6 text-right">
-                          <button
-                            onClick={() => setSelectedStudent(student)}
-                            className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold text-xs py-1.5 px-3 rounded-lg shadow-sm transition-colors cursor-pointer"
-                          >
-                            View Diagnostic
-                          </button>
+                          <div className="flex items-center justify-end gap-2">
+                            <button
+                              onClick={() => setNudgeStudent(student)}
+                              className="bg-amber-50 border border-amber-200 text-amber-700 hover:bg-amber-100 font-semibold text-xs py-1.5 px-2.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1"
+                              title="Send Nudge to Student"
+                            >
+                              ⚡ Nudge
+                            </button>
+                            <button
+                              onClick={() => setSelectedStudent(student)}
+                              className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold text-xs py-1.5 px-3 rounded-lg shadow-sm transition-colors cursor-pointer"
+                            >
+                              View Diagnostic
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -806,6 +830,85 @@ export default function StudentMatrixPage() {
             </div>
 
           </div>
+        </div>
+      )}
+
+      {/* Send Nudge Modal */}
+      {nudgeStudent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+          <div className="bg-white border border-gray-200 rounded-2xl max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-700 font-bold flex items-center justify-center text-xs">
+                  {nudgeStudent.initials}
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900">Send Nudge to {nudgeStudent.name}</h3>
+                  <p className="text-[11px] text-gray-500">{nudgeStudent.rollNumber} • {nudgeStudent.branch}</p>
+                </div>
+              </div>
+              <button onClick={() => setNudgeStudent(null)} className="text-gray-400 hover:text-gray-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Nudge Action Target</label>
+                <select
+                  value={nudgePreset}
+                  onChange={(e) => setNudgePreset(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs font-medium text-gray-800 outline-none"
+                >
+                  <option value="Schedule 1:1 Review Session">Schedule 1:1 Mentorship Session</option>
+                  <option value="Complete Remaining Practice Modules">Complete Remaining Practice Modules</option>
+                  <option value="Follow-up on Low Mock Score">Follow-up on Low Mock Score</option>
+                  <option value="Syllabus Catch-up Warning">Syllabus Catch-up Warning</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">Personal Note to Student</label>
+                <textarea
+                  rows={3}
+                  placeholder="e.g., Notice your System Design practice is lagging. Let's catch up tomorrow during office hours..."
+                  value={nudgeCustomText}
+                  onChange={(e) => setNudgeCustomText(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-xs text-gray-900 outline-none resize-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setNudgeStudent(null)}
+                  className="px-4 py-2 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setNudgeToast(`Nudge sent to ${nudgeStudent.name} (${nudgePreset})!`);
+                    setNudgeStudent(null);
+                    setNudgeCustomText("");
+                    setTimeout(() => setNudgeToast(null), 3500);
+                  }}
+                  className="px-4 py-2 bg-amber-600 text-white rounded-lg text-xs font-semibold hover:bg-amber-700 transition-colors shadow-sm"
+                >
+                  Send Nudge Notice
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Nudge Success Toast */}
+      {nudgeToast && (
+        <div className="fixed bottom-5 right-5 z-50 flex items-center gap-2 bg-gray-900 text-white px-4 py-3 rounded-xl shadow-2xl text-xs font-semibold border border-gray-700 animate-in slide-in-from-bottom duration-200">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          {nudgeToast}
         </div>
       )}
     </div>

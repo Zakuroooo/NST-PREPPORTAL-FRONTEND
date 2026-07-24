@@ -37,10 +37,14 @@ export default function DashboardPage() {
   useEffect(() => {
     // Check onboarding status first
     try {
-      const hasOnboarded = sessionStorage.getItem("has_onboarded");
-      if (!hasOnboarded) {
+      const sessionOnboarded = sessionStorage.getItem("has_onboarded") === "true";
+      const cookieOnboarded = document.cookie.split("; ").some(c => c.startsWith("has_onboarded=true"));
+      if (!sessionOnboarded && !cookieOnboarded) {
         router.push("/onboarding/step1");
         return;
+      }
+      if (cookieOnboarded && !sessionOnboarded) {
+        sessionStorage.setItem("has_onboarded", "true");
       }
     } catch { /* ignore */ }
 

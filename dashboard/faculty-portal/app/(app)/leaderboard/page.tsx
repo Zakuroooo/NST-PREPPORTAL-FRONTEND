@@ -216,6 +216,14 @@ export default function FacultyLeaderboardPage() {
 
   return (
     <div className="max-w-7xl mx-auto pb-20">
+      {/* Page Header */}
+      <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">Faculty Leaderboard</h1>
+          <p className="text-sm text-gray-500">Faculty rankings based on doubt resolutions, mentorship sessions, and student feedback scores.</p>
+        </div>
+      </div>
+
       {isLoading ? (
         <div className="space-y-6">
           <div className="h-44 bg-gray-100 animate-pulse rounded-2xl" />

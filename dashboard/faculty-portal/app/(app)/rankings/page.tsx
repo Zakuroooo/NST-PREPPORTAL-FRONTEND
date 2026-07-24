@@ -55,14 +55,11 @@ export default function RankingsPage() {
   return (
     <div className="max-w-7xl mx-auto pb-20">
       {/* Page Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-1">
-          <div className="p-2 bg-blue-600 text-white rounded-xl shadow-md shadow-blue-500/25">
-            <Building2 className="w-5 h-5" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-900">Company Rankings</h1>
+      <div className="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-1">Company Rankings</h1>
+          <p className="text-sm text-gray-500">See which companies test which subjects most heavily, ranked by curriculum relevance impact.</p>
         </div>
-        <p className="text-sm text-gray-500 ml-12">See which companies test which subjects most heavily, ranked by curriculum relevance impact.</p>
       </div>
 
       {isLoading ? (
