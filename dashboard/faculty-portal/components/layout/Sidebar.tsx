@@ -12,7 +12,6 @@ import {
   LayoutList,
   Trophy,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -28,39 +27,25 @@ export function SidebarContent() {
   const pathname = usePathname();
 
   return (
-    <div className="flex h-full w-full flex-col bg-white pt-4">
-      {/* User Info */}
-      {/* <div className="mx-3 mb-4 flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50 px-3 py-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-700 to-indigo-600 text-sm font-bold text-white shadow-sm">
-          PS
-        </div>
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold text-gray-900">Prof. Sharma</p>
-          <p className="truncate text-xs text-blue-600 font-medium">Computer Science Dept.</p>
-        </div>
-      </div> */}
-
+    <div className="flex h-full w-full flex-col bg-white pt-3">
       {/* Navigation */}
-      <nav className="flex-1 space-y-0.5 px-3">
+      <nav className="flex-1 space-y-0.5 px-3 overflow-y-auto">
+        <p className="px-3 mb-1.5 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+          Faculty Menu
+        </p>
         {navigation.map((item) => {
           const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
           return (
             <Link
               key={item.name}
               href={item.href}
-              className={cn(
-                "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150",
+              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                 isActive
-                  ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20"
-                  : "text-gray-650 hover:bg-blue-50 hover:text-blue-700"
-              )}
+                  ? "bg-blue-50 text-blue-600"
+                  : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+              }`}
             >
-              <item.icon
-                className={cn(
-                  "h-4.5 w-4.5 flex-shrink-0",
-                  isActive ? "text-white" : "text-gray-400 group-hover:text-blue-600"
-                )}
-              />
+              <item.icon className="w-4 h-4 shrink-0" />
               {item.name}
             </Link>
           );
@@ -68,18 +53,20 @@ export function SidebarContent() {
       </nav>
 
       {/* Bottom section */}
-      <div className="border-t border-gray-200 p-3 space-y-1">
+      <div className="border-t border-gray-200 p-3 space-y-1 shrink-0">
         <button
           onClick={() => {
             document.cookie = "faculty_authed=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             window.location.href = "/login";
           }}
-          className="w-full group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer"
+          className="w-full flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer"
         >
-          <LogOut className="h-4 w-4 flex-shrink-0 text-gray-400 group-hover:text-red-500" />
+          <LogOut className="w-4 h-4 shrink-0 text-gray-400 group-hover:text-red-500" />
           Logout
         </button>
-        <p className="px-3 py-1 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">NST Interview Intelligence</p>
+        <p className="px-3 pt-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+          NST PlacePrep
+        </p>
       </div>
     </div>
   );
@@ -87,8 +74,8 @@ export function SidebarContent() {
 
 export function Sidebar() {
   return (
-    <div className="hidden border-r border-gray-200 lg:fixed lg:top-14 lg:bottom-0 lg:flex lg:w-[var(--sidebar-width)] lg:flex-col z-50">
+    <aside className="hidden border-r border-gray-200 lg:fixed lg:top-14 lg:bottom-0 lg:flex lg:w-[216px] lg:flex-col z-40 bg-white">
       <SidebarContent />
-    </div>
+    </aside>
   );
 }
