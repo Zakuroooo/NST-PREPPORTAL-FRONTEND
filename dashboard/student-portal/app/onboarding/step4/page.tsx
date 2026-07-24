@@ -35,6 +35,8 @@ export default function Step4() {
         }
       }
       sessionStorage.setItem("has_onboarded", "true");
+      document.cookie = "has_onboarded=true; path=/; max-age=31536000";
+      document.cookie = "student_authed=true; path=/; max-age=31536000";
     } catch { /* sessionStorage might not be available */ }
     router.push("/dashboard");
   };
